@@ -974,6 +974,7 @@ check('Key controls declare real 44px targets rather than relying on padding ari
 check('Title wrapping, reading measure, and narrow controls have deliberate fallback rules', () => {
   assert.equal(designValue('.post-title', 'text-wrap'), 'balance');
   assert.equal(designValue('.article-title', 'text-wrap'), 'balance');
+  for (const width of [320, 360, 388, 390, 420, 650, 1440]) assert.equal(designValue('.fv-heading strong', 'text-wrap', width), 'balance', 'Diagram heading at ' + width);
   assert.equal(designValue('.post-detail', 'max-width'), '40em');
   assert.equal(designValue('.post-title', 'overflow-wrap'), 'anywhere');
   assert.equal(designValue('.post-title', 'border-top'), undefined, 'Body separator must not leak into titles');
