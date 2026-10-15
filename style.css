@@ -60,56 +60,55 @@ main { min-width: 0; outline: none; }
 
 .hero-cloud { animation: cloud-drift 16s ease-in-out infinite alternate; }
 
-/* A brief passage: separate birds, shoulder-hinged wings, then open-wing glide.
-   Static transforms use the finished state, so removing animation never jumps
-   the flock back into the sky. Visibility/reduced-motion remain scene-owned. */
+/* Three separate flight paths, hinged wing strokes, and open-wing glides.
+   Each 12-second loop enters from beyond the left edge, leaves to the right,
+   then holds an empty sky. The reset happens entirely outside the SVG.
+   Without animation, the birds rest at their original visible SVG positions. */
 .hero-flock { animation: none; transform: none; }
 .bird-flight, .bird-pose, .bird-wing-left, .bird-wing-right {
   transform-box: view-box;
   transform-origin: 0 0;
 }
 .bird-flight--near {
-  transform: translate(335px,-7px);
-  animation: bird-pass-near 4.8s linear 1 both;
+  transform: none;
+  animation: bird-pass-near 12s linear infinite both;
 }
 .bird-flight--middle {
-  transform: translate(300px,3px);
-  animation: bird-pass-middle 4.8s linear 1 both;
+  transform: none;
+  animation: bird-pass-middle 12s linear infinite both;
 }
 .bird-flight--far {
-  transform: translate(257px,-12px);
-  animation: bird-pass-far 4.8s linear 1 both;
+  transform: none;
+  animation: bird-pass-far 12s linear infinite both;
 }
-.bird-pose--near { transform: rotate(-1deg); animation: bird-pitch-near 4.8s ease-in-out 1 both; }
-.bird-pose--middle { transform: rotate(1deg); animation: bird-pitch-middle 4.8s ease-in-out 1 both; }
-.bird-pose--far { transform: rotate(-2deg); animation: bird-pitch-far 4.8s ease-in-out 1 both; }
-/* Near-constant forward speed with shallow, different arcs. */
+.bird-pose--near { transform: rotate(-1deg); animation: bird-pitch-near 12s ease-in-out infinite both; }
+.bird-pose--middle { transform: rotate(1deg); animation: bird-pitch-middle 12s ease-in-out infinite both; }
+.bird-pose--far { transform: rotate(-2deg); animation: bird-pitch-far 12s ease-in-out infinite both; }
+/* Near-constant forward speed on shallow arcs; depth timings are staggered.
+   All three are clear of the frame from 74% until the next offscreen entry. */
 @keyframes bird-pass-near {
-  0% { transform: translate(0,0); }
-  18.958% { transform: translate(67px,-5px); }
-  37.917% { transform: translate(134px,-9px); }
-  56.875% { transform: translate(201px,-11px); }
-  75.833% { transform: translate(268px,-10px); }
-  94.792% { transform: translate(335px,-7px); }
-  100% { transform: translate(335px,-7px); }
+  0% { transform: translate(-128px,0px); }
+  14% { transform: translate(-35.4px,-5px); }
+  28% { transform: translate(57.2px,-9px); }
+  42% { transform: translate(149.8px,-11px); }
+  56% { transform: translate(242.4px,-10px); }
+  70%, 100% { transform: translate(335px,-7px); }
 }
 @keyframes bird-pass-middle {
-  0% { transform: translate(0,0); }
-  17.292% { transform: translate(60px,2px); }
-  34.583% { transform: translate(120px,6px); }
-  51.875% { transform: translate(180px,8px); }
-  69.167% { transform: translate(240px,7px); }
-  86.458% { transform: translate(300px,3px); }
-  100% { transform: translate(300px,3px); }
+  0% { transform: translate(-194px,0px); }
+  14.4% { transform: translate(-95.2px,2px); }
+  28.8% { transform: translate(3.6px,6px); }
+  43.2% { transform: translate(102.4px,8px); }
+  57.6% { transform: translate(201.2px,7px); }
+  72%, 100% { transform: translate(300px,3px); }
 }
 @keyframes bird-pass-far {
-  0% { transform: translate(0,0); }
-  17.917% { transform: translate(51.4px,-2px); }
-  35.833% { transform: translate(102.8px,-6px); }
-  53.75% { transform: translate(154.2px,-10px); }
-  71.667% { transform: translate(205.6px,-12px); }
-  89.583% { transform: translate(257px,-12px); }
-  100% { transform: translate(257px,-12px); }
+  0% { transform: translate(-257px,0px); }
+  14.8% { transform: translate(-154.2px,-2px); }
+  29.6% { transform: translate(-51.4px,-6px); }
+  44.4% { transform: translate(51.4px,-10px); }
+  59.2% { transform: translate(154.2px,-12px); }
+  74%, 100% { transform: translate(257px,-12px); }
 }
 @keyframes bird-pitch-near {
   0% { transform: rotate(-4deg); }
@@ -129,15 +128,14 @@ main { min-width: 0; outline: none; }
   75% { transform: rotate(-1deg); }
   100% { transform: rotate(-2deg); }
 }
-.bird-flight--near .bird-wing-left { animation: bird-stroke-left-near 4.8s ease-in-out 1 both; }
-.bird-flight--near .bird-wing-right { animation: bird-stroke-right-near 4.8s ease-in-out 1 both; }
-.bird-flight--middle .bird-wing-left { animation: bird-stroke-left-middle 4.8s ease-in-out 1 both; }
-.bird-flight--middle .bird-wing-right { animation: bird-stroke-right-middle 4.8s ease-in-out 1 both; }
-.bird-flight--far .bird-wing-left { animation: bird-stroke-left-far 4.8s ease-in-out 1 both; }
-.bird-flight--far .bird-wing-right { animation: bird-stroke-right-far 4.8s ease-in-out 1 both; }
-/* Opposing rotations at the shoulder, with the phase and tempo encoded in
-   keyframes. The shared scene may safely force duration:4.8s and delay:0s.
-   Each bird finishes its last stroke before the long open-wing glide. */
+.bird-flight--near .bird-wing-left { animation: bird-stroke-left-near 12s ease-in-out infinite both; }
+.bird-flight--near .bird-wing-right { animation: bird-stroke-right-near 12s ease-in-out infinite both; }
+.bird-flight--middle .bird-wing-left { animation: bird-stroke-left-middle 12s ease-in-out infinite both; }
+.bird-flight--middle .bird-wing-right { animation: bird-stroke-right-middle 12s ease-in-out infinite both; }
+.bird-flight--far .bird-wing-left { animation: bird-stroke-left-far 12s ease-in-out infinite both; }
+.bird-flight--far .bird-wing-right { animation: bird-stroke-right-far 12s ease-in-out infinite both; }
+/* Opposing shoulder rotations keep each bird's own phase and tempo.
+   Each finishes its last stroke before the glide; the wings reset offscreen. */
 @keyframes bird-stroke-left-near {
   0% { transform: rotate(14deg); }
   5% { transform: rotate(28deg); }
@@ -199,10 +197,8 @@ main { min-width: 0; outline: none; }
   100% { transform: rotate(0deg); }
 }
 
-/* Every automatic scene completes one short pass, with no visible controls. */
-.motion-scene * { animation-duration: 4.8s !important; animation-delay: 0s !important; animation-iteration-count: 1 !important; animation-fill-mode: both !important; }
-.motion-scene.motion-settled * { animation-duration: 0s !important; }
-.motion-scene:not(.is-visible) *, .motion-paused .motion-scene * { animation-play-state: paused !important; }
+/* Keep scene-specific durations, delays, and loops. Pausing preserves progress. */
+.motion-scene:not(.is-visible) *, [hidden] .motion-scene *, .motion-paused .motion-scene * { animation-play-state: paused !important; }
 @keyframes sun-set { from { transform: translate(0,-12px); } to { transform: translate(-14px,27px); } }
 
 @keyframes cloud-drift { from { transform: translateX(-13px); } to { transform: translateX(19px); } }

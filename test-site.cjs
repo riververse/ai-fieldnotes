@@ -625,35 +625,61 @@ check('System reduced-motion stays authoritative without a visible switch', () =
   env.storageEvent(motionKey, 'playing'); assert(env.document.body.classList.contains('motion-paused'));
   env.reduce(false); assert.equal(env.document.body.classList.contains('motion-paused'), false);
 });
-check('Automatic scenes settle within 4.8 seconds and boundary crossings cannot restart them', () => {
+check('Visible scenes keep looping beyond multiple cycles; viewport exits pause without settling', () => {
   const env = boot({ observer: true }), observer = env.observers[0];
-  const scene = env.get('.sunset-scene');
-  assert(!scene.classList.contains('motion-settled'));
-  env.tick(6000); assert(!scene.classList.contains('motion-settled'), 'Offscreen scene must not consume its first pass');
-  observer.callback([{ target: scene, isIntersecting: true }]);
-  env.tick(2000); observer.callback([{ target: scene, isIntersecting: false }]);
-  assert(!scene.classList.contains('is-visible'));
-  env.tick(1000); observer.callback([{ target: scene, isIntersecting: true }]);
-  env.tick(1799); assert(!scene.classList.contains('motion-settled'));
-  env.tick(1); assert(scene.classList.contains('motion-settled'));
-  observer.callback([{ target: scene, isIntersecting: false }]);
-  observer.callback([{ target: scene, isIntersecting: true }]);
-  assert(scene.classList.contains('motion-settled'));
-  assert(/\.motion-scene\s+\*\s*\{[^}]*animation-duration:\s*4\.8s\s*!important/.test(css));
-  assert(/\.motion-scene\s+\*\s*\{[^}]*animation-iteration-count:\s*1\s*!important/.test(css));
-  assert(/\.motion-scene\.motion-settled\s+\*\s*\{[^}]*animation-duration:\s*0s\s*!important/.test(css));
+  const scenes = [env.get('.sunset-scene'), env.get('#feed .motion-scene')];
+  for (const scene of scenes) {
+    assert(!scene.classList.contains('is-visible'));
+    env.tick(6000); assert(!scene.classList.contains('motion-settled'));
+    observer.callback([{ target: scene, isIntersecting: true }]);
+    env.tick(36000);
+    assert(scene.classList.contains('is-visible'));
+    assert(!scene.classList.contains('motion-settled'), 'Visible scene must not expire after one pass');
+    observer.callback([{ target: scene, isIntersecting: false }]);
+    assert(!scene.classList.contains('is-visible'));
+    env.tick(36000);
+    observer.callback([{ target: scene, isIntersecting: true }]);
+    env.tick(36000);
+    assert(scene.classList.contains('is-visible'));
+    assert(!scene.classList.contains('motion-settled'), 'Resumed scene must remain eligible to loop');
+  }
+  assert(!/playedScenes|startedNodes|motion-settled/.test(app), 'No per-node or per-visit one-shot lock');
+  assert(/\.motion-scene:not\(\.is-visible\)[^{]*\{[^}]*animation-play-state:\s*paused\s*!important/.test(css));
+  assert(/\[hidden\]\s+\.motion-scene\s+\*[^{]*\{[^}]*animation-play-state:\s*paused\s*!important/.test(css));
 });
-check('Seen scenes stay still after rerender; diagram controls explicitly allow one fresh pass', () => {
+check('Rerenders, demonstration changes, routes, and observer fallback retain looping scenes', () => {
   const env = boot(), p = data.posts[0], selector = '#visual-' + p.id;
-  env.tick(4800); assert(env.get(selector).classList.contains('motion-settled'));
-  env.click('#post-' + p.id + ' [data-save]');
-  assert(env.get(selector).classList.contains('motion-settled'), 'Bookmark rerender must not restart a seen scene');
-  env.click('#post-' + p.id + ' [data-demo]');
-  assert(!env.get(selector).classList.contains('motion-settled'));
-  env.tick(4800); assert(env.get(selector).classList.contains('motion-settled'));
-  env.click('#post-' + p.id + ' .post-title a');
-  assert(env.get(selector).classList.contains('motion-settled'), 'Article route must not replay the same diagram automatically');
-  env.back(); assert(env.get(selector).classList.contains('motion-settled'));
+  const verify = () => {
+    const scene = env.get(selector);
+    assert(scene.classList.contains('is-visible'), 'No-observer fallback enables scene motion');
+    env.tick(36000);
+    assert(!scene.classList.contains('motion-settled'));
+    assert(!env.document.body.classList.contains('motion-paused'));
+  };
+  verify();
+  env.click('#post-' + p.id + ' [data-save]'); verify();
+  env.click('#post-' + p.id + ' [data-demo]'); verify();
+  env.click('#post-' + p.id + ' .post-title a'); verify();
+  env.back(); verify();
+  env.forward(); verify();
+  env.reduce(true); assert(env.document.body.classList.contains('motion-paused'));
+  env.tick(36000);
+  env.reduce(false); verify();
+});
+check('Every decorative scene keeps infinite iterations and its own duration and phase', () => {
+  const clocks = new Set(); let count = 0;
+  for (const match of (css + '\n' + visualCSS).matchAll(/(?:^|[;{])\s*animation\s*:\s*([^;}]+)/g)) {
+    const value = match[1].trim();
+    if (value.startsWith('none') || value.startsWith('article-arrive ')) continue;
+    assert(/\binfinite\b/.test(value), 'Decorative animation must loop: ' + value);
+    const duration = value.match(/\s([.\d]+)s\b/); assert(duration, value);
+    clocks.add(duration[1]); count++;
+  }
+  assert(count >= 60, 'Cover the hero and all article illustrations');
+  assert(clocks.size >= 10, 'Do not flatten individual scene rhythms to a shared duration');
+  assert(!/animation-(?:duration|delay|iteration-count)\s*:[^;}]*!important/.test(css), 'No global one-shot or phase override');
+  assert(/\.fv-packet-b\s*\{[^}]*animation-delay:-4s/.test(visualCSS));
+  assert(/\.fv-check-step-1\s*\{[^}]*animation-delay:-6s/.test(visualCSS));
 });
 check('Editorial chrome is concise while source, demonstration, and local-storage notices survive', () => {
   for (const removed of ['慢一点看，想清楚再动手', '读到这里，也可以开始动手', '从一个小问题、一条可信来源', '好用，比热闹重要', '带着你的问题读', '读原始资料，做自己的判断', '独立整理 · 保留判断 · 鼓励实践']) assert(!index.includes(removed), removed);
@@ -670,22 +696,73 @@ check('Editorial chrome is concise while source, demonstration, and local-storag
     assert(article.get('.source-list').textContent.includes('核验'));
   }
 });
-check('Header birds have independent wing pivots, arcs, and finite glide exits', () => {
+function keyframeSteps(source, name) {
+  const marker = '@keyframes ' + name;
+  const start = source.indexOf(marker); assert(start >= 0, 'Missing keyframes: ' + name);
+  const open = source.indexOf('{', start); let depth = 1, end = open + 1;
+  while (depth && end < source.length) { if (source[end] === '{') depth++; else if (source[end] === '}') depth--; end++; }
+  assert.equal(depth, 0, 'Unclosed keyframes: ' + name);
+  return [...source.slice(open + 1, end - 1).matchAll(/([^{}]+)\{([^{}]+)\}/g)].flatMap(match =>
+    match[1].split(',').map(percent => ({ percent: parseFloat(percent), style: match[2].trim() }))
+  ).sort((a, b) => a.percent - b.percent);
+}
+check('Header birds retain independent shoulder pivots, wing phases, pitch, and shallow arcs', () => {
   const env = boot(), flock = env.get('.hero-flock');
-  assert.equal(flock.querySelectorAll('.bird-flight').length, 3);
-  assert.equal(flock.querySelectorAll('.bird-pose').length, 3);
-  assert.equal(flock.querySelectorAll('.bird-body').length, 3);
-  assert.equal(flock.querySelectorAll('.bird-wing-left').length, 3);
-  assert.equal(flock.querySelectorAll('.bird-wing-right').length, 3);
+  for (const part of ['bird-flight', 'bird-pose', 'bird-body', 'bird-wing-left', 'bird-wing-right']) assert.equal(flock.querySelectorAll('.' + part).length, 3);
+  const strokes = [], arcs = [];
   for (const depth of ['near', 'middle', 'far']) {
     assert(flock.querySelector('.bird-flight--' + depth));
-    for (const name of ['bird-pass-' + depth, 'bird-pitch-' + depth, 'bird-stroke-left-' + depth, 'bird-stroke-right-' + depth]) assert(css.includes('@keyframes ' + name), name);
+    for (const name of ['bird-pass-' + depth, 'bird-pitch-' + depth, 'bird-stroke-left-' + depth, 'bird-stroke-right-' + depth]) {
+      const frames = keyframeSteps(css, name);
+      assert(frames.length >= 4, name + ' needs distinct poses');
+      const rule = new RegExp('animation:\\s*' + name + '\\s+12s\\s+[^;]*infinite\\s+both');
+      assert(rule.test(css), name + ' must share the full offscreen-reset cycle');
+    }
+    const left = keyframeSteps(css, 'bird-stroke-left-' + depth), right = keyframeSteps(css, 'bird-stroke-right-' + depth);
+    const angle = frame => Number(frame.style.match(/rotate\(([-.\d]+)deg\)/)[1]);
+    assert(left.some(frame => angle(frame) > 10) && left.some(frame => angle(frame) < -10));
+    assert(right.some(frame => angle(frame) > 8) && right.some(frame => angle(frame) < -8));
+    assert.equal(angle(left.at(-1)), 0); assert.equal(angle(right.at(-1)), 0);
+    assert.notEqual(JSON.stringify(left), JSON.stringify(right), 'Wings have slight phase and amplitude differences');
+    strokes.push(JSON.stringify(left)); arcs.push(JSON.stringify(keyframeSteps(css, 'bird-pass-' + depth)));
   }
-  assert(!css.includes('@keyframes bird-wing '), 'Remove the old scaleY flap');
-  assert(!css.includes('@keyframes birds-cross '), 'Remove whole-flock linear translation');
+  assert.equal(new Set(strokes).size, 3); assert.equal(new Set(arcs).size, 3);
+  assert(!css.includes('@keyframes bird-wing '), 'No old scaleY flap');
+  assert(!css.includes('@keyframes birds-cross '), 'No whole-flock linear translation');
   assert(!/\.bird[^{}]*\{[^}]*scaleY/.test(css));
   assert(css.includes('transform-origin: 0 0'));
-  for (const finalX of ['335px', '300px', '257px']) assert(css.includes('translate(' + finalX), 'Each bird exits the 360-unit SVG from its own starting position');
+  assert(/\.hero-flock\s*\{\s*animation:\s*none;\s*transform:\s*none/.test(css));
+});
+check('Bird paths enter and reset outside the frame with a shared empty-sky interval every cycle', () => {
+  const origins = { near: 70, middle: 110, far: 151 };
+  const radius = 16, width = 360, duration = 12;
+  for (const [depth, origin] of Object.entries(origins)) {
+    const frames = keyframeSteps(css, 'bird-pass-' + depth).map(frame => {
+      const xy = frame.style.match(/translate\(([-.\d]+)px,\s*([-.\d]+)px\)/); assert(xy, depth);
+      return { percent: frame.percent, x: Number(xy[1]), y: Number(xy[2]) };
+    });
+    assert.equal(frames[0].percent, 0); assert.equal(frames.at(-1).percent, 100);
+    assert(origin + frames[0].x + radius < 0, depth + ' must begin wholly left of the SVG');
+    assert(origin + frames.at(-1).x - radius > width, depth + ' must finish wholly right of the SVG');
+    for (let i = 1; i < frames.length; i++) assert(frames[i].x >= frames[i - 1].x, 'No backward flight or in-frame teleport');
+    const ys = frames.map(frame => frame.y); assert(Math.max(...ys) - Math.min(...ys) >= 5, 'Retain a shallow curved path');
+    const hold = frames.find(frame => frame.x === frames.at(-1).x);
+    assert(hold.percent <= 74, 'All birds leave at least 26% of each cycle empty');
+    assert(frames.filter(frame => frame.percent >= 74).every(frame => frame.x === frames.at(-1).x));
+    const sample = time => {
+      const percent = (time % duration) / duration * 100;
+      const next = frames.findIndex(frame => frame.percent >= percent);
+      if (next <= 0) return origin + frames[0].x;
+      const a = frames[next - 1], b = frames[next];
+      return origin + a.x + (b.x - a.x) * (percent - a.percent) / (b.percent - a.percent);
+    };
+    for (const cycle of [0, 1, 2]) {
+      const offset = cycle * duration;
+      assert(sample(offset) + radius < 0, 'Each restart remains offscreen');
+      assert(sample(offset + 4) > radius && sample(offset + 4) < width - radius, 'Bird crosses the sky again');
+      for (const emptyTime of [9, 10, 11, 11.999]) assert(sample(offset + emptyTime) - radius > width, 'Empty-sky interval must survive repeated loops');
+    }
+  }
 });
 check('Intersection observer controls active scenes and reconnects after routing', () => {
   const env = boot({ observer: true }), observer = env.observers[0]; assert.equal(observer.targets.size, visiblePosts(env).length + 1);

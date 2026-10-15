@@ -27,35 +27,20 @@
   };
   const avatar = { industry: '观', practice: '用', embedded: '试' };
   const visual = p => window.FieldnoteVisuals ? window.FieldnoteVisuals.render(p, demos.get(p.id) || 0) : '';
-  // Autoplay is brief and once per scene for this page visit. The retired local
-  // pause setting is deliberately ignored; system reduced-motion stays authoritative.
-  const playedScenes = new Set(), startedNodes = new WeakSet();
-  function startMotion(el) {
-    if (motionQuery.matches || startedNodes.has(el)) return;
-    startedNodes.add(el);
-    const key = el.id || 'hero-sunset';
-    if (playedScenes.has(key)) { el.classList.add('motion-settled'); return; }
-    playedScenes.add(key);
-    // CSS reaches its natural final frame within 4.8 seconds. This deadline also
-    // settles an offscreen/hidden scene so repeated boundary crossings never replay it.
-    setTimeout(() => el.classList.add('motion-settled'), 4800);
-  }
+  // Scenes keep their own looping rhythm. Viewport exits pause the CSS timeline;
+  // returning resumes it. Retired local pause values are deliberately ignored.
   const observer = typeof IntersectionObserver !== 'undefined' ? new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-      entry.target.classList.toggle('is-visible', entry.isIntersecting);
-      if (entry.isIntersecting) startMotion(entry.target);
-    });
-  }, { rootMargin: '40px', threshold: 0.05 }) : null;
+    entries.forEach(entry => entry.target.classList.toggle('is-visible', entry.isIntersecting));
+  }, { rootMargin: '0px', threshold: 0.01 }) : null;
   function observeMotion() {
     if (observer) observer.disconnect();
     document.querySelectorAll('.motion-scene').forEach(el => {
       if (observer) observer.observe(el);
-      else { el.classList.add('is-visible'); startMotion(el); }
+      else el.classList.add('is-visible');
     });
   }
   function applyMotion() {
     document.body.classList.toggle('motion-paused', motionQuery.matches);
-    if (!motionQuery.matches) document.querySelectorAll('.motion-scene.is-visible').forEach(startMotion);
   }
   function detail(p) {
     const summaries=p.summary||[];
@@ -245,7 +230,6 @@
       else if (button.dataset.demo) {
         const id = button.dataset.demo; demos.set(id, (demos.get(id) || 0) + 1);
         const wrapper = button.closest('.visual'), temp = document.createElement('div'); temp.innerHTML = visual(byId.get(id));
-        playedScenes.delete('visual-' + id);
         wrapper.replaceWith(temp.firstElementChild); observeMotion();
         const active = document.querySelector(`${currentId ? '#article-view' : '#feed'} [data-demo="${CSS.escape(id)}"]`); if (active) active.focus({ preventScroll: true });
       } else if (button.id === 'shelf-button' || button.id === 'mobile-shelf') { const showSaved = !state.savedOnly; resetState(); state.savedOnly = showSaved; if (showSaved) state.category = 'all'; filterChanged(); }
