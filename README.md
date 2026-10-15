@@ -92,3 +92,11 @@ All editorial summaries and diagrams are original. Source material remains with 
 ## Interaction design
 
 The interface uses clear pressed/selected/focus feedback, generous touch targets, a short article-entry transition, preserved reading position, and native scrolling and browser Back/Forward. Motion helps explain the diagrams; reduced-motion and the pause control remain authoritative. Design references: [Material interaction foundations](https://m3.material.io/foundations/), [Material motion](https://m3.material.io/styles/motion/overview/how-it-works), [Apple motion guidance](https://developer.apple.com/design/human-interface-guidelines/motion), and [WebKit reduced-motion guidance](https://webkit.org/blog/7551/responsive-design-for-motion/). This is a publication-specific design, not a replica of an operating system.
+
+## Release and cache coherence
+
+`python3 build.py` first generates `content-data.js`, then hashes the final bytes of seven runtime assets: both stylesheets, all four scripts (including the generated bundle), and the favicon. It creates one deterministic `20261015r3-<12 hexadecimal characters>` release key and stamps that same key into every asset URL, the HTML `data-release`, `app-release` metadata, and the small visible footer version.
+
+Run the build after any content or asset change, including automated daily updates. Unchanged builds are byte-for-byte idempotent; changing editorial content, application code, or styles creates a new cache key automatically. No manual version bump is required. Do not edit the generated content bundle by hand. Run `node test-site.cjs` before freezing and publishing the complete release, then verify the deployed footer version, article count, and versioned asset URLs.
+
+A cache-isolated verification link can use the site URL with `?v=<release shown in the footer>` before any article fragment. The site remains usable under a repository subpath and from local files. The asset release hash deliberately excludes the stamped HTML to avoid a circular hash; newly added runtime assets must also be added to `ASSET_FILES` in `build.py`.

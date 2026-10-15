@@ -5,6 +5,8 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
+const os = require('node:os');
+const { execFileSync } = require('node:child_process');
 const vm = require('node:vm');
 const C = require('./site-core.js');
 const read = name => fs.readFileSync(path.join(__dirname, name), 'utf8');
@@ -226,9 +228,104 @@ check('Requested embedded expansion and final category assignments remain presen
 });
 check('Content bundle remains exactly synchronized', () => { const box = { window: {} }; vm.runInNewContext(read('content-data.js'), box); assert.equal(JSON.stringify(box.window.AI_FIELDNOTES), JSON.stringify(data)); });
 check('Relative assets and renderer load order work under a publication subpath', () => {
-  for (const match of index.matchAll(/(?:src|href)="(\.\/[^"#]+)"/g)) assert(fs.existsSync(path.join(__dirname, match[1])), match[1]);
+  const publicationURL = new URL('https://example.test/publication/');
+  for (const match of index.matchAll(/(?:src|href)="(\.\/[^\"]+)"/g)) {
+    const assetURL = new URL(decode(match[1]), publicationURL);
+    assert.equal(assetURL.origin, publicationURL.origin, match[1]);
+    assert(assetURL.pathname.startsWith(publicationURL.pathname), match[1]);
+    const filename = decodeURIComponent(assetURL.pathname.slice(publicationURL.pathname.length));
+    assert(fs.existsSync(path.join(__dirname, filename)), match[1]);
+  }
   assert(!/(?:src|href)="\/(?!\/)/.test(index));
   for (const before of ['content-data.js', 'site-core.js', 'visuals.js']) assert(index.indexOf('./' + before) < index.indexOf('./app.js'));
+});
+function assertReleaseCoherence(markup) {
+  const document = new Node(); parseHTML(markup, document);
+  const publicationURL = new URL('https://example.test/publication/');
+  const release = document.querySelector('html').getAttribute('data-release');
+  assert(release && release.trim() === release, 'HTML must declare a nonempty release version');
+  assert.match(release, /^20261015r3-[0-9a-f]{12}$/, 'Release must include the deterministic asset digest');
+  const metadata = document.querySelectorAll('meta[name="app-release"]');
+  assert.equal(metadata.length, 1, 'Exactly one app-release meta tag is required');
+  assert.equal(metadata[0].getAttribute('content'), release, 'Release metadata must match HTML');
+  const footers = document.querySelectorAll('#release-version');
+  assert.equal(footers.length, 1, 'Exactly one visible release footer is required');
+  const footer = footers[0];
+  assert.equal(footer.tagName, 'SMALL');
+  assert(footer.closest('footer'), 'Release version belongs in the footer');
+  assert.equal(footer.getAttribute('data-release'), release, 'Footer release must match HTML');
+  assert.equal(footer.textContent.trim(), '版本 ' + release, 'Visible version must match the asset release');
+  assert(!footer.closest('[hidden], [aria-hidden="true"]'), 'Release version must remain visible');
+
+  const localAssets = [];
+  for (const node of document.querySelectorAll('[src], [href]')) {
+    for (const attribute of ['src', 'href']) {
+      const reference = node.getAttribute(attribute); if (!reference) continue;
+      const assetURL = new URL(reference, publicationURL);
+      const rel = (node.getAttribute('rel') || '').split(/\s+/);
+      const stylesheet = node.tagName === 'LINK' && rel.includes('stylesheet');
+      const icon = node.tagName === 'LINK' && rel.includes('icon');
+      const script = node.tagName === 'SCRIPT' && attribute === 'src';
+      if (assetURL.origin !== publicationURL.origin || !(stylesheet || icon || script || /\.(?:css|js)$/i.test(assetURL.pathname))) continue;
+      localAssets.push(assetURL);
+      assert.deepEqual(assetURL.searchParams.getAll('v'), [release], reference + ' must have exactly one matching, nonempty release version');
+    }
+  }
+  assert(localAssets.some(url => url.pathname.endsWith('.css')), 'Local stylesheet assets must be checked');
+  assert(localAssets.some(url => url.pathname.endsWith('.js')), 'Local script assets must be checked');
+  assert(localAssets.some(url => url.pathname.endsWith('/favicon.svg')), 'Local favicon must be checked');
+  const scripts = document.querySelectorAll('script[src]').map(node => new URL(node.getAttribute('src'), publicationURL)).filter(url => url.origin === publicationURL.origin);
+  assert.deepEqual(scripts.map(url => url.pathname), ['content-data.js', 'site-core.js', 'visuals.js', 'app.js'].map(filename => publicationURL.pathname + filename), 'Renderer script order must remain unchanged');
+  return release;
+}
+check('Local CSS, JavaScript, and favicon share one release version with HTML, metadata, and visible footer', () => {
+  assertReleaseCoherence(index);
+});
+check('Isolated builds are deterministic and refresh the unified release after editorial or asset changes', () => {
+  const files = ['build.py', 'content.json', 'index.html', 'style.css', 'visuals.css', 'content-data.js', 'site-core.js', 'visuals.js', 'app.js', 'favicon.svg'];
+  const originals = new Map(files.map(filename => [filename, fs.readFileSync(path.join(__dirname, filename))]));
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'ai-fieldnotes-build-'));
+  const readCopy = filename => fs.readFileSync(path.join(directory, filename), 'utf8');
+  const writeCopy = (filename, content) => fs.writeFileSync(path.join(directory, filename), content);
+  const buildCopy = () => {
+    execFileSync('python3', ['build.py'], { cwd: directory, encoding: 'utf8', timeout: 30000 });
+    const html = readCopy('index.html');
+    return { html, bundle: readCopy('content-data.js'), release: assertReleaseCoherence(html) };
+  };
+  try {
+    for (const [filename, content] of originals) writeCopy(filename, content);
+    const baseline = buildCopy();
+    assert.equal(baseline.html, index, 'Working HTML must carry the version generated from its current assets');
+    assert.equal(baseline.bundle, read('content-data.js'), 'Working content bundle must be freshly generated');
+    assert.deepEqual(buildCopy(), baseline, 'Unchanged rebuild must be byte-for-byte idempotent');
+    for (const [filename, content] of originals) assert.deepEqual(fs.readFileSync(path.join(directory, filename)), content, filename + ' must stay unchanged on an idempotent build');
+
+    const editorial = JSON.parse(readCopy('content.json'));
+    editorial.posts[0].title += '（构建回归测试）';
+    writeCopy('content.json', JSON.stringify(editorial, null, 2) + '\n');
+    const edited = buildCopy();
+    assert.notEqual(edited.bundle, baseline.bundle, 'Editorial change must refresh the browser content bundle');
+    assert.notEqual(edited.release, baseline.release, 'Editorial change must invalidate cached assets');
+    const box = { window: {} }; vm.runInNewContext(edited.bundle, box);
+    assert.equal(box.window.AI_FIELDNOTES.posts[0].title, editorial.posts[0].title, 'Updated editorial content must reach the generated bundle');
+    assert.deepEqual(buildCopy(), edited, 'Rebuilding changed editorial content must remain idempotent');
+    writeCopy('content.json', originals.get('content.json'));
+    assert.deepEqual(buildCopy(), baseline, 'Restoring editorial content must restore the deterministic release');
+
+    for (const filename of ['style.css', 'visuals.css', 'site-core.js', 'visuals.js', 'app.js', 'favicon.svg']) {
+      const comment = filename.endsWith('.svg') ? '\n<!-- release cache regression -->\n' : '\n/* release cache regression */\n';
+      writeCopy(filename, originals.get(filename).toString('utf8') + comment);
+      const changed = buildCopy();
+      assert.notEqual(changed.release, baseline.release, filename + ' changes must invalidate the unified asset version');
+      assert.equal(changed.bundle, baseline.bundle, filename + ' changes must not alter editorial content');
+      assert.deepEqual(buildCopy(), changed, filename + ' rebuild must be idempotent');
+      writeCopy(filename, originals.get(filename));
+      assert.deepEqual(buildCopy(), baseline, 'Restoring ' + filename + ' must restore the deterministic release');
+    }
+  } finally {
+    fs.rmSync(directory, { recursive: true, force: true });
+  }
+  for (const [filename, content] of originals) assert.deepEqual(fs.readFileSync(path.join(__dirname, filename)), content, 'Build tests must never mutate working ' + filename);
 });
 check('Exactly three desktop/mobile tabs share merged categories, while initial feed spans all', () => {
   assert.deepEqual(C.categories, { industry: 'AI观察', practice: '用好AI', embedded: '脑洞实验' });

@@ -148,6 +148,7 @@ footer { border-top: 1px solid #c9cbbd; display: flex; align-items: center; just
 footer>a { font: 16px var(--serif); color: var(--ink); white-space: nowrap; }
 footer>a span { font: 10px Georgia, serif; margin-left: 8px; }
 footer p { margin: 0; }
+#release-version { display: block; margin-top: 6px; font-size: 9px; color: var(--muted); font-weight: 400; }
 .article-open .left-rail, .article-open .right-rail { display: none; }
 .article-open .layout { display: block; margin-top: 0; }
 .article-open main { max-width: 866px; margin: 0 auto; }
