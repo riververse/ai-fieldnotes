@@ -71,7 +71,7 @@ The minimum widths for review are 320, 360, 390, 420, 650, 760, 1024 and 1440 CS
 
 ## Motion and assets
 
-This redesign changes the frame around the illustrations, not their behavior. Preserve the natural 12-second bird loops, offscreen pauses, reduced-motion behavior and each of the 16 independent SVG scene loops. Keep the bounded optical particle layers, IDs, descriptions and control API. Do not add a motion switch or convert looping scenes into a one-shot animation. Scenery stays scenery.
+Preserve the natural 12-second bird loops, offscreen pauses, reduced-motion behavior and each of the 16 independent SVG scene loops. Keep the bounded optical particle layers, IDs and descriptions. Additional general-use articles may reuse semantically suitable abstract scenes with explicit per-article titles, labels and explanations; do not show embedded-hardware labels on general office tasks or present an explanatory scene as a model result. Explanatory captions advance automatically, without demo buttons, at six-second intervals with more than five seconds of still reading time. A shared grid cell reserves the tallest text height. Screen readers receive one complete static ordered transcript without live announcements; reduced-motion and print show every point. A diagram tap is a reading action and must not open the parent card. Real navigation, copy, bookmark and filter controls remain intact. Do not add a motion switch or convert looping scenes into a one-shot animation. Scenery stays scenery.
 
 No new runtime dependency, network font, stock image, logo, analytics, backend call or API connection is introduced. Preserve native scrolling, bookmarks, keyword search, categories, industry-only region filtering, Back/Forward and reading-position restoration.
 
@@ -88,3 +88,5 @@ All implementation choices above are publication-specific. Preserve its original
 ## Validation boundary
 
 `node test-site.cjs` checks the existing application behavior and numerical/source-level design contracts, including font floors, tokens, contrast pairs, explicit touch sizes and wrap rules. It does not calculate real browser layout or font metrics. Before calling a visual release complete, review the actual deployed version on desktop and a narrow browser, open a long title, inspect a long article, task package and sources, exercise search/bookmarks/Back, and check reduced motion. Do not call an unrendered local revision visually verified.
+
+Mobile card press feedback is a subtle warm-green background and border. Scope the removal of native WebKit tap highlighting to actual link/button/card hit areas; never remove keyboard focus outlines to fix a touch overlay. Diagram notes use the existing caption/small text roles, at least 11px on mobile, and wrap rather than clip.

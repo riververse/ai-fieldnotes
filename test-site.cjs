@@ -450,7 +450,7 @@ check('Responsive, hidden-view, keyboard focus, print, and reduced-motion hooks 
 });
 check('Touch targets, short article entry, reduced-motion overrides, and native scrolling have hooks', () => {
   assert(/@media\s*\(pointer\s*:\s*coarse\)/.test(css));
-  assert(/\.visual\.fv-visual\s+\.fv-control\s*\{[^}]*min-height\s*:\s*44px/.test(css));
+  assert(!/fv-control/.test(css + visualCSS), 'Explanatory text has no retired button styling');
   assert(/\.article-toolbar>button[^}]*min-height\s*:\s*44px/.test(css));
   const entry = css.match(/animation\s*:\s*article-arrive\s+([.\d]+)s/); assert(entry); assert(Number(entry[1]) > 0 && Number(entry[1]) <= 0.25);
   assert(/\.motion-paused\s+\.article-view\.is-entering\s+\.article-paper\s*\{[^}]*animation\s*:\s*none/.test(css));
@@ -459,7 +459,7 @@ check('Touch targets, short article entry, reduced-motion overrides, and native 
   env.tick(250); assert.equal(env.get('#article-view').classList.contains('is-entering'), false);
   env.back(); assertView(env, 'feed'); assert.equal(env.get('#article-view').classList.contains('is-entering'), false);
 });
-check('Every article has a real illustration renderer with labels, local demos, and motion hooks', () => {
+check('Every article has a real illustration renderer with labels, readable notes, and motion hooks', () => {
   const env = boot();
   const animationRules = [...visualCSS.matchAll(/([^{}]+)\{([^{}]*)\}/g)].map(match => ({ selector: match[1].trim(), value: (match[2].match(/(?:^|;)\s*animation(?:-name)?\s*:\s*([^;]+)/) || [])[1] })).filter(rule => rule.value && !rule.value.startsWith('none'));
   const keyframes = new Set([...visualCSS.matchAll(/@keyframes\s+([\w-]+)/g)].map(match => match[1]));
@@ -476,13 +476,14 @@ check('Every article has a real illustration renderer with labels, local demos, 
       const movingParts = [animated, ...animated.querySelectorAll('.fv-animated')];
       assert(movingParts.some(part => animationRules.some(rule => part.matches(rule.selector))), p.id + ': missing animation CSS for ' + animated.className);
     }
-    assert.equal(node.querySelector('.demo-status').getAttribute('aria-live'), 'polite');
-    assert(node.querySelector('[data-demo]').getAttribute('aria-label').includes(p.title));
-    assert(node.querySelector('.fv-caption').textContent.includes('原创')); assert(node.querySelector('.fv-caption').textContent.includes('交互仅切换说明'));
+    assert.equal(node.querySelector('[data-demo],button,[aria-live]'), null);
+    assert(node.querySelector('.fv-note-transcript').textContent.trim());
+    assert.equal(node.querySelector('.fv-note-window').getAttribute('aria-hidden'), 'true');
+    assert(node.querySelector('.fv-caption').textContent.includes('原创')); assert(!node.querySelector('.fv-caption').textContent.includes('交互')); 
     assert.equal(node.querySelectorAll('animate,animateTransform,iframe,script').length, 0);
   }
   assert(types.size >= 5, 'Illustrations should retain distinct visual treatments');
-  for (const pattern of [/\.is-visible[^{]*\.fv-animated\s*\{[^}]*animation-play-state\s*:\s*running/, /motion-paused[^{]*\.fv-animated\s*\{[^}]*animation-play-state\s*:\s*paused/, /@media\s*\(prefers-reduced-motion\s*:\s*reduce\)[\s\S]*animation\s*:\s*none\s*!important/, /@media\s+print/, /:focus-visible/, /@keyframes\s+fv-sunset/, /@keyframes\s+fv-birds/]) assert(pattern.test(visualCSS), String(pattern));
+  for (const pattern of [/\.is-visible[^{]*\.fv-animated\s*\{[^}]*animation-play-state\s*:\s*running/, /motion-paused[^{]*\.fv-animated\s*\{[^}]*animation-play-state\s*:\s*paused/, /@media\s*\(prefers-reduced-motion\s*:\s*reduce\)[\s\S]*animation\s*:\s*none\s*!important/, /@media\s+print/, /@keyframes\s+fv-sunset/, /@keyframes\s+fv-birds/]) assert(pattern.test(visualCSS), String(pattern));
 });
 check('Initial feed contains preview cards only, canonical title links, and no article details', () => {
   const env = boot(); assertView(env, 'feed'); assert.equal(env.history.scrollRestoration, 'manual');
@@ -554,7 +555,7 @@ check('Feed and article renders never duplicate DOM or SVG definition IDs', () =
   const env = boot();
   const assertIDs = () => { const ids = env.document.querySelectorAll('[id]').map(node => node.id); assert.equal(ids.length, new Set(ids).size); };
   assertIDs();
-  for (const p of data.posts) { env.click('#post-' + p.id + ' .post-title a'); assertIDs(); env.click('#article-view [data-demo]'); assertIDs(); env.back(); assertIDs(); }
+  for (const p of data.posts) { env.click('#post-' + p.id + ' .post-title a'); assertIDs(); env.click('#article-view .fv-note-window'); assertIDs(); env.back(); assertIDs(); }
 });
 check('Direct-link return stays on site and replaces its entry instead of leaving for a prior site', () => {
   const p = data.posts[0];
@@ -575,17 +576,21 @@ check('Modified title clicks and selected preview text do not trigger applicatio
   }
   const env = boot(); env.selectText('selected words'); env.click('#feed .post-dek'); assertView(env, 'feed'); env.selectText(''); env.click('#feed .post-dek'); assertView(env, 'article');
 });
-check('Bookmark, link-copy, and illustration buttons stay in their current view', async () => {
+check('Bookmark, link-copy, and non-interactive illustration areas stay in their current view', async () => {
   const p = data.posts[0];
   for (const article of [false, true]) {
     const env = boot({ url: 'https://example.test/publication/?edition=1' + (article ? C.postHash(p.id) : '') });
     const root = article ? '#article-view' : '#feed', beforeURL = env.location.href, beforeLength = env.history.length;
     env.click(`${root} [data-save="${p.id}"] svg path`); assert.equal(env.get(`${root} [data-save="${p.id}"]`).getAttribute('aria-pressed'), 'true'); assert.deepEqual(JSON.parse(env.storage.get(storageKey)), [p.id]);
     env.click(`${root} [data-copy="${p.id}"] span`); await env.settle(); assert.deepEqual(env.clipboard, ['https://example.test/publication/?edition=1' + C.postHash(p.id)]);
-    const beforeStatus = env.get(`${root} #visual-${p.id} .demo-status`).textContent;
-    env.click(`${root} [data-demo="${p.id}"] span`); assert.notEqual(env.get(`${root} #visual-${p.id} .demo-status`).textContent, beforeStatus);
-    assert.equal(env.get(`${root} #visual-${p.id}`).getAttribute('data-mode'), '1');
-    assert.equal(env.document.activeElement.dataset.demo, p.id); assert.equal(env.location.href, beforeURL); assert.equal(env.history.length, beforeLength); assertView(env, article ? 'article' : 'feed');
+    const beforeNotes = env.get(`${root} #visual-${p.id} .fv-note-transcript`).textContent;
+    for (const target of ['.fv-heading', '.fv-art', '.fv-labels', '.fv-note-window', '.fv-caption']) {
+      env.click(`${root} #visual-${p.id} ${target}`);
+      assert.equal(env.get(`${root} #visual-${p.id} .fv-note-transcript`).textContent, beforeNotes);
+      assert.equal(env.location.href, beforeURL); assert.equal(env.history.length, beforeLength);
+      assertView(env, article ? 'article' : 'feed');
+    }
+    assert.equal(env.get(`${root} #visual-${p.id}`).querySelector('button,[tabindex]'), null);
   }
 });
 check('Task prompts copy exact source text; clipboard failure selects a manual fallback', async () => {
@@ -647,7 +652,7 @@ check('Visible scenes keep looping beyond multiple cycles; viewport exits pause 
   assert(/\.motion-scene:not\(\.is-visible\)[^{]*\{[^}]*animation-play-state:\s*paused\s*!important/.test(css));
   assert(/\[hidden\]\s+\.motion-scene\s+\*[^{]*\{[^}]*animation-play-state:\s*paused\s*!important/.test(css));
 });
-check('Rerenders, demonstration changes, routes, and observer fallback retain looping scenes', () => {
+check('Rerenders, reading-note taps, routes, and observer fallback retain looping scenes', () => {
   const env = boot(), p = data.posts[0], selector = '#visual-' + p.id;
   const verify = () => {
     const scene = env.get(selector);
@@ -658,7 +663,7 @@ check('Rerenders, demonstration changes, routes, and observer fallback retain lo
   };
   verify();
   env.click('#post-' + p.id + ' [data-save]'); verify();
-  env.click('#post-' + p.id + ' [data-demo]'); verify();
+  env.click('#post-' + p.id + ' .fv-note-window'); verify();
   env.click('#post-' + p.id + ' .post-title a'); verify();
   env.back(); verify();
   env.forward(); verify();
@@ -780,7 +785,7 @@ check('Article rendering escapes untrusted content and omits dangerous source UR
 
 /* Added after the established 44 baseline suites. Existing suites remain intact. */
 check('Expanded editorial bodies keep previews short and use readable existing section types', () => {
-  assert.equal(data.posts.length, 16);
+  assert.equal(data.posts.length, 25);
   for (const p of data.posts) {
     assert(p.dek.length < 100, p.id + ': feed preview should remain short');
     assert(p.summary.length >= 1 && p.summary.length <= 3, p.id);
@@ -805,7 +810,7 @@ check('Editorial aliases stay synchronized and original proposals are not dated 
     assert(p.sources.every(s => s.url.startsWith('https://')), p.id);
   }
 });
-check('All 16 direct details render every explanatory section and retain their source evidence', () => {
+check('All 25 direct details render every explanatory section and retain their source evidence', () => {
   for (const p of data.posts) {
     const env = boot({ url: 'https://example.test/publication/' + C.postHash(p.id) });
     assertView(env, 'article');
@@ -849,16 +854,65 @@ check('Long article navigation retains latest reading position and a clean feed 
   assert.equal(env.get('#prompt-' + p.id).value, p.tryThis.prompt);
 });
 
+check('Diagram explanations retain every authored state and reserve stable natural text height', () => {
+  const definitionScope = { window: {} };
+  vm.runInNewContext(visuals.replace('  window.FieldnoteVisuals = Object.freeze({', '  window.__sceneDefinitions = scenes;\n  window.FieldnoteVisuals = Object.freeze({'), definitionScope);
+  const env = boot();
+  for (const p of data.posts) {
+    const expected = [...new Set([0, 1, 2, 3].map(n => definitionScope.window.__sceneDefinitions[p.id](n).status))];
+    const scene = env.get('#visual-' + p.id);
+    const transcript = scene.querySelector('.fv-note-transcript');
+    const slides = scene.querySelectorAll('.fv-note');
+    assert.deepEqual(transcript.querySelectorAll('li').map(li => li.textContent), expected);
+    assert.equal(slides.length, expected.length);
+    slides.forEach((slide, i) => {
+      assert(slide.textContent.includes(expected[i]));
+      assert(slide.getAttribute('style').includes(`animation-delay:-${(expected.length - i) * 6}s`));
+    });
+    assert.equal(scene.querySelector('[aria-live],button,[role="button"]'), null);
+  }
+  assert(/\.fv-note-window\s*\{[^}]*display:grid/.test(visualCSS));
+  assert(/\.fv-note\s*\{[^}]*grid-area:1 \/ 1/.test(visualCSS));
+  assert(!/\.fv-note(?:-window)?\s*\{[^}]*(?:^|;)\s*height:/.test(visualCSS), 'No fixed clipping height for differently wrapped notes');
+  assert(!/setInterval|setTimeout|requestAnimationFrame/.test(visuals), 'Notes share the existing CSS observer lifecycle');
+  assert(!/data-demo|demos\.get|demos\.set/.test(app), 'No retired demo click path');
+});
+check('Reading notes hold for over five seconds, loop gently, and become complete static text', () => {
+  for (const [name, seconds, hold] of [['fv-note-pair', 12, 44], ['fv-note-quartet', 24, 22]]) {
+    const steps = keyframeSteps(visualCSS, name);
+    assert(steps.some(step => step.percent === hold && /opacity:1/.test(step.style)));
+    assert(seconds * hold / 100 >= 5, 'Each explanation needs enough quiet reading time');
+    assert(steps.some(step => step.percent === 100 && /opacity:1/.test(step.style)));
+  }
+  for (const rule of [
+    /body\.motion-paused \.fv-note-window\s*\{display:none/, 
+    /body\.motion-paused \.fv-note-transcript\s*\{[^}]*position:static[^}]*height:auto[^}]*clip:auto[^}]*white-space:normal/,
+    /@media \(prefers-reduced-motion:reduce\), print\s*\{[\s\S]*\.fv-note-window\s*\{display:none/,
+    /\.fv-note-transcript\s*\{[^}]*position:absolute[^}]*clip-path:inset\(50%\)/
+  ]) assert(rule.test(visualCSS), String(rule));
+  for (const width of [320, 360, 390, 650, 1024]) {
+    assert(parseFloat(designValue('.fv-note', 'font-size', width)) >= 11, 'Readable note size at ' + width);
+  }
+});
+check('Mobile card touch feedback is scoped and keyboard focus remains visible', () => {
+  assert(/button, a, \.post\s*\{[^}]*-webkit-tap-highlight-color:\s*transparent/.test(css));
+  assert(/\.post:active\s*\{[^}]*background-color:\s*#f4f5ed/.test(css));
+  assert(/button:focus-visible[^}]*outline:\s*2px solid var\(--green\)/.test(css));
+  assert(/\.fv-visual\s*\{cursor:default/.test(visualCSS));
+  assert(!/user-select:\s*none/.test(visualCSS), 'Diagram text must remain available for reading and selection');
+});
+
 /* Optical-layer contracts: static DOM/CSS checks, not browser paint or frame timing. */
-check('All 64 diagram states namespace SVG definitions and preserve their demo contracts', () => {
+check('Repeated diagram renders namespace SVG definitions and preserve non-interactive notes', () => {
   const scope = { window: {} }; vm.runInNewContext(visuals, scope);
   const seen = new Set();
   for (const post of data.posts) for (const state of [0, 1, 2, 3]) {
     const output = scope.window.FieldnoteVisuals.render(post, state);
-    assert(output.includes(`data-demo="${post.id}"`), post.id);
+    assert(!output.includes(`data-demo=`), post.id);
+    assert(output.includes(`class="fv-note-list fv-note-transcript"`), post.id);
     assert(output.includes(`id="visual-${post.id}"`), post.id);
     assert(output.includes('aria-hidden="true" focusable="false"'), post.id);
-    assert(output.includes('aria-live="polite"'), post.id);
+    assert(!output.includes('aria-live='), post.id);
     const svg = output.match(/<svg[\s\S]*<\/svg>/)[0];
     const localIds = [...svg.matchAll(/\bid="([^"]+)"/g)].map(match => match[1]);
     for (const id of localIds) { assert(!seen.has(id), 'SVG definitions must be unique across repeated instances'); seen.add(id); }
@@ -963,7 +1017,7 @@ check('Article prose and meaningful metadata retain readable font floors at ever
 });
 check('Key controls declare real 44px targets rather than relying on padding arithmetic', () => {
   for (const width of [320, 390, 650, 760, 1440]) for (const coarse of [false, true]) {
-    for (const selector of ['.nav-link', '.region-filter button', '#show-all', '.read-button', '.icon-button', '.post-tags button', '.article-toolbar>button', '.article-return', '.try-this-heading button', '.source-list a', '.fv-visual .fv-control', '.search-field']) assert(parseFloat(designValue(selector, 'min-height', width, coarse)) >= 44, selector + ' at ' + width);
+    for (const selector of ['.nav-link', '.region-filter button', '#show-all', '.read-button', '.icon-button', '.post-tags button', '.article-toolbar>button', '.article-return', '.try-this-heading button', '.source-list a', '.search-field']) assert(parseFloat(designValue(selector, 'min-height', width, coarse)) >= 44, selector + ' at ' + width);
     assert(parseFloat(designValue('.icon-button', 'min-width', width, coarse)) >= 44);
     if (width <= 650) {
       assert(parseFloat(designValue('.mobile-categories button', 'min-height', width, coarse)) >= 44);
@@ -1015,6 +1069,43 @@ check('Project design rules document references, attribution, original choices, 
   assert(design.includes('44px') && design.includes('40em') && design.includes('not calculate real browser layout'));
   assert(notices.includes('Copyright (c) 2026 VoltAgent') && notices.includes('Permission is hereby granted, free of charge'));
   assert(!css.includes('Copernicus') && !css.includes('WiredDisplay') && !css.includes('GT Walsheim'));
+});
+
+/* Practical guide expansion: original content is immutable; new scope is explicit. */
+check('Nine practical guides expand the category without altering the original sixteen articles', () => {
+  const originalHashes = {"sol-quality-cost": "f53d3c7c9d9c8b8b75da105a631a8a74df7ceaf105b77adf03ffad445b882b6a", "deepseek-v41-migration": "0035d8cb2f15b2b156f403e3c87339c4356affc3a71dc623bc20d642e9f2979c", "qwen-omni-evidence": "220ef0f3c13e3f04c6b332933a303feb528d06e1458ec410510e4b0924f9c359", "images25-edit-brief": "3baf2ae3963446ddc58573af93650d0815cfdb24ba9287d5022927e03dd73dff", "renode-replay-lab": "bbc451336852b1abd4d491dfab43c79cc5fac6719bcefeece8304947508aa261", "firmware-fuzz-harness": "52204b6f516e75ca58f3ecb7b9154fe9d30bd698d9ff29ab865f12c5ced39058", "debug-probe-mcp": "063fa655a3e4838d61f72683df248a15fe8e0c7185fc909684d4c986a7fece58", "datasheet-register-audit": "7ad32920da96b7456f3c19971fa940a7528e0338609da7bd07886c53fd7ea708", "stm32-edge-ai-budget": "819ad707afc2051fe064ce466d246159ef51d35dec3c2cd3ded40d6666908811", "firmware-agent-contract": "146a2eadf17defae9c0266ea2d82e35dd33eb6b480fc3a8a2ca32f262d4a62a9", "context-task-eval": "8c96cdbc3b373c90733bc5b218854baa24f99c9e6043ad19d2f3b76d34c86095", "espressif-mcp-workflow": "90b01873f620cb39f7e0040e56ea68e6881489c0ccc4d1b214f97ef95573e628", "playwright-mcp-boundary": "cb62e3ed8797602aa5df5717d7abb4cde1d87a57981ce342a881c6643a2dcea5", "skills-license-eval": "de1ddf6ab2990d2887a2a3324d7a2a6b90012a4f13121d7ff4759408523356d8", "embedded-regression-copilot": "3d1ff145b4ddef0c06132990ee8f6c7ac18b2243e34e89cda1b3be8b01f00211", "document-style-pipeline": "6d85313adc53f5a592474f69acdb78ce4164c63492147baa7a117f6ffc7d110a"};
+  const digest = value => require('node:crypto').createHash('sha256').update(JSON.stringify(value)).digest('hex');
+  for (const [id, expected] of Object.entries(originalHashes)) {
+    const post = data.posts.find(p => p.id === id); assert(post, id); assert.equal(digest(post), expected, id + ': original content must remain exact');
+  }
+  const guideIDs = ["dot-meeting-brief", "dot-bounded-follow-up", "dot-change-request", "research-conflicting-sources", "writing-two-examples", "orders-cleaning-audit", "image-edit-invariants", "video-learning-evidence", "codex-small-fix-loop"];
+  assert.equal(data.posts.length, 25); assert.equal(data.posts.filter(p => p.category === 'practice').length, 12);
+  for (const id of guideIDs) {
+    const p = data.posts.find(post => post.id === id); assert(p, id); assert.equal(p.category, 'practice'); assert.equal(p.kind, 'guide'); assert.equal(p.date, null);
+    assert(p.analysis.length >= 7, id + ': substantial worked guide'); assert(p.tryThis.prompt.length >= 200 && p.tryThis.expected.length >= 70, id + ': full worked input and expected output');
+    assert(p.sources.every(source => new URL(source.url).protocol === 'https:'), id);
+  }
+});
+check('Added guide scenes have specific titles, labels, and complete automatic explanations', () => {
+  const variants = {"dot-meeting-brief": {"source": "context-task-eval", "title": "把会前材料，收成三个待决问题", "labels": ["相关更新", "事实与提议分开", "一页会前简报"], "status": ["更新较晚的建议，仍可能没有得到确认。", "人数、日期与负责人，都回到材料逐项核对。"]}, "dot-bounded-follow-up": {"source": "context-task-eval", "title": "先定检查规则，再决定何时提醒", "labels": ["指定来源", "时间与变化条件", "通知后结束"], "status": ["有变化才通知，重复记录不再提醒。", "到期或无法读取时，说明结果与最后核查时间。"]}, "dot-change-request": {"source": "document-style-pipeline", "title": "让同一条变更，落到每一份新稿", "labels": ["原稿与现有版本", "新要求及保留项", "逐稿对照验收"], "status": ["同时查新值是否出现、旧值是否残留。", "文字改完，不代表图片或其他附件也已更新。"]}, "research-conflicting-sources": {"source": "context-task-eval", "title": "每个结论，都留下采用与排除的理由", "labels": ["来源与适用范围", "逐项比较冲突", "结论及待核问题"], "status": ["新页面可能谈的是另一地点或另一类对象。", "保留真正的冲突，不用猜测补齐未知。"]}, "writing-two-examples": {"source": "document-style-pipeline", "title": "借用表达方法，把事实留给新材料", "labels": ["两份同场景样例", "结构与语气共性", "新事实的新稿"], "status": ["样例里的旧日期、旧人物，不随文风迁移。", "先查事实和承诺，再调整句子是否顺口。"]}, "orders-cleaning-audit": {"source": "document-style-pipeline", "title": "每一行有去向，小计才有解释", "labels": ["原始订单及行号", "重复与异常分流", "小计和行数对账"], "status": ["空白表示未知，不能自动改成零。", "280元只是本例已确认小计，不是完整月销售额。"]}, "image-edit-invariants": {"source": "images25-edit-brief", "title": "背景可以改，主体仍要对照原图", "labels": ["天空代表可改背景", "山体代表保留主体"], "status": ["图中以山体和天空示意分区，并非杯子编辑结果。", "对照原图检查轮廓、文字和位置，不能只看整体美观。"]}, "video-learning-evidence": {"source": "qwen-omni-evidence", "title": "让学习卡和自测题，都能回到原片", "labels": ["声音与画面材料", "换算原片时间", "学习卡与待查项"], "status": ["片段时间加上起点偏移，才是原片位置。", "文字摘录只能支持材料整理，不能冒充看过视频。"]}, "codex-small-fix-loop": {"source": "skills-license-eval", "title": "把一个小故障，变成一次可复查的修复", "labels": ["代码与失败输入", "复现 · 修改 · 重测", "差异与运行证据"], "status": ["先让测试抓住原问题，再做必要的修改。", "没有实际执行，就明确写未运行。"]}};
+  const scope = { window: {} }; vm.runInNewContext(visuals, scope);
+  for (const [id, spec] of Object.entries(variants)) {
+    const p = data.posts.find(post => post.id === id); const output = scope.window.FieldnoteVisuals.render(p);
+    assert(output.includes(spec.title), id); for (const label of spec.labels) assert(output.includes(label), id + ': current labels');
+    for (const note of spec.status) assert(output.includes(note), id + ': complete explanation');
+    assert(!output.includes('data-demo=') && !output.includes('<button'), id + ': explanatory diagrams are not controls');
+  }
+});
+check('Practical category exposes all twelve complete articles with short feed previews', () => {
+  const env = boot(); env.click('.mobile-categories [data-category="practice"]');
+  assert.equal(visiblePosts(env).length, 12); assert.equal(env.get('.region-filter').hidden, true);
+  for (const id of ["dot-meeting-brief", "dot-bounded-follow-up", "dot-change-request", "research-conflicting-sources", "writing-two-examples", "orders-cleaning-audit", "image-edit-invariants", "video-learning-evidence", "codex-small-fix-loop"]) {
+    const p = data.posts.find(post => post.id === id); const card = env.get('#post-' + id); assert(card, id);
+    assert.equal(card.querySelectorAll('.article-section,.try-this,.source-list').length, 0, id);
+    env.click('#post-' + id + ' .post-title a'); assertView(env, 'article');
+    assert.equal(env.get('#prompt-' + id).value, p.tryThis.prompt, id); assert(env.get('#article-view').textContent.includes(p.tryThis.expected), id);
+    env.click('#article-view .article-return'); assertView(env, 'feed'); assert.equal(visiblePosts(env).length, 12);
+  }
 });
 
 (async () => {

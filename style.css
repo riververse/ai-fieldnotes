@@ -21,7 +21,8 @@ html { scroll-behavior: smooth; scroll-padding-top: 95px; }
 body { margin: 0; background: var(--canvas); color: var(--ink); font: var(--type-preview)/1.6 var(--sans); -webkit-font-smoothing: antialiased; }
 [hidden] { display: none !important; }
 button, input { font: inherit; }
-button, a { -webkit-tap-highlight-color: transparent; }
+/* The card itself is a delegated click target on mobile browsers. */
+button, a, .post { -webkit-tap-highlight-color: transparent; }
 button { color: inherit; cursor: pointer; background: none; border: 0; }
 a { color: inherit; text-decoration: none; }
 a:hover, button:hover { color: var(--red); }
@@ -470,7 +471,9 @@ button, .read-button, .post-title a { transition: background-color .13s ease, co
 button:active, .read-button:active { background-color: var(--selected); }
 .try-this-heading button:active { background-color: #304b3a; }
 .post-title a:active { color: #45623f; }
-.post:active { border-color: #a7b39b; }
+.post:active { border-color: #a7b39b; background-color: #f4f5ed; }
+/* Reading a diagram or operating its sibling controls must not press the card. */
+.post:has(.fv-visual:active, button:active):active { background-color: var(--white); }
 .nav-link:active, .mobile-categories button:active { background-color: #d2dcc7; }
 .article-view.is-entering .article-paper { animation: article-arrive .19s ease-out both; }
 .motion-paused .article-view.is-entering .article-paper { animation: none; }
@@ -484,7 +487,6 @@ button:active, .read-button:active { background-color: var(--selected); }
   .post-tags button { display: inline-flex; align-items: center; }
   .post-actions { padding-top: 4px; margin-top: 5px; }
   .source-list a { align-items: center; }
-  .visual.fv-visual .fv-control { min-height: 44px; }
   .try-this-heading button { padding-top: 0; padding-bottom: 0; }
 }
 @media(prefers-reduced-motion:reduce) {

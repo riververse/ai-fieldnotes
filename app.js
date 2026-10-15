@@ -18,7 +18,6 @@
   let rawSaved = null;
   try { rawSaved = localStorage.getItem(storageKey); } catch (_) {}
   const state = { category: 'all', region: 'all', query: '', savedOnly: false, saved: C.parseSaved(rawSaved, new Set(byId.keys())) };
-  const demos = new Map();
   let currentId = null, feedSnapshot = null, toastTimer, positionTimer, entryTimer, progressFrame = false, storageWorks = true;
   const motionQuery = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : { matches: false };
   const icons = {
@@ -26,7 +25,7 @@
     link: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 15 6-6m-7 9-1 1a4.2 4.2 0 0 1-6-6l4-4a4.2 4.2 0 0 1 6 0m2 6a4.2 4.2 0 0 0 6 0l4-4a4.2 4.2 0 0 0-6-6l-1 1" transform="translate(1 1) scale(.9)"/></svg>'
   };
   const avatar = { industry: '观', practice: '用', embedded: '试' };
-  const visual = p => window.FieldnoteVisuals ? window.FieldnoteVisuals.render(p, demos.get(p.id) || 0) : '';
+  const visual = p => window.FieldnoteVisuals ? window.FieldnoteVisuals.render(p) : '';
   // Scenes keep their own looping rhythm. Viewport exits pause the CSS timeline;
   // returning resumes it. Retired local pause values are deliberately ignored.
   const observer = typeof IntersectionObserver !== 'undefined' ? new IntersectionObserver(entries => {
@@ -227,17 +226,12 @@
       } else if (button.dataset.copy) copyLink(button.dataset.copy);
       else if (button.dataset.copyPrompt) copyPrompt(button.dataset.copyPrompt);
       else if (button.dataset.tag) { resetState(); state.query = button.dataset.tag; filterChanged(); document.getElementById('search').focus(); document.querySelector('.feed-tools').scrollIntoView({ behavior: 'instant' }); }
-      else if (button.dataset.demo) {
-        const id = button.dataset.demo; demos.set(id, (demos.get(id) || 0) + 1);
-        const wrapper = button.closest('.visual'), temp = document.createElement('div'); temp.innerHTML = visual(byId.get(id));
-        wrapper.replaceWith(temp.firstElementChild); observeMotion();
-        const active = document.querySelector(`${currentId ? '#article-view' : '#feed'} [data-demo="${CSS.escape(id)}"]`); if (active) active.focus({ preventScroll: true });
-      } else if (button.id === 'shelf-button' || button.id === 'mobile-shelf') { const showSaved = !state.savedOnly; resetState(); state.savedOnly = showSaved; if (showSaved) state.category = 'all'; filterChanged(); }
+      else if (button.id === 'shelf-button' || button.id === 'mobile-shelf') { const showSaved = !state.savedOnly; resetState(); state.savedOnly = showSaved; if (showSaved) state.category = 'all'; filterChanged(); }
       else if (button.id === 'reset-filters' || button.id === 'show-all') { resetState(); filterChanged(); document.getElementById('search').focus(); }
       else if (button.id === 'try-practice') { resetState(); state.category = 'practice'; filterChanged(); document.getElementById('main-content').scrollIntoView({ behavior: motionQuery.matches ? 'instant' : 'smooth' }); }
       return;
     }
-    if (event.target.closest('a,input,textarea,select,summary,details,label')) return;
+    if (event.target.closest('a,input,textarea,select,summary,details,label,.fv-visual')) return;
     if (window.getSelection && String(window.getSelection()).trim()) return;
     const post = event.target.closest('[data-post]'); if (post && !currentId) openPost(post.dataset.post);
   });
