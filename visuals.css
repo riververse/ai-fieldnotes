@@ -1,0 +1,366 @@
+/* A small animated field guide: all motion is controlled by the parent viewport observer. */
+.visual.fv-visual {
+  --fv-paper:#f5f2e9; --fv-ink:#262923; --fv-sage:#6b7868; --fv-ochre:#bd763f;
+  margin:18px 0 15px; padding:0; border:1px solid #deded1; border-radius:9px;
+  color:var(--fv-ink); background:#efefe4; overflow:hidden; isolation:isolate;
+  font-family:"PingFang SC","Microsoft YaHei","Noto Sans CJK SC",sans-serif;
+}
+.fv-visual .fv-heading {display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:15px 19px 0;line-height:1.5;}
+.fv-heading strong {font-family:"Songti SC","STSong","Noto Serif SC",serif;font-size:15px;font-weight:600;letter-spacing:.2px;}
+.fv-illustration-note {flex-shrink:0;color:#6c7366;font-size:10px;padding-top:3px;}
+.fv-stage {height:176px;position:relative;margin:0 8px;}
+.fv-visual .fv-art {position:absolute;top:1px;left:0;display:block;width:100%;height:144px;overflow:visible;fill:none;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round;}
+.fv-labels {position:absolute;bottom:8px;left:9px;right:9px;display:grid;grid-template-columns:repeat(var(--fv-label-count,3),minmax(0,1fr));align-items:center;gap:7px;text-align:center;color:#525c4f;font-size:11px;line-height:1.45;}
+.fv-labels span {min-width:0;}
+.fv-visual .fv-footer {display:flex;gap:12px;align-items:center;justify-content:space-between;margin:0 18px;padding:9px 0 8px;border-top:1px solid #d8dccf;}
+.fv-footer .demo-status {font-size:11px;line-height:1.65;color:#626b5b;flex:1;min-width:0;}
+.fv-visual .fv-control {display:inline-flex;flex:none;align-items:center;gap:8px;min-height:30px;padding:4px 0 4px 7px;border:0;border-radius:4px;background:transparent;color:#3e5140;font:500 11px/1.4 "PingFang SC","Microsoft YaHei",sans-serif;text-align:left;cursor:pointer;}
+.fv-control>span {font-size:19px;font-weight:400;line-height:1;}
+.fv-control:hover {color:#8a5029;}
+.fv-control:focus-visible {outline:2px solid #8a5029;outline-offset:3px;}
+.fv-visual .fv-caption {margin:0;padding:0 18px 11px;color:#74776b;font-size:9px;line-height:1.5;}
+.fv-visual .fv-line {fill:none;stroke:#84907b;stroke-width:1.5;}
+.fv-visual .fv-heavy {stroke:#626e5f;stroke-width:2.6;}
+.fv-visual .fv-soft-line {stroke:#c7cdbb;}
+.fv-visual .fv-paper {fill:#faf9f1;stroke:#a3ae95;stroke-width:1.3;}
+.fv-visual .fv-ground {fill:#dfe3d4;opacity:.65;stroke:none;}
+.fv-visual .fv-sage-fill {fill:var(--fv-sage);stroke:none;}
+.fv-visual .fv-ochre-fill {fill:var(--fv-ochre);stroke:none;}
+.fv-visual .fv-ink-fill {fill:var(--fv-ink);stroke:none;}
+.fv-visual .fv-soft-fill {fill:#dce2d0;stroke:none;}
+.fv-visual .fv-check-ring {fill:#edf0e2;stroke:#788869;stroke-width:1.3;}
+.fv-visual .fv-check-mark {stroke:#5e7252;stroke-width:1.9;}
+.fv-visual .fv-light-line {stroke:#faf7e9;stroke-width:1.7;}
+.fv-visual .fv-ochre-line {stroke:var(--fv-ochre);stroke-width:1.8;}
+.fv-visual .fv-sage-line {stroke:var(--fv-sage);}
+.fv-visual .fv-arrow {stroke:#a1ab95;stroke-width:1.5;}
+.fv-visual .fv-dotted {stroke:#a4ad97;stroke-dasharray:3 4;}
+.fv-visual .fv-route {stroke:#bac4ac;stroke-width:2;}
+.fv-visual .fv-return-line {stroke:#a6b396;stroke-dasharray:3 4;}
+.fv-visual .fv-lock-ring {fill:#f2e7d3;stroke:#b48c63;stroke-width:1.2;}
+.fv-visual .fv-lock {fill:#bd956e;stroke:#946c46;stroke-width:1;}
+.fv-visual .fv-pins {stroke:#8d9b7e;stroke-width:3;}
+.fv-visual .fv-chip-core {fill:#cbd6b7;stroke:#8e9e7d;stroke-width:1;}
+.fv-visual .fv-chip-spark {fill:#f8efd4;stroke:none;}
+
+/* Every animated element has a readable resting state. No SVG/SMIL animations. */
+.fv-visual.motion-scene .fv-animated {animation-play-state:paused;animation-fill-mode:both;}
+.fv-visual.motion-scene.is-visible .fv-animated {animation-play-state:running;}
+body.motion-paused .fv-visual.motion-scene .fv-animated {animation-play-state:paused!important;}
+
+/* The model scene is a real balance, with moving trays and settling cost tokens. */
+.fv-balance .fv-bowl {fill:#dce1cc;stroke:#7d8b70;stroke-width:1.5;}
+.fv-balance .fv-coin {fill:#d8af70;stroke:#a98550;stroke-width:1.2;}
+.fv-balance-beam {transform-origin:320px 58px;animation:fv-balance 9s ease-in-out infinite;}
+.fv-quality-token {animation:fv-token-quality 9s ease-in-out infinite;}
+.fv-cost-token {animation:fv-token-cost 9s ease-in-out infinite;}
+@keyframes fv-balance {0%,100%{transform:rotate(-5deg)}35%,65%{transform:rotate(4deg)}}
+@keyframes fv-token-quality {0%,45%,100%{transform:translateY(0)}65%{transform:translateY(-14px)}80%{transform:translateY(0)}}
+@keyframes fv-token-cost {0%,15%,100%{transform:translateY(0)}35%{transform:translateY(-17px)}50%{transform:translateY(0)}}
+
+/* Packets merge into a route, stop at the gate, and continue toward verification. */
+.fv-migration {background:#eeeee2!important;}
+.fv-migration .fv-gate-arm {stroke:#bd763f;stroke-width:5;}
+.fv-packet-a {animation:fv-packet-top 8s ease-in-out infinite;}
+.fv-packet-b {animation:fv-packet-bottom 8s ease-in-out infinite;animation-delay:-4s;}
+.fv-packet-c {animation:fv-packet-through 8s ease-in-out infinite;}
+.fv-gate {transform-origin:303px 78px;animation:fv-open-gate 8s ease-in-out infinite;}
+@keyframes fv-packet-top {0%,12%{transform:translate(0,0);opacity:1}40%{transform:translate(80px,0);opacity:1}58%,73%{transform:translate(126px,37px);opacity:1}84%,100%{transform:translate(126px,37px);opacity:0}}
+@keyframes fv-packet-bottom {0%,12%{transform:translate(0,0);opacity:1}40%{transform:translate(68px,0);opacity:1}58%,73%{transform:translate(115px,-39px);opacity:1}84%,100%{transform:translate(115px,-39px);opacity:0}}
+@keyframes fv-packet-through {0%,48%{transform:translateX(0);opacity:0}55%{opacity:1}77%{transform:translateX(68px);opacity:1}86%,100%{transform:translateX(68px);opacity:0}}
+@keyframes fv-open-gate {0%,45%,90%,100%{transform:rotate(0)}58%,78%{transform:rotate(-72deg)}}
+
+/* Synchronized video frames, an audible-looking waveform and a locating playhead. */
+.fv-multimodal .fv-window-fill {fill:#e5e9da;stroke:#c1cbb3;}
+.fv-multimodal .fv-frame {fill:#f0e8d6;stroke:#a9b396;}
+.fv-multimodal .fv-mountain-0 {fill:#99a48b;stroke:none;}
+.fv-multimodal .fv-mountain-1 {fill:#b4bc9e;stroke:none;}
+.fv-multimodal .fv-selection {fill:none;stroke:#bd763f;stroke-width:2;}
+.fv-multimodal .fv-highlight {fill:#ede1cb;stroke:none;}
+.fv-wave {fill:#8b9a79;transform-box:fill-box;transform-origin:center;animation:fv-wave 1.7s ease-in-out infinite alternate;}
+.fv-playhead {animation:fv-playhead 10s ease-in-out infinite;}
+@keyframes fv-wave {0%{transform:scaleY(.5)}45%{transform:scaleY(1.25)}100%{transform:scaleY(.75)}}
+@keyframes fv-playhead {0%,12%,100%{transform:translateX(0)}42%,58%{transform:translateX(73px)}78%,86%{transform:translateX(146px)}}
+
+/* The edited sky has a broad, visibly travelling sun and birds; the land stays fixed. */
+.fv-visual.fv-landscape {background:#f0e9da;border-color:#e3d8c6;}
+.fv-landscape .fv-heading strong {color:#5f4a35;}
+.fv-landscape .fv-footer {border-color:#ddcfb9;}
+.fv-landscape .fv-labels {color:#74654d;}
+.fv-landscape .fv-art {top:0;height:147px;}
+.fv-landscape .fv-land-border {fill:none;stroke:#c8b99e;stroke-width:1;}
+.fv-landscape .fv-bird-line {stroke:#6c604c;stroke-width:1.7;}
+.fv-landscape .fv-edit-frame {fill:#fff0cf;fill-opacity:.06;stroke:#fff5dc;stroke-width:1;stroke-dasharray:4 5;animation:fv-edit-area 8s ease-in-out infinite;}
+.fv-sunset-orb {animation:fv-sunset 15s ease-in-out infinite alternate;}
+.fv-birds {animation:fv-birds 16s linear infinite;}
+@keyframes fv-sunset {from{transform:translate(-26px,-6px)}to{transform:translate(24px,24px)}}
+@keyframes fv-birds {0%{transform:translate(-47px,9px)}50%{transform:translate(48px,-4px)}100%{transform:translate(143px,9px)}}
+@keyframes fv-edit-area {0%,100%{stroke-opacity:.45}40%,65%{stroke-opacity:1}}
+
+/* Source cards travel into the task folder, and a checked evidence sheet rises. */
+.fv-visual .fv-folder-back {fill:#dce1c7;stroke:#9ca98b;stroke-width:1.4;}
+.fv-visual .fv-folder-front {fill:#8b9a75;stroke:#7b8c66;stroke-width:1.4;}
+.fv-source-card {animation:fv-source-travel 10s ease-in-out infinite;}
+.fv-evidence-card {animation:fv-folder-sort 10s ease-in-out infinite;}
+.fv-evidence-check {transform-origin:558px 111px;animation:fv-check-arrive 10s ease-in-out infinite;}
+@keyframes fv-source-travel {0%,15%,100%{transform:translate(0,0) rotate(0deg);opacity:1}50%{transform:translate(165px,-8px) rotate(3deg);opacity:1}62%{transform:translate(165px,23px) rotate(0);opacity:0}80%{transform:translate(0,0);opacity:0}}
+@keyframes fv-folder-sort {0%,28%,100%{transform:translateY(0)}50%,65%{transform:translateY(-12px)}78%{transform:translateY(4px)}}
+@keyframes fv-check-arrive {0%,40%,100%{transform:scale(.85)}65%,80%{transform:scale(1.15)}}
+
+/* Build output grows line by line. The hardware authorization lock never opens itself. */
+.fv-terminal .fv-terminal-shell {fill:#344237;stroke:#50614d;}
+.fv-terminal .fv-terminal-bar {fill:#4b5848;stroke:none;}
+.fv-terminal .fv-terminal-prompt {stroke:#cbb787;stroke-width:1.5;}
+.fv-terminal .fv-compile-line {fill:#b3c09b;transform-box:fill-box;transform-origin:left center;animation:fv-compile 7s steps(14,end) infinite;}
+.fv-terminal .fv-caret {fill:#dec394;animation:fv-caret 1.2s steps(1,end) infinite;}
+.fv-terminal .fv-log-scroll {animation:fv-log-advance 7s steps(3,end) infinite;}
+.fv-approval-tag {animation:fv-lock-attention 8s ease-in-out infinite;}
+@keyframes fv-compile {0%,9%{transform:scaleX(.15);opacity:.55}40%,85%{transform:scaleX(1);opacity:1}100%{transform:scaleX(.15);opacity:.55}}
+@keyframes fv-caret {0%,49%{opacity:1}50%,100%{opacity:.15}}
+@keyframes fv-log-advance {0%,12%,100%{transform:translateY(0)}60%,88%{transform:translateY(-4px)}}
+@keyframes fv-lock-attention {0%,72%,100%{transform:translateY(0)}82%{transform:translateY(-5px)}92%{transform:translateY(0)}}
+
+/* A cursor inspects the sandboxed page while the evidence card enters the report. */
+.fv-browser .fv-boundary {fill:none;stroke:#bcc7ac;stroke-dasharray:4 5;stroke-width:1;}
+.fv-browser .fv-browser-shell {fill:#fbfaf2;stroke:#9dab8b;}
+.fv-browser .fv-window-bar {fill:#dce3ce;stroke:none;}
+.fv-browser .fv-browser-button {fill:#9bab87;stroke:none;}
+.fv-browser .fv-cursor {fill:#bc7744;stroke:#f8f2e4;stroke-width:1.5;}
+.fv-browser .fv-tree {stroke:#a5b198;}
+.fv-browser-cursor {animation:fv-cursor-travel 9s ease-in-out infinite;}
+.fv-browser-evidence {animation:fv-browser-record 9s ease-in-out infinite;}
+@keyframes fv-cursor-travel {0%,100%{transform:translate(-31px,-25px)}32%,45%{transform:translate(21px,-15px)}66%,85%{transform:translate(-3px,3px)}}
+@keyframes fv-browser-record {0%,32%,100%{transform:translate(0,0)}52%,80%{transform:translate(8px,-7px)}}
+
+/* Pages fan out to reveal the package, then its inspection token crosses checkpoints. */
+.fv-skill .fv-check-disc {fill:#f6f7ec;stroke:#a4b393;stroke-width:1.3;}
+.fv-skill-page-one {transform-origin:100px 112px;animation:fv-page-left 11s ease-in-out infinite;}
+.fv-skill-page-two {animation:fv-page-middle 11s ease-in-out infinite;}
+.fv-skill-page-three {transform-origin:146px 99px;animation:fv-page-right 11s ease-in-out infinite;}
+.fv-skill .fv-skill-check {stroke:#748b5c;stroke-width:2.5;stroke-dasharray:28;animation:fv-check-draw 9s ease-in-out infinite;}
+.fv-check-step-1 {animation-delay:-6s!important;}
+.fv-check-step-2 {animation-delay:-3s!important;}
+.fv-skill-token {animation:fv-skill-review 9s ease-in-out infinite;}
+@keyframes fv-page-left {0%,100%{transform:rotate(-4deg)}45%,70%{transform:translate(-10px,-4px) rotate(-12deg)}}
+@keyframes fv-page-middle {0%,100%{transform:translateY(0)}45%,70%{transform:translateY(-13px)}}
+@keyframes fv-page-right {0%,100%{transform:rotate(3deg)}45%,70%{transform:translate(10px,-5px) rotate(11deg)}}
+@keyframes fv-check-draw {0%,25%{stroke-dashoffset:28;opacity:.3}45%,90%{stroke-dashoffset:0;opacity:1}100%{stroke-dashoffset:0;opacity:.3}}
+@keyframes fv-skill-review {0%,12%{transform:translateX(0);opacity:1}38%{transform:translateX(76px)}65%{transform:translateX(137px)}85%{transform:translateX(198px);opacity:1}100%{transform:translateX(198px);opacity:0}}
+
+/* The simulator sends a signal; evidence returns. Real hardware remains behind a lock. */
+.fv-embedded .fv-circuit {stroke:#a3b394;stroke-width:1.8;}
+.fv-signal-upper {animation:fv-simulator-signal 10s linear infinite;}
+.fv-signal-return {animation:fv-evidence-return 10s linear infinite;}
+.fv-fault-record {animation:fv-fault-lift 10s ease-in-out infinite;}
+@keyframes fv-simulator-signal {0%{transform:translate(0,0);opacity:1}8%{transform:translate(11px,0)}22%{transform:translate(11px,-44px)}44%{transform:translate(171px,-44px)}55%{transform:translate(209px,-44px)}67%{transform:translate(209px,0)}83%{transform:translate(262px,0);opacity:1}90%,100%{transform:translate(262px,0);opacity:0}}
+@keyframes fv-evidence-return {0%,25%{transform:translate(0,0);opacity:0}35%{transform:translate(0,0);opacity:1}90%{transform:translate(-480px,0);opacity:1}100%{transform:translate(-480px,-18px);opacity:0}}
+@keyframes fv-fault-lift {0%,60%,100%{transform:translateY(0)}75%,88%{transform:translateY(-5px)}}
+
+/* The typography settles onto a shared grid rather than generating new facts. */
+.fv-documents .fv-style-frame {fill:#e5e9d8;stroke:#a8b499;}
+.fv-documents .fv-raw-lines {stroke:#a1ac91;}
+.fv-doc-title {animation:fv-title-settle 10s ease-in-out infinite;}
+.fv-doc-align-one {animation:fv-lines-settle 10s ease-in-out infinite;}
+.fv-doc-align-two {animation:fv-callout-settle 10s ease-in-out infinite;}
+@keyframes fv-title-settle {0%,12%,100%{transform:translate(5px,3px)}42%,85%{transform:translate(0,0)}}
+@keyframes fv-lines-settle {0%,18%,100%{transform:translate(8px,-3px)}48%,85%{transform:translate(0,0)}}
+@keyframes fv-callout-settle {0%,25%,100%{transform:translate(-7px,5px)}55%,85%{transform:translate(0,0)}}
+
+/* Six embedded-workflow studies. Static labels sit outside every moving object. */
+.fv-visual .fv-note-label {fill:#53634e;font-size:11px;font-weight:600;letter-spacing:.4px;}
+.fv-visual .fv-chip-label {fill:#e2e8cf;font-size:11px;font-weight:600;}
+.fv-visual .fv-device-depth {fill:#bfc9ae;stroke:#a9b698;stroke-width:1;}
+.fv-visual .fv-device-board {fill:#d9e1cb;stroke:#8fa17d;stroke-width:1.4;}
+.fv-visual .fv-board-traces {stroke:#8fa37c;stroke-width:2;}
+.fv-visual .fv-circuit-route {stroke:#aab69a;stroke-width:1.6;}
+.fv-visual .fv-snapshot-back {fill:#d8decb;stroke:#b2bca3;stroke-width:1;}
+.fv-visual .fv-snapshot-middle {fill:#e7ebdb;stroke:#a9b69a;stroke-width:1;}
+.fv-visual .fv-failure-dot {fill:#bf7748;stroke:#faf5e6;stroke-width:2;}
+.fv-visual .fv-pending-label {fill:#8a633f;font-size:9px;letter-spacing:.5px;}
+
+/* The recorder advances, captures the failing state, then physically rewinds. */
+.fv-replay .fv-replay-case {fill:#dce3cf;stroke:#9aa98b;stroke-width:1.4;}
+.fv-replay .fv-reel-spoke {stroke:#b2bda2;stroke-width:4;}
+.fv-replay .fv-replay-tape {fill:#e9e4ce;stroke:#9da98d;stroke-width:1.2;}
+.fv-replay .fv-register-bar {fill:#c5d3ad;}
+.fv-replay .fv-replay-event {fill:#d2a06b;stroke:#fbf4df;stroke-width:2;}
+.fv-replay .fv-replay-time {stroke:#adb99b;stroke-width:2;}
+.fv-replay .fv-failure-trace {fill:none;stroke:#a97043;stroke-width:1.8;}
+.fv-replay-reel-one {transform-origin:72px 67px;animation:fv-replay-reel 12s cubic-bezier(.45,0,.3,1) infinite;}
+.fv-replay-reel-two {transform-origin:156px 67px;animation:fv-replay-reel 12s cubic-bezier(.45,0,.3,1) infinite;}
+.fv-replay-ticks {animation:fv-replay-tape-feed 12s ease-in-out infinite;}
+.fv-replay-registers {transform-origin:314px 90px;animation:fv-replay-register-state 12s steps(3,end) infinite;}
+.fv-replay-head {animation:fv-replay-playback 12s ease-in-out infinite;}
+.fv-replay-copy {transform-origin:294px 61px;animation:fv-replay-freeze 12s cubic-bezier(.3,.1,.2,1) infinite;}
+.fv-replay-snapshot {animation:fv-replay-stack 12s ease-in-out infinite;}
+@keyframes fv-replay-reel {0%,9%,100%{transform:rotate(0)}49%,66%{transform:rotate(240deg)}88%{transform:rotate(-20deg)}}
+@keyframes fv-replay-tape-feed {0%,9%,100%{transform:translateX(0)}49%,66%{transform:translateX(8px)}88%{transform:translateX(-4px)}}
+@keyframes fv-replay-register-state {0%,100%{transform:scaleY(.55)}28%{transform:scaleY(1.7)}49%,66%{transform:scaleY(1)}88%{transform:scaleY(.55)}}
+@keyframes fv-replay-playback {0%,9%,100%{transform:translateX(0)}49%,66%{transform:translateX(108px)}88%{transform:translateX(0)}}
+@keyframes fv-replay-freeze {0%,35%{transform:translate(0,0) scale(1);opacity:0}39%{transform:translate(0,0) scale(1);opacity:1}54%{transform:translate(186px,-43px) scale(2.74);opacity:1}61%,100%{transform:translate(186px,-43px) scale(2.74);opacity:0}}
+@keyframes fv-replay-stack {0%,48%,100%{transform:translateY(0)}61%,77%{transform:translateY(-6px)}88%{transform:translateY(0)}}
+
+/* Byte tiles exchange places, enter a fixture and expose only reached branches. */
+.fv-fuzz .fv-byte-tray {fill:#d4dcc5;stroke:#a7b497;stroke-width:1;}
+.fv-fuzz .fv-byte-shadow {fill:#c5d0b5;stroke:none;}
+.fv-fuzz .fv-byte-tile {fill:#f7f2e2;stroke:#a3ae91;stroke-width:1.3;}
+.fv-fuzz .fv-byte-text {fill:#6f775c;font:600 13px/1 monospace;}
+.fv-fuzz .fv-harness-shell {fill:#e5e8d9;stroke:#96a487;stroke-width:1.5;}
+.fv-fuzz .fv-harness-bracket {fill:none;stroke:#6c7c61;stroke-width:2.4;}
+.fv-fuzz .fv-die-seam {stroke:#a7b397;stroke-width:1;}
+.fv-fuzz .fv-coverage-tree {stroke:#c1cbb2;stroke-width:3;}
+.fv-fuzz .fv-covered-path {stroke:#7c9166;stroke-width:3;stroke-dasharray:180;}
+.fv-fuzz .fv-coverage-node {fill:#e4ebd6;stroke:#91a17c;stroke-width:1.3;}
+.fv-fuzz .fv-coverage-open {fill:#f1e5d1;stroke:#b8976c;stroke-dasharray:3 3;}
+.fv-fuzz-byte-0 {animation:fv-fuzz-permute-a 10s ease-in-out infinite;}
+.fv-fuzz-byte-1 {animation:fv-fuzz-permute-b 10s ease-in-out infinite;}
+.fv-fuzz-byte-2 {animation:fv-fuzz-permute-c 10s ease-in-out infinite;}
+.fv-fuzz-byte-3 {animation:fv-fuzz-permute-d 10s ease-in-out infinite;}
+.fv-fuzz-die {transform-origin:308px 81px;animation:fv-fuzz-turn 10s ease-in-out infinite;}
+.fv-fuzz-insert {transform-origin:200px 79px;animation:fv-fuzz-feed 10s ease-in-out infinite;}
+.fv-fuzz-covered-one {animation:fv-fuzz-coverage-a 10s ease-in-out infinite;}
+.fv-fuzz-covered-two {animation:fv-fuzz-coverage-b 10s ease-in-out infinite;}
+.fv-fuzz-corpus {animation:fv-fuzz-capture 10s ease-in-out infinite;}
+@keyframes fv-fuzz-permute-a {0%,12%,100%{transform:translate(0,0)}28%,65%{transform:translate(59px,42px)}83%{transform:translate(0,42px)}}
+@keyframes fv-fuzz-permute-b {0%,12%,100%{transform:translate(0,0)}28%,65%{transform:translate(-59px,0)}83%{transform:translate(-59px,42px)}}
+@keyframes fv-fuzz-permute-c {0%,12%,100%{transform:translate(0,0)}28%,65%{transform:translate(59px,0)}83%{transform:translate(59px,-42px)}}
+@keyframes fv-fuzz-permute-d {0%,12%,100%{transform:translate(0,0)}28%,65%{transform:translate(0,-42px)}83%{transform:translate(-59px,-42px)}}
+@keyframes fv-fuzz-turn {0%,32%,100%{transform:rotate(0) scale(1)}43%{transform:rotate(-12deg) scale(.88)}54%,68%{transform:rotate(9deg) scale(1.05)}79%{transform:rotate(0) scale(1)}}
+@keyframes fv-fuzz-feed {0%,22%{transform:translateX(-12px) scale(1);opacity:0}29%{transform:translateX(0) scale(1);opacity:1}44%{transform:translateX(72px) scale(.7);opacity:1}51%,100%{transform:translateX(72px) scale(.7);opacity:0}}
+@keyframes fv-fuzz-coverage-a {0%,41%{stroke-dashoffset:180;opacity:.25}59%,84%{stroke-dashoffset:0;opacity:1}100%{stroke-dashoffset:0;opacity:.25}}
+@keyframes fv-fuzz-coverage-b {0%,52%{stroke-dashoffset:180;opacity:.25}71%,89%{stroke-dashoffset:0;opacity:1}100%{stroke-dashoffset:0;opacity:.25}}
+@keyframes fv-fuzz-capture {0%,59%,100%{transform:translate(0,0)}73%,88%{transform:translate(-5px,-9px)}}
+
+/* The request stretches into a scope form. The closed physical gate never opens. */
+.fv-probe .fv-agent-back {fill:#c6d1b8;stroke:#b0bca0;}
+.fv-probe .fv-agent-face {fill:#e4e9d7;stroke:#91a17e;stroke-width:1.5;}
+.fv-probe .fv-agent-eye {fill:#7b8e69;stroke:#f4f3df;stroke-width:2;}
+.fv-probe .fv-agent-antenna {fill:none;stroke:#8b9d77;stroke-width:2;}
+.fv-probe .fv-permission-shadow {fill:#d9dec9;stroke:none;}
+.fv-probe .fv-permission-bar {fill:none;stroke:#bd8c5c;stroke-width:5;}
+.fv-probe .fv-scope-box {fill:#f6f0e1;stroke:#baa37d;stroke-width:1.1;}
+.fv-probe .fv-probe-shadow {fill:#b7c2a9;stroke:#9fac90;}
+.fv-probe .fv-probe-case {fill:#6e8060;stroke:#526448;stroke-width:1.5;}
+.fv-probe .fv-probe-label {fill:#f3f0db;font:600 13px/1 sans-serif;}
+.fv-probe .fv-probe-port {fill:#384a32;stroke:#9bac83;stroke-width:1;}
+.fv-probe .fv-probe-cable {fill:none;stroke:#8b927d;stroke-width:4;}
+.fv-probe .fv-boundary-bracket {fill:none;stroke:#bb8a58;stroke-width:1.5;}
+.fv-probe-request {transform-origin:169px 82px;animation:fv-probe-request-stop 11s cubic-bezier(.35,0,.2,1) infinite;}
+.fv-probe-scope {transform-origin:277px 52px;animation:fv-probe-unfold-scope 11s ease-in-out infinite;}
+.fv-probe-boundary {animation:fv-probe-mark-limit 11s ease-in-out infinite;}
+@keyframes fv-probe-request-stop {0%,10%,100%{transform:translateX(-5px) scaleY(.8)}30%,68%{transform:translateX(12px) scaleY(1.16)}82%{transform:translateX(0) scaleY(1)}}
+@keyframes fv-probe-unfold-scope {0%,12%,100%{transform:scaleY(.25);opacity:.45}35%,73%{transform:scaleY(1);opacity:1}87%{transform:scaleY(1);opacity:.65}}
+@keyframes fv-probe-mark-limit {0%,28%,100%{transform:translateX(0)}40%,70%{transform:translateX(-6px)}}
+
+/* A table row leaves its source; the compare bracket walks into an unresolved row. */
+.fv-registers .fv-paper-fold {fill:#e6e9d8;stroke:#a3ae95;stroke-width:1.2;}
+.fv-registers .fv-table-head {fill:#cbd6bc;stroke:none;}
+.fv-registers .fv-register-grid {stroke:#b7c2a6;stroke-width:1;}
+.fv-registers .fv-register-datum {stroke:#8d9b7d;stroke-width:2;}
+.fv-registers .fv-register-scan {fill:#d8ad79;fill-opacity:.25;stroke:#c08a51;stroke-width:1;}
+.fv-registers .fv-field-slice {fill:#f0ddb9;stroke:#bd9865;stroke-width:1;}
+.fv-registers .fv-field-row {fill:#e7ebdc;stroke:none;}
+.fv-registers .fv-field-text {fill:#6b785d;font-size:10px;}
+.fv-registers .fv-source-tag {fill:#eadbbd;stroke:#c2aa7e;stroke-width:1;}
+.fv-registers .fv-source-hole {fill:#f8f5e9;stroke:#b3a17c;stroke-width:.8;}
+.fv-registers .fv-source-text {fill:#826946;font-size:8px;}
+.fv-registers .fv-svd-field {fill:#e0e7d3;stroke:#b2c09e;stroke-width:1;}
+.fv-registers .fv-audit-match {fill:#e8eddb;stroke:#b9c5a7;stroke-width:1;}
+.fv-registers .fv-audit-conflict {fill:#f1e1c8;stroke:#bb9869;stroke-width:1;}
+.fv-registers .fv-conflict-text {fill:#8f683f;font-size:9px;}
+.fv-registers .fv-compare-bracket {fill:none;stroke:#a77f4c;stroke-width:2;}
+.fv-register-scan {animation:fv-register-row-scan 14s ease-in-out infinite;}
+.fv-register-extract {animation:fv-register-source-travel 14s cubic-bezier(.3,0,.2,1) infinite;}
+.fv-register-compare {animation:fv-register-compare-rows 14s ease-in-out infinite;}
+@keyframes fv-register-row-scan {0%,16%,100%{transform:translateY(0)}32%,46%{transform:translateY(16px)}62%,84%{transform:translateY(32px)}}
+@keyframes fv-register-source-travel {0%,13%{transform:translate(0,0);opacity:0}17%{transform:translate(0,0);opacity:1}35%{transform:translate(202px,-11px);opacity:1}43%,100%{transform:translate(202px,-11px);opacity:0}}
+@keyframes fv-register-compare-rows {0%,28%,100%{transform:translateY(0)}43%,57%{transform:translateY(22px)}73%,91%{transform:translateY(44px)}}
+
+/* Weight tiles compact into the target; the checklist deliberately contains no scores. */
+.fv-edgeai .fv-model-card-back {fill:#d6deca;stroke:#b4c0a3;stroke-width:1;}
+.fv-edgeai .fv-model-card {fill:#f6f4e9;stroke:#a4b295;stroke-width:1.3;}
+.fv-edgeai .fv-weight-ghost {fill:#e4e9db;stroke:#cad3bc;stroke-width:1;}
+.fv-edgeai .fv-weight-cell {fill:#a4b68d;stroke:#778c62;stroke-width:1;}
+.fv-edgeai .fv-weight-warm {fill:#cfad7e;stroke:#ac895b;}
+.fv-edgeai .fv-quantizer-rear {fill:#d5d8bd;stroke:#9b9e7e;stroke-width:1.1;}
+.fv-edgeai .fv-quantizer-front {fill:#bec8a6;stroke:#98a282;stroke-width:1.1;}
+.fv-edgeai .fv-quantizer-slot {fill:#77896b;stroke:#65785b;stroke-width:1;}
+.fv-edgeai .fv-packed-weight {fill:#82996a;stroke:none;}
+.fv-edgeai .fv-budget-divider {fill:none;stroke:#c2c9b5;stroke-dasharray:3 4;stroke-width:1;}
+.fv-edgeai .fv-budget-card {fill:#f7f4e9;stroke:#b6c1a7;stroke-width:1.2;}
+.fv-edgeai .fv-budget-text {fill:#647358;font-size:11px;}
+.fv-edgeai .fv-budget-empty {fill:none;stroke:#c1b191;stroke-width:1.4;stroke-dasharray:2 3;}
+.fv-edgeai .fv-budget-symbol {fill:none;stroke:#9baa88;stroke-width:1.4;}
+.fv-edgeai .fv-budget-bracket {fill:none;stroke:#b48955;stroke-width:1.8;}
+.fv-weights-pack {transform-origin:110px 79px;animation:fv-quantize-pack 12s cubic-bezier(.4,0,.2,1) infinite;}
+.fv-budget-focus {animation:fv-budget-checklist 12s ease-in-out infinite;}
+@keyframes fv-quantize-pack {0%,13%{transform:translate(0,0) scale(1);opacity:1}36%{transform:translate(126px,4px) scale(.65);opacity:1}57%,70%{transform:translate(237px,4px) scale(.43);opacity:1}79%{transform:translate(237px,4px) scale(.43);opacity:0}80%{transform:translate(0,0) scale(1);opacity:0}92%,100%{transform:translate(0,0) scale(1);opacity:1}}
+@keyframes fv-budget-checklist {0%,20%,100%{transform:translateY(0)}37%,53%{transform:translateY(41px)}70%,88%{transform:translateY(82px)}}
+
+/* A single firmware cartridge is assembled, scanned, bounded, and left for review. */
+.fv-contract .fv-conveyor-base {fill:#d7ddcb;stroke:#aebaa0;stroke-width:1;}
+.fv-contract .fv-conveyor-rail {stroke:#a0b08c;stroke-width:2;stroke-dasharray:4 7;}
+.fv-contract .fv-build-frame {fill:#e4e9d7;stroke:#a5b395;stroke-width:1.2;}
+.fv-contract .fv-build-press {fill:#8f9f7d;stroke:#738663;stroke-width:1;}
+.fv-contract .fv-build-piece {fill:#b5c69c;stroke:#879c70;stroke-width:1;}
+.fv-contract .fv-inspection-arch {fill:none;stroke:#8f9f7d;stroke-width:5;}
+.fv-contract .fv-inspection-shadow {fill:none;stroke:#c0cbb1;stroke-width:3;}
+.fv-contract .fv-inspection-beam {fill:#d9b77d;fill-opacity:.18;stroke:none;}
+.fv-contract .fv-test-shadow {fill:#c8d4ba;stroke:#afbf9e;stroke-width:1;}
+.fv-contract .fv-test-chamber {fill:#e7eddb;fill-opacity:.65;stroke:#8fa77c;stroke-width:1.4;stroke-dasharray:5 4;}
+.fv-contract .fv-test-limit {fill:none;stroke:#8b9d75;stroke-width:1.3;}
+.fv-contract .fv-timer-face {fill:#f3f2e5;stroke:#9cae87;stroke-width:1.2;}
+.fv-contract .fv-timer-hand {stroke:#9e7947;stroke-width:2;}
+.fv-contract .fv-review-pending {fill:#eee1c9;stroke:#c3ab81;stroke-width:1;}
+.fv-contract .fv-artifact-shadow {fill:#bdc8ae;stroke:none;}
+.fv-contract .fv-firmware-cartridge {fill:#7f956c;stroke:#617d50;stroke-width:1.4;}
+.fv-contract .fv-artifact-label {fill:#dce6c8;stroke:#b0c198;stroke-width:.8;}
+.fv-contract .fv-artifact-pins {stroke:#e1cf9f;stroke-width:2.2;}
+.fv-contract-press {animation:fv-contract-assemble 15s ease-in-out infinite;}
+.fv-contract-build-one {animation:fv-contract-parts-left 15s ease-in-out infinite;}
+.fv-contract-build-two {animation:fv-contract-parts-right 15s ease-in-out infinite;}
+.fv-contract-scan {animation:fv-contract-inspect 15s ease-in-out infinite;}
+.fv-contract-clock {transform-origin:388px 48px;animation:fv-contract-timebox 15s linear infinite;}
+.fv-contract-artifact {animation:fv-contract-conveyor 15s cubic-bezier(.45,0,.25,1) infinite;}
+.fv-contract-report {animation:fv-contract-review 15s ease-in-out infinite;}
+@keyframes fv-contract-assemble {0%,100%{transform:translateY(0)}7%,12%{transform:translateY(12px)}18%,90%{transform:translateY(0)}}
+@keyframes fv-contract-parts-left {0%,100%{transform:translate(-9px,-7px)}10%,85%{transform:translate(12px,8px)}}
+@keyframes fv-contract-parts-right {0%,100%{transform:translate(9px,-7px)}10%,85%{transform:translate(-12px,8px)}}
+@keyframes fv-contract-inspect {0%,24%,100%{transform:translateY(0);opacity:.3}31%{transform:translateY(37px);opacity:1}39%{transform:translateY(0);opacity:1}45%,90%{transform:translateY(0);opacity:.3}}
+@keyframes fv-contract-timebox {0%,48%,100%{transform:rotate(0)}62%,90%{transform:rotate(300deg)}}
+@keyframes fv-contract-conveyor {0%,13%{transform:translateX(0);opacity:0}17%{transform:translateX(0);opacity:1}28%,39%{transform:translateX(151px);opacity:1}50%,63%{transform:translateX(299px);opacity:1}75%,84%{transform:translateX(456px);opacity:1}89%{transform:translateX(456px);opacity:0}90%,100%{transform:translateX(0);opacity:0}}
+@keyframes fv-contract-review {0%,70%,100%{transform:translateY(0)}80%,91%{transform:translateY(-8px)}}
+
+@media (max-width:650px) {
+  .visual.fv-visual {margin:16px 0 14px;border-radius:7px;}
+  .fv-visual .fv-heading {padding:13px 13px 0;gap:9px;}
+  .fv-heading strong {font-size:14px;line-height:1.6;}
+  .fv-illustration-note {font-size:9px;}
+  .fv-stage {height:153px;margin:0;}
+  .fv-visual .fv-art {height:123px;top:1px;}
+  .fv-labels {font-size:10px;bottom:7px;left:10px;right:10px;gap:8px;}
+  .fv-visual .fv-footer {margin:0 13px;gap:9px;padding-top:8px;align-items:center;}
+  .fv-footer .demo-status {font-size:10px;line-height:1.7;}
+  .fv-visual .fv-control {font-size:10px;gap:5px;min-height:34px;max-width:106px;}
+  .fv-visual .fv-caption {font-size:8px;padding:0 13px 10px;}
+}
+@media (max-width:380px) {
+  .fv-heading strong {font-size:13px;}
+  .fv-illustration-note {display:none;}
+  .fv-stage {height:141px;}
+  .fv-visual .fv-art {height:112px;}
+  .fv-labels {font-size:9px;}
+  .fv-visual .fv-footer {align-items:flex-start;}
+  .fv-visual .fv-control {max-width:95px;}
+}
+@media (prefers-reduced-motion:reduce) {
+  .fv-visual .fv-animated {animation:none!important;transition:none!important;opacity:1!important;transform:none!important;}
+  .fv-visual .fv-skill-check {stroke-dashoffset:0!important;}
+  .fv-visual .fv-replay-copy {display:none;}
+}
+@media print {
+  .visual.fv-visual {break-inside:avoid;background:#f5f2e9;}
+  .fv-visual .fv-animated {animation:none!important;opacity:1!important;transform:none!important;}
+  .fv-visual .fv-control {display:none;}
+  .fv-visual .fv-replay-copy {display:none;}
+}

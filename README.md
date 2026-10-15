@@ -1,13 +1,13 @@
 # AI 现场 / AI Fieldnotes
 
-A small, independent Chinese-language AI publication. Editorial newspaper typography meets a vertical reading feed, covering industry changes, product and image capabilities, practical AI methods, and original workflow ideas.
+A small, independent Chinese-language AI publication. Warm editorial typography meets a clearly spaced, social-style reading feed, covering industry changes, product and image capabilities, practical AI methods, and original workflow ideas.
 
 ## What this is
 
 - A public, static editorial snapshot. Source verification date is displayed separately from each source's original publication date.
-- Ten curated pieces with official primary sources, analysis, practical steps, and explicit limitations.
-- Original SVG/CSS explanatory diagrams with small, deterministic interactions. These are not vendor screenshots, generated-image samples, benchmark results, or working AI automations.
-- Category and region filters, full-text keyword search, expandable articles, article hash links, and browser-local bookmarks.
+- Curated pieces with official primary sources, analysis, practical steps, and explicit limitations.
+- Distinct original animated SVG/CSS explanatory scenes, plus a sunset-and-birds feed introduction. These are not vendor screenshots, generated-image samples, benchmark results, or working AI automations.
+- Category and region filters, full-text keyword search, separate article reading views, article hash links, and browser-local bookmarks.
 - No account, backend, API key, analytics, external font request, package installation, or paid service is required.
 
 ## Preview
@@ -31,19 +31,21 @@ python3 build.py
 node test-site.cjs
 ```
 
-The site needs these seven files to run:
+The site needs these nine files to run:
 
 - `index.html`
 - `style.css`
 - `app.js`
 - `site-core.js`
+- `visuals.js`
+- `visuals.css`
 - `content-data.js`
 - `content.json`
 - `favicon.svg`
 
 `README.md`, `build.py`, and `test-site.cjs` are optional for serving but useful for maintenance.
 
-Post categories are `industry`, `product`, `practice`, and `embedded`. `embedded` is the broader original-experiment section, not an assertion that every idea concerns embedded hardware. Regions are `china` or `global`; "global" is an editorial scope, not a claim of universal service availability.
+The three visible sections are `industry` (AI观察: industry, models, and product changes), `practice` (用好AI: general AI-use methods across industries), and `embedded` (脑洞实验: embedded engineering tools, methods, and ideas). The feed initially shows all sections; the small 全部 control resets filters and is not a fourth section. Legacy `product` data maps to `industry`. Evidence badges distinguish existing tools, references, and exploratory proposals; none imply the publication independently reproduced a workflow. Regions are `china` or `global`; "global" is an editorial scope, not a claim of universal service availability.
 
 Required content fields include `id`, `category`, `region`, `title`, `dek`, `verifiedAt`, `sources`, `summary`, `analysis`, and `caveat`. Use a stable, unique lowercase `id`. Each `sources` entry needs a title and an HTTPS URL. Use `date: null` for rolling documentation or undated original proposals. Keep the verification date honest: do not advance it without rechecking sources.
 
@@ -57,21 +59,36 @@ This site uses relative asset URLs and is compatible with a repository subpath s
 2. In the repository, open Settings → Pages.
 3. Choose "Deploy from a branch", `main`, and `/ (root)`.
 4. Wait for GitHub Pages to finish deploying, then open the exact URL GitHub reports.
-5. Test the page itself and a direct `#post=ARTICLE_ID` URL, including on a narrow/mobile viewport.
+5. Test the page itself and a direct `#post/ARTICLE_ID` URL, including on a narrow/mobile viewport. Legacy `#post=ARTICLE_ID`, `#article=ARTICLE_ID`, `#article/ARTICLE_ID`, and `#article-ARTICLE_ID` links remain supported.
 
 There are no build dependencies or custom-domain requirements. Publishing is public: do not add personal data, credentials, private source links, unpublished information, or confidential material to the repository.
 
 ## Interaction and accessibility
 
 - Press `/` to focus search; press Escape while in search to clear it.
-- Category and region filters combine with search. Clicking a topic tag resets other filters and searches that topic.
+- Category filters combine with search. China/global filters and geography bylines apply only to AI观察; 用好AI, 脑洞实验, and the combined feed ignore retained region selections. Clicking a topic tag resets other filters and searches that topic across all sections. The search placeholder makes the current scope clear.
 - "剪报" saves an article in this browser's local storage; it is not synced across devices. If storage is blocked, bookmarks last only for the current page session, with an explicit notice.
 - "链接" copies the article URL. If the clipboard API is unavailable, a selectable-link dialog is shown.
-- Article title and "展开阅读" both expand the article. A direct hash link opens and scrolls to that article.
+- Article title, "阅读全文", and non-interactive card space open a separate article view. The feed and sidebars leave the reading area. Title links support keyboard access, new tabs, and direct deep links.
+- "返回信息流" and browser Back return to the previous category, region, search, saved-only state, and scroll position. Browser Forward reopens the article; refreshing a history entry retains its state where the browser supports the History API.
+- Article tags return to a filtered feed. Copy, bookmark, source links, and diagram controls never open a card accidentally. Copying a URL does not change the current route.
+- "暂停动效" pauses all scenes and remembers the choice in this browser. System reduced-motion is always respected and shows "静态阅读"; informative labels remain readable. Scenes outside the viewport pause through IntersectionObserver (without that API, motion runs with the same pause controls).
 - Visible keyboard focus, semantic headings, button states, source links, reduced-motion preference, responsive layout, and a print stylesheet are included.
 
 ## Testing notes
 
-`test-site.cjs` uses Node's standard library only. It checks editorial structure, data synchronization, relative assets, filtering, search, bookmark recovery, hash links, HTML escaping, allowed link protocols, responsive/accessibility hooks, and application boot/event rendering in a DOM stub. It does not replace browser layout, keyboard, actual clipboard, or assistive-technology testing.
+`test-site.cjs` uses Node's standard library only. It checks editorial structure, data synchronization, relative assets, filtering, search, bookmark recovery, old/new hash links, separate article navigation, Back/Forward restoration, click boundaries, motion preferences, HTML escaping, allowed link protocols, responsive/accessibility hooks, and application boot/event rendering in a DOM/history stub. It does not replace browser layout, keyboard, actual clipboard, or assistive-technology testing.
 
 All editorial summaries and diagrams are original. Source material remains with its respective publishers; links are provided for context and verification. The publication is not affiliated with the vendors covered.
+
+## Design and implementation notes
+
+- The original article bodies and source URLs are preserved; section assignments follow the three-section redesign, and new sourced embedded-engineering pieces extend the publication. `content.json` and its generated bundle remain the editorial source of truth.
+- `visuals.js` maps the current article IDs to original scenes. These explain concepts; they do not claim live model calls, tool execution, measured latency, or vendor output.
+- `style.css` owns layout, article typography, and the sunset introduction. `visuals.css` owns explanatory-scene styles and keyframes.
+- Routing is static-host-friendly: no server rewrites are needed. The page path remains the same and article IDs live in the URL fragment.
+- The dependency-free test harness models DOM and History behavior. It does not execute real layout or replace live desktop/mobile visual, screen-reader, and clipboard verification.
+
+## Interaction design
+
+The interface uses clear pressed/selected/focus feedback, generous touch targets, a short article-entry transition, preserved reading position, and native scrolling and browser Back/Forward. Motion helps explain the diagrams; reduced-motion and the pause control remain authoritative. Design references: [Material interaction foundations](https://m3.material.io/foundations/), [Material motion](https://m3.material.io/styles/motion/overview/how-it-works), [Apple motion guidance](https://developer.apple.com/design/human-interface-guidelines/motion), and [WebKit reduced-motion guidance](https://webkit.org/blog/7551/responsive-design-for-motion/). This is a publication-specific design, not a replica of an operating system.

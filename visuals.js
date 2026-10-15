@@ -1,0 +1,217 @@
+/* Original editorial illustrations. No model output, live tooling or measured results. */
+(function () {
+  'use strict';
+  const escape = value => String(value == null ? '' : value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const art = body => `<svg class="fv-art" viewBox="0 0 640 160" aria-hidden="true" focusable="false">${body}</svg>`;
+  const line = (d, cls = '') => `<path class="fv-line ${cls}" d="${d}"/>`;
+  const sheet = (x,y,w=64,h=82,cls='') => `<g class="${cls}"><rect class="fv-paper" x="${x}" y="${y}" width="${w}" height="${h}" rx="3"/>${line(`M${x+13} ${y+20}h${w-26}M${x+13} ${y+32}h${w-26}M${x+13} ${y+44}h${w-35}`)}<rect class="fv-soft-fill" x="${x+13}" y="${y+h-24}" width="${w-26}" height="10" rx="2"/></g>`;
+  const check = (x,y,cls='') => `<g class="${cls}"><circle class="fv-check-ring" cx="${x}" cy="${y}" r="11"/>${line(`m${x-5} ${y} 3.5 3.5 7-8`,'fv-check-mark')}</g>`;
+  const arrow = (x,y,w=36) => line(`M${x} ${y}h${w}m-5-4 5 4-5 4`,'fv-arrow');
+  const labels = values => `<div class="fv-labels" style="--fv-label-count:${values.length}">${values.map(t=>`<span>${escape(t)}</span>`).join('')}</div>`;
+
+  const scenes = {
+    'sol-quality-cost': n => ({
+      kind:'balance', title:'让质量与总成本，慢慢找到平衡',
+      status:n%2?'费用之外，也计入重试和人工复核。':'先固定任务集，再比较验收结果。',
+      control:'换个判断视角', labels:['真实任务质量','固定验收标准','费用 + 复核时间'],
+      body:art(`<ellipse class="fv-ground" cx="320" cy="143" rx="215" ry="8"/>${line('M320 52v78M289 133h62','fv-heavy')}<path class="fv-sage-fill" d="m320 47-9 17h18Z"/><g class="fv-animated fv-balance-beam">${line('M157 58h326','fv-heavy')}<circle class="fv-ochre-fill" cx="320" cy="58" r="6"/>${line('M174 59v52m-32 0h64M466 59v52m-32 0h64')}<path class="fv-bowl" d="M135 110q39 38 78 0ZM427 110q39 38 78 0Z"/><g class="fv-animated fv-quality-token"><path class="fv-sage-fill" d="m174 79 16 13-16 13-16-13Z"/></g><g class="fv-animated fv-cost-token"><ellipse class="fv-coin" cx="466" cy="101" rx="18" ry="5"/><path class="fv-coin" d="M448 94v7q18 10 36 0v-7Z"/><ellipse class="fv-coin" cx="466" cy="94" rx="18" ry="5"/></g></g><g>${sheet(276,74,88,55)}${check(342,105)}</g>`)
+    }),
+    'deepseek-v41-migration': n => ({
+      kind:'migration', title:'名字没变，请求可能已换一条路',
+      status:n%2?'把可解析、内容正确与允许执行分别验收。':'别名路由变化，也应触发一次回归。',
+      control:'检查迁移关口', labels:['现有模型别名','路由检查','新模型 · 回归验收'],
+      body:art(`${line('M131 43h90q21 0 21 22v15h181M131 119h90q21 0 21-22V80M503 80h70','fv-route')}<rect class="fv-paper" x="47" y="23" width="84" height="40" rx="8"/><rect class="fv-paper" x="47" y="99" width="84" height="40" rx="8"/>${line('M64 39h50M64 48h33M64 115h50M64 124h33')}<g class="fv-animated fv-packet-a"><rect class="fv-ochre-fill" x="156" y="36" width="18" height="14" rx="3"/>${line('m161 43 3 3 5-6','fv-light-line')}</g><g class="fv-animated fv-packet-b"><rect class="fv-sage-fill" x="167" y="112" width="18" height="14" rx="3"/></g><g class="fv-animated fv-packet-c"><rect class="fv-ochre-fill" x="340" y="73" width="20" height="14" rx="3"/></g>${line('M303 43v77M295 120h16','fv-heavy')}<g class="fv-animated fv-gate">${line('M303 78h45','fv-gate-arm')}</g><rect class="fv-ink-fill" x="423" y="41" width="80" height="78" rx="9"/><rect class="fv-chip-core" x="439" y="57" width="48" height="46" rx="5"/>${line('M435 29v12m16-12v12m16-12v12m16-12v12M435 119v12m16-12v12m16-12v12m16-12v12','fv-pins')}<path class="fv-chip-spark" d="m465 62-15 22h13l-4 16 18-25h-13Z"/>${check(573,80)}${line('M549 111h47','fv-soft-line')}`)
+    }),
+    'qwen-omni-evidence': n => ({
+      kind:'multimodal', title:'让每一条摘要，都能回到现场',
+      status:n%2?'回看对应时间点；看不清的读数标为不确定。':'画面、声音与摘要，需要共用一条时间线。',
+      control:'切换证据重点', labels:['画面与声音','定位时间点','可回看的摘要'],
+      body:art(`<rect class="fv-window-fill" x="37" y="17" width="353" height="122" rx="8"/>${[57,130,203,276].map((x,i)=>`<g><rect class="fv-frame" x="${x}" y="32" width="58" height="42" rx="3"/><path class="fv-mountain-${i%2}" d="m${x+2} 72 17-22 15 13 12-18 10 27Z"/><circle class="fv-ochre-fill" cx="${x+44}" cy="42" r="5"/></g>`).join('')}<g class="fv-waveform">${Array.from({length:29},(_,i)=>`<rect class="fv-animated fv-wave" x="${59+i*10}" y="${104-[8,14,21,12,25,18,9][i%7]/2}" width="4" height="${[8,14,21,12,25,18,9][i%7]}" rx="2" style="animation-delay:-${i*.19}s"/>`).join('')}</g>${line('M58 123h292','fv-soft-line')}<g class="fv-animated fv-playhead">${line('M152 24v105','fv-ochre-line')}<path class="fv-ochre-fill" d="m147 22 5 7 5-7Z"/><rect class="fv-selection" x="127" y="29" width="64" height="49" rx="4"/></g>${line('M390 60h35q14 0 14 13v14h22M390 105h34q15 0 15-13v-5','fv-dotted')}<rect class="fv-paper" x="461" y="24" width="134" height="111" rx="5"/><circle class="fv-sage-fill" cx="481" cy="46" r="4"/>${line('M493 46h80M480 64h92M480 75h72')}<rect class="fv-highlight" x="475" y="90" width="106" height="25" rx="3"/>${line('M486 103h29m10 0h40','fv-ochre-line')}`)
+    }),
+    'images25-edit-brief': n => ({
+      kind:'landscape', title:'只改变天空，留住这片山的轮廓',
+      status:n%2?'修改单：天空转暖；保留构图、山体与光向。':'局部编辑，从说清楚“保留什么”开始。',
+      control:'细化编辑要求', labels:['天空的色温可以变','山体与构图保持不变'],
+      body:art(`<defs><linearGradient id="fv-sky-${n%2}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${n%2?'#dba77c':'#e7c6a3'}"/><stop offset="1" stop-color="#f0dfbb"/></linearGradient><clipPath id="fv-land-clip-${n%2}"><rect x="34" y="8" width="572" height="135" rx="6"/></clipPath></defs><g clip-path="url(#fv-land-clip-${n%2})"><rect x="34" y="8" width="572" height="135" fill="url(#fv-sky-${n%2})"/><g class="fv-animated fv-sunset-orb"><circle cx="409" cy="54" r="37" fill="#f4d6a4" opacity=".45"/><circle cx="409" cy="54" r="27" fill="#c97943"/></g><path fill="#c4b59a" d="m34 118 86-58 80 45 85-60 79 66 95-36 78 31 69-24v65H34Z"/><path fill="#8d987b" d="m34 144 113-58 88 35 70-26 109 39 101-59 91 35v35H34Z"/><path fill="#5f7462" d="m34 145 123-22 110 24 97-28 122 21 120-26v40H34Z"/><path fill="#e2d3ae" d="M393 129c-30 3-61 8-56 14s38 8 17 16h38c22-10-23-15-11-20 4-2 15-4 22-6Z"/><g class="fv-animated fv-birds">${line('M156 43q7-7 14 0 7-7 14 0M192 33q5-5 10 0 5-5 10 0M214 49q6-5 12 0 6-5 12 0','fv-bird-line')}</g><rect class="fv-animated fv-edit-frame" x="365" y="18" width="88" height="73" rx="3"/>${line('M369 18h14m-18 4v14M435 18h14m4 4v14M365 73v14m4 4h14M453 73v14m-4 4h-14','fv-light-line')}</g><rect class="fv-land-border" x="34" y="8" width="572" height="135" rx="6"/>`)
+    }),
+    'context-task-eval': n => ({
+      kind:'evidence', title:'把一摞资料，整理成可以验收的任务',
+      status:n%2?'任务包写清目标、证据、约束与验收标准。':'材料按需进入；错误样本回到验收集。',
+      control:'整理证据包', labels:['挑选相关资料','组成任务包','核验后交付'],
+      body:art(`<ellipse class="fv-ground" cx="319" cy="140" rx="260" ry="7"/>${sheet(61,34,65,80)}${sheet(78,27,65,80)}${sheet(96,20,65,80,'fv-animated fv-source-card')}${arrow(185,74,44)}<path class="fv-folder-back" d="M252 47V27h61l12 13h73v86H252Z"/><g class="fv-animated fv-evidence-card">${sheet(268,17,110,88)}</g><path class="fv-folder-front" d="m244 63 13 68h141l12-68Z"/>${line('M274 90h104M274 103h71','fv-light-line')}${arrow(427,74,34)}${sheet(484,24,95,108)}${check(558,111,'fv-animated fv-evidence-check')}${line('M526 143v7H126v-16','fv-return-line')}<path class="fv-sage-fill" d="m122 138 4-6 4 6Z"/>`)
+    }),
+    'espressif-mcp-workflow': n => ({
+      kind:'terminal', title:'让资料、构建日志与故障线索接起来',
+      status:n%2?'编译属于本地验证；烧录仍需单独授权。':'先核对文档出处，再读完整构建日志。',
+      control:'切换权限边界', labels:['文档与构建日志','汇总故障线索','烧录前确认'],
+      body:art(`<rect class="fv-terminal-shell" x="34" y="15" width="296" height="127" rx="7"/><path class="fv-terminal-bar" d="M41 15h282q7 0 7 7v16H34V22q0-7 7-7Z"/><circle cx="50" cy="27" r="3" fill="#cda27a"/><circle cx="61" cy="27" r="3" fill="#929b80"/><circle cx="72" cy="27" r="3" fill="#ccc8ae"/><g class="fv-animated fv-log-scroll">${Array.from({length:5},(_,i)=>`${line(`m49 ${54+i*17} 4 3-4 3`,'fv-terminal-prompt')}<rect class="fv-animated fv-compile-line" x="65" y="${54+i*17}" width="${[196,151,220,172,111][i]}" height="5" rx="2" style="animation-delay:-${i*1.2}s"/>`).join('')}</g><rect class="fv-animated fv-caret" x="184" y="122" width="7" height="9"/>${arrow(342,78,31)}${sheet(391,30,81,99)}<circle class="fv-ochre-fill" cx="409" cy="102" r="4"/>${line('M420 102h34')}${line('M491 79h54','fv-dotted')}<g><rect class="fv-sage-fill" x="548" y="55" width="57" height="57" rx="6"/><rect class="fv-chip-core" x="561" y="69" width="29" height="27" rx="2"/>${line('M553 45v10m13-10v10m13-10v10m13-10v10M553 112v10m13-10v10m13-10v10m13-10v10','fv-pins')}</g><g class="fv-animated fv-approval-tag"><circle class="fv-lock-ring" cx="520" cy="79" r="16"/>${line('M514 77v-4a6 6 0 0 1 12 0v4')}<rect class="fv-lock" x="511" y="76" width="18" height="13" rx="2"/></g>`)
+    }),
+    'playwright-mcp-boundary': n => ({
+      kind:'browser', title:'浏览器走过的每一步，都留下证据',
+      status:n%2?'提交或修改前停下，确认目标与权限。':'在允许访问的页面，保留节点与测试证据。',
+      control:'切换权限边界', labels:['可访问的页面','观察与定位','证据记录'],
+      body:art(`<rect class="fv-boundary" x="29" y="7" width="581" height="143" rx="14"/><rect class="fv-browser-shell" x="50" y="21" width="266" height="115" rx="6"/><path class="fv-window-bar" d="M56 21h254q6 0 6 6v16H50V27q0-6 6-6Z"/><circle class="fv-sage-fill" cx="64" cy="32" r="3"/><circle class="fv-soft-fill" cx="75" cy="32" r="3"/><rect class="fv-paper" x="103" y="27" width="181" height="10" rx="3"/><rect class="fv-soft-fill" x="65" y="57" width="59" height="62" rx="3"/>${line('M139 59h112M139 70h150M139 80h121')}<rect class="fv-browser-button" x="139" y="94" width="74" height="22" rx="4"/><g class="fv-animated fv-browser-cursor"><path class="fv-cursor" d="m180 92 0 27 8-7 7 12 5-3-7-12 11-3Z"/></g>${line('M329 79h30m0-31v62m0-62h35m-35 31h35m-35 31h35','fv-tree')}<circle class="fv-sage-fill" cx="359" cy="79" r="4"/>${[48,79,110].map(y=>`<rect class="fv-paper" x="393" y="${y-8}" width="39" height="16" rx="3"/>`).join('')}<g class="fv-animated fv-browser-evidence">${sheet(468,30,107,98)}${check(553,107)}</g>${line('M431 79h28','fv-dotted')}`)
+    }),
+    'skills-license-eval': n => ({
+      kind:'skill', title:'一份操作手册，也要经过四道检查',
+      status:n%2?'脚本可以执行；说明文字不能代替权限控制。':'许可证、依赖、权限与验收，缺一项都先停。',
+      control:'查看检查重点', labels:['说明 / 资料 / 脚本','许可 · 依赖 · 权限','小型任务验收'],
+      body:art(`<path class="fv-folder-back" d="M47 47V25h51l15 14h88v90H47Z"/>${sheet(64,34,70,82,'fv-animated fv-skill-page-one')}${sheet(87,25,70,82,'fv-animated fv-skill-page-two')}${sheet(110,17,70,82,'fv-animated fv-skill-page-three')}<path class="fv-folder-front" d="m39 66 13 68h140l14-68Z"/>${line('M67 91h92M67 104h63','fv-light-line')}${arrow(224,80,37)}${line('M292 80h186','fv-route')}${[293,354,415].map((x,i)=>`<g><circle class="fv-check-disc" cx="${x}" cy="80" r="22"/>${line(`m${x-9} 80 6 6 12-13`,'fv-animated fv-skill-check fv-check-step-'+i)}</g>`).join('')}${sheet(500,30,89,101)}${check(569,111)}<g class="fv-animated fv-skill-token"><circle class="fv-ochre-fill" cx="278" cy="80" r="5"/></g>`)
+    }),
+    'embedded-regression-copilot': n => ({
+      kind:'embedded', title:'让失败证据回流，让硬件操作有边界',
+      status:['读取变更与历史日志，整理测试矩阵。','模拟器先验证；真实硬件写入需要授权。','收集输出与日志，形成可复查的故障卡。','人工验收后，再决定下一步。'][n%4],
+      control:'走一步流程', labels:['固件与测试矩阵','模拟器 / 授权测试板','故障证据回流'],
+      body:art(`${sheet(45,41,76,87)}${line('M121 82h53m0 0V38h72m-72 44v40h72M323 38h49v44h65M323 122h49V82M526 82h48v67H82v-17','fv-circuit')}<g class="fv-animated fv-signal-upper"><circle class="fv-ochre-fill" cx="163" cy="82" r="5"/></g><g class="fv-animated fv-signal-return"><circle class="fv-sage-fill" cx="562" cy="149" r="5"/></g><rect class="fv-paper" x="246" y="15" width="77" height="46" rx="5"/>${line('M260 28h49M260 39h29')}<path class="fv-sage-fill" d="m301 34 8 6-8 6Z"/><rect class="fv-sage-fill" x="246" y="97" width="77" height="47" rx="5"/><rect class="fv-chip-core" x="267" y="107" width="35" height="26" rx="2"/>${line('M255 90v7m14-7v7m14-7v7m14-7v7m14-7v7','fv-pins')}<circle class="fv-lock-ring" cx="216" cy="122" r="13"/>${line('M211 120v-4a5 5 0 0 1 10 0v4')}<rect class="fv-lock" x="208" y="120" width="16" height="11" rx="2"/>${sheet(437,34,89,94)}<g class="fv-animated fv-fault-record"><circle class="fv-ochre-fill" cx="457" cy="105" r="5"/>${line('M469 105h37','fv-ochre-line')}</g>${check(575,82)}`)
+    }),
+    'renode-replay-lab': n => ({
+      kind:'replay', title:'把同一段输入，带回出错的那一刻',
+      status:n%2?'保存快照、输入与配置，再检查能否重现。':'回放只覆盖已建模的外设与行为。',
+      control:'查看回放边界', labels:['事件记录 · 回放','虚拟 MCU','失败快照 · 复查'],
+      body:art(`<ellipse class="fv-ground" cx="325" cy="143" rx="275" ry="8"/>
+        <rect class="fv-replay-case" x="32" y="29" width="164" height="99" rx="9"/>
+        <circle class="fv-paper" cx="72" cy="67" r="24"/><circle class="fv-paper" cx="156" cy="67" r="24"/>
+        <g class="fv-animated fv-replay-reel-one">${line('M72 46v42M51 67h42M57 52l30 30M57 82l30-30','fv-reel-spoke')}</g>
+        <g class="fv-animated fv-replay-reel-two">${line('M156 46v42M135 67h42M141 52l30 30M141 82l30-30','fv-reel-spoke')}</g>
+        <circle class="fv-sage-fill" cx="72" cy="67" r="7"/><circle class="fv-sage-fill" cx="156" cy="67" r="7"/>
+        <path class="fv-replay-tape" d="M74 90h80v21H74Z"/>${line('M45 112h140','fv-soft-line')}
+        <g class="fv-animated fv-replay-ticks">${[0,1,2,3,4].map(i=>`<rect class="fv-sage-fill" x="${83+i*13}" y="97" width="5" height="7" rx="1"/>`).join('')}</g>
+        ${line('M196 100h35v-18h29','fv-circuit-route')}
+        <path class="fv-device-depth" d="M255 44h132v88H255Z"/><rect class="fv-device-board" x="248" y="36" width="132" height="88" rx="8"/>
+        ${line('M265 53h17v15M265 109h17V94M346 53h17v15M346 94v15h17','fv-board-traces')}
+        <rect class="fv-ink-fill" x="282" y="58" width="64" height="47" rx="4"/><text class="fv-chip-label" x="314" y="78" text-anchor="middle">MCU</text>
+        <g class="fv-animated fv-replay-registers">${[0,1,2].map(i=>`<rect class="fv-register-bar" x="${291+i*16}" y="87" width="10" height="6" rx="1"/>`).join('')}</g>
+        <circle class="fv-replay-event" cx="361" cy="84" r="5"/>
+        ${line('M259 138h108','fv-replay-time')}
+        <g class="fv-animated fv-replay-head"><path class="fv-ochre-fill" d="m259 130 5 6-5 6-5-6Z"/></g>
+        <rect class="fv-snapshot-back" x="464" y="34" width="118" height="102" rx="4"/><rect class="fv-snapshot-middle" x="472" y="26" width="118" height="102" rx="4"/>
+        <g class="fv-animated fv-replay-copy"><rect class="fv-paper" x="294" y="61" width="43" height="36" rx="3"/>${line('M300 73h27M300 81h17','fv-sage-line')}<circle class="fv-ochre-fill" cx="326" cy="89" r="3"/></g>
+        <g class="fv-animated fv-replay-snapshot"><rect class="fv-paper" x="480" y="18" width="118" height="102" rx="4"/>
+        <text class="fv-note-label" x="492" y="38">失败快照</text>${line('M492 49h94','fv-soft-line')}
+        <path class="fv-failure-trace" d="M492 76h15V64h16v20h16V60h15v32h15V76h16"/>
+        <circle class="fv-failure-dot" cx="554" cy="60" r="5"/>${line('M492 105h45M550 105h34','fv-soft-line')}</g>`)
+    }),
+    'firmware-fuzz-harness': n => ({
+      kind:'fuzz', title:'让输入变异，变成可以追查的测试路径',
+      status:n%2?'保留触发样本；覆盖率不能代替正确性判断。':'AI 辅助写 harness，运行边界仍由人定义。',
+      control:'查看测试边界', labels:['输入字节 · 变异','AI 辅助测试 harness','覆盖路径 · 失败样本'],
+      body:art(`<ellipse class="fv-ground" cx="321" cy="141" rx="272" ry="7"/>
+        <path class="fv-byte-tray" d="M38 113h144l10 17H28Z"/>
+        ${[[48,39,'00'],[107,39,'FF'],[48,81,'7F'],[107,81,'A5']].map(([x,y,t],i)=>`<g class="fv-animated fv-fuzz-byte fv-fuzz-byte-${i}"><rect class="fv-byte-shadow" x="${x+4}" y="${y+5}" width="43" height="29" rx="4"/><rect class="fv-byte-tile" x="${x}" y="${y}" width="43" height="29" rx="4"/><text class="fv-byte-text" x="${x+21.5}" y="${y+19}" text-anchor="middle">${t}</text></g>`).join('')}
+        ${line('M187 78h46','fv-soft-line')}
+        <path class="fv-device-depth" d="M249 43h139v82H249Z"/><rect class="fv-harness-shell" x="242" y="35" width="139" height="82" rx="8"/>
+        <text class="fv-note-label" x="311" y="53" text-anchor="middle">HARNESS</text>
+        <path class="fv-harness-bracket" d="M268 68h-9v29h9M354 68h9v29h-9"/>
+        <g class="fv-animated fv-fuzz-die"><path class="fv-byte-tile" d="m286 65 18-5 22 8v27l-18 6-22-8Z"/>${line('m286 65 22 9 18-6M308 74v27','fv-die-seam')}<circle class="fv-ochre-fill" cx="297" cy="79" r="2"/><circle class="fv-ochre-fill" cx="298" cy="89" r="2"/><circle class="fv-sage-fill" cx="318" cy="81" r="2"/><circle class="fv-sage-fill" cx="318" cy="91" r="2"/></g>
+        <g class="fv-animated fv-fuzz-insert"><rect class="fv-ochre-fill" x="187" y="71" width="26" height="16" rx="3"/>${line('M192 76h15M192 82h9','fv-light-line')}</g>
+        ${line('M381 79h51M432 79v-38h64M432 79h64M432 79v38h64','fv-coverage-tree')}
+        <g class="fv-animated fv-fuzz-covered-one">${line('M381 79h51V41h64','fv-covered-path')}</g>
+        <g class="fv-animated fv-fuzz-covered-two">${line('M381 79h115','fv-covered-path')}</g>
+        ${[41,79,117].map((y,i)=>`<rect class="fv-coverage-node ${i===2?'fv-coverage-open':''}" x="496" y="${y-10}" width="28" height="20" rx="4"/>`).join('')}
+        ${check(510,41)}${check(510,79)}<text class="fv-note-label" x="510" y="121" text-anchor="middle">?</text>
+        <g class="fv-animated fv-fuzz-corpus"><rect class="fv-snapshot-back" x="552" y="62" width="47" height="64" rx="3"/><rect class="fv-paper" x="558" y="55" width="47" height="64" rx="3"/><circle class="fv-failure-dot" cx="582" cy="77" r="6"/>${line('M569 94h25M569 102h17')}<text class="fv-note-label" x="580" y="42" text-anchor="middle">样本</text></g>`)
+    }),
+    'debug-probe-mcp': n => ({
+      kind:'probe', title:'请求可以自动整理，调试权限要明确停下',
+      status:n%2?'读取、复位和写入，需要分别声明权限。':'未经授权，执行停在闸门前。',
+      control:'检查操作权限', labels:['代理整理请求','人工确认 · 默认停止','J-Link → Cortex-M'],
+      body:art(`<ellipse class="fv-ground" cx="326" cy="140" rx="277" ry="7"/>
+        <rect class="fv-agent-back" x="41" y="45" width="92" height="77" rx="13"/><rect class="fv-agent-face" x="47" y="36" width="92" height="77" rx="13"/>
+        <circle class="fv-agent-eye" cx="76" cy="65" r="7"/><circle class="fv-agent-eye" cx="111" cy="65" r="7"/>${line('M77 88h33','fv-heavy')}
+        <path class="fv-agent-antenna" d="M94 36V21"/><circle class="fv-ochre-fill" cx="94" cy="18" r="4"/>
+        ${line('M143 83h54','fv-dotted')}
+        <g class="fv-animated fv-probe-request"><rect class="fv-paper" x="151" y="67" width="35" height="30" rx="3"/>${line('M157 76h22M157 83h22M157 90h13','fv-sage-line')}</g>
+        <rect class="fv-permission-shadow" x="227" y="26" width="111" height="110" rx="5"/>
+        <rect class="fv-paper" x="222" y="20" width="111" height="110" rx="5"/>
+        <text class="fv-note-label" x="277" y="40" text-anchor="middle">操作范围</text>
+        <g class="fv-animated fv-probe-scope"><rect class="fv-scope-box" x="235" y="52" width="9" height="9" rx="1"/>${line('M252 57h63')}<rect class="fv-scope-box" x="235" y="70" width="9" height="9" rx="1"/>${line('M252 75h49')}<rect class="fv-scope-box" x="235" y="88" width="9" height="9" rx="1"/>${line('M252 93h58')}</g>
+        <path class="fv-permission-bar" d="M205 49v69"/><circle class="fv-lock-ring" cx="205" cy="83" r="17"/>${line('M199 81v-6a6 6 0 0 1 12 0v6')}<rect class="fv-lock" x="196" y="80" width="18" height="14" rx="2"/>
+        <text class="fv-pending-label" x="278" y="117" text-anchor="middle">待确认</text>
+        ${line('M346 83h32','fv-dotted')}
+        <path class="fv-probe-shadow" d="m383 61 70-7v56l-70 7Z"/><rect class="fv-probe-case" x="378" y="51" width="70" height="56" rx="7"/>
+        <text class="fv-probe-label" x="413" y="77" text-anchor="middle">J-Link</text><rect class="fv-probe-port" x="395" y="89" width="36" height="7" rx="2"/>
+        <path class="fv-probe-cable" d="M448 80h19q13 0 13 13v14q0 12 12 12h14"/>
+        <path class="fv-device-depth" d="M507 47h104v86H507Z"/><rect class="fv-device-board" x="501" y="40" width="104" height="86" rx="6"/>
+        ${line('M512 61h17M512 76h17M512 92h17M579 61h15M579 76h15M579 92h15','fv-board-traces')}
+        <rect class="fv-ink-fill" x="528" y="57" width="51" height="51" rx="3"/><text class="fv-chip-label" x="554" y="80" text-anchor="middle">Cortex</text><text class="fv-chip-label" x="554" y="94" text-anchor="middle">-M</text>
+        <g class="fv-animated fv-probe-boundary"><path class="fv-boundary-bracket" d="M193 32h-7v99h7"/></g>`)
+    }),
+    'datasheet-register-audit': n => ({
+      kind:'registers', title:'从表格提取字段，也把出处一起带走',
+      status:n%2?'地址、位域、复位值和访问属性逐项对照。':'PDF 与 SVD 的版本、出处和冲突都要保留。',
+      control:'查看核验重点', labels:['PDF 寄存器表','字段 + 来源','SVD 交叉核验'],
+      body:art(`<ellipse class="fv-ground" cx="318" cy="142" rx="272" ry="7"/>
+        <path class="fv-snapshot-back" d="M42 23h126l18 18v95H42Z"/><path class="fv-paper" d="M48 17h126l18 18v95H48Z"/><path class="fv-paper-fold" d="M174 17v18h18"/>
+        <text class="fv-note-label" x="62" y="39">PDF</text><rect class="fv-table-head" x="61" y="49" width="117" height="15" rx="1"/>
+        ${line('M61 49v64h117V49M100 49v64M137 49v64M61 64h117M61 80h117M61 96h117M61 113h117','fv-register-grid')}
+        ${[70,86,102].map(y=>line(`M69 ${y}h23M107 ${y}h22M145 ${y}h24`,'fv-register-datum')).join('')}
+        <rect class="fv-animated fv-register-scan" x="62" y="65" width="115" height="14" rx="1"/>
+        ${line('M193 72h52','fv-dotted')}
+        <g class="fv-animated fv-register-extract"><rect class="fv-field-slice" x="63" y="65" width="113" height="14" rx="2"/>${line('M71 72h23M108 72h22M146 72h21','fv-sage-line')}</g>
+        <path class="fv-snapshot-back" d="M258 36h130v89H258Z"/><rect class="fv-paper" x="252" y="28" width="130" height="89" rx="5"/>
+        <text class="fv-note-label" x="265" y="47">字段与来源</text>
+        ${[[65,'地址 / 位域'],[84,'复位 / 访问']].map(([y,t])=>`<rect class="fv-field-row" x="264" y="${y-11}" width="105" height="16" rx="2"/><text class="fv-field-text" x="272" y="${y}">${t}</text>`).join('')}
+        <path class="fv-source-tag" d="m264 97 7-4h85v17h-85l-7-4Z"/><circle class="fv-source-hole" cx="272" cy="102" r="2"/><text class="fv-source-text" x="281" y="106">文档 · 版本 · 表格</text>
+        ${line('M382 73h58','fv-dotted')}
+        <rect class="fv-snapshot-back" x="447" y="28" width="149" height="105" rx="5"/><rect class="fv-paper" x="453" y="21" width="149" height="105" rx="5"/>
+        <text class="fv-note-label" x="466" y="41">SVD</text><text class="fv-note-label" x="538" y="41">核验</text>
+        ${[61,83,105].map((y,i)=>`<g><rect class="fv-svd-field" x="466" y="${y-8}" width="53" height="15" rx="2"/>${line(`M476 ${y}h32`,'fv-sage-line')}<rect class="${i===2?'fv-audit-conflict':'fv-audit-match'}" x="538" y="${y-8}" width="49" height="15" rx="2"/>${i===2?`<text class="fv-conflict-text" x="562" y="${y+4}" text-anchor="middle">复查</text>`:line(`m556 ${y} 4 3 8-7`,'fv-check-mark')}</g>`).join('')}
+        <g class="fv-animated fv-register-compare"><path class="fv-compare-bracket" d="M461 51h-5v18h5M592 51h5v18h-5"/></g>`)
+    }),
+    'stm32-edge-ai-budget': n => ({
+      kind:'edgeai', title:'权重可以打包，部署预算仍要逐项实测',
+      status:n%2?'量化后的精度，需要用代表性数据重新评估。':'形状仅作概念示意，不代表内存或延迟收益。',
+      control:'查看评估维度', labels:['浮点模型权重','INT8 打包示意','内存 · 延迟 · 精度'],
+      body:art(`<ellipse class="fv-ground" cx="316" cy="141" rx="271" ry="7"/>
+        <rect class="fv-model-card-back" x="45" y="27" width="149" height="102" rx="5"/><rect class="fv-model-card" x="38" y="19" width="149" height="102" rx="5"/>
+        <text class="fv-note-label" x="53" y="38">FLOAT</text>
+        ${Array.from({length:9},(_,i)=>`<rect class="fv-weight-ghost" x="${63+(i%3)*35}" y="${49+Math.floor(i/3)*22}" width="25" height="15" rx="3"/>`).join('')}
+        <path class="fv-quantizer-rear" d="m219 46 20-10 33 14v60l-20 10-33-14Z"/><path class="fv-quantizer-front" d="m219 46 33 14v60l-33-14Z"/>
+        <path class="fv-quantizer-slot" d="m227 66 17 7v24l-17-7Z"/>
+        <path class="fv-device-depth" d="M300 51h106v81H300Z"/><rect class="fv-device-board" x="294" y="44" width="106" height="81" rx="6"/>
+        ${line('M308 34v10m18-10v10m18-10v10m18-10v10m18-10v10M308 125v9m18-9v9m18-9v9m18-9v9m18-9v9','fv-pins')}
+        <rect class="fv-chip-core" x="314" y="59" width="66" height="48" rx="3"/>
+        ${Array.from({length:9},(_,i)=>`<rect class="fv-packed-weight" x="${325+(i%3)*15}" y="${68+Math.floor(i/3)*11}" width="11" height="7" rx="1"/>`).join('')}
+        <text class="fv-note-label" x="347" y="30" text-anchor="middle">INT8</text>
+        <g class="fv-animated fv-weights-pack">${Array.from({length:9},(_,i)=>`<rect class="fv-weight-cell ${i%3===0?'fv-weight-warm':''}" x="${63+(i%3)*35}" y="${49+Math.floor(i/3)*22}" width="25" height="15" rx="3"/>`).join('')}</g>
+        <path class="fv-budget-divider" d="M428 29v103"/>
+        ${[[37,'内存'],[78,'延迟'],[119,'精度']].map(([y,t],i)=>`<g><rect class="fv-budget-card" x="457" y="${y-18}" width="141" height="34" rx="5"/><text class="fv-budget-text" x="474" y="${y+4}">${t}</text><circle class="fv-budget-empty" cx="578" cy="${y-1}" r="7"/><path class="fv-budget-symbol" d="${['M525 30h20v13h-20Zm5-4v4m10-4v4m-10 13v4m10-4v4','M536 71v8l5 3M528 68h16M536 65v3','M526 119h5l4-7 5 13 5-8h5'][i]}"/></g>`).join('')}
+        <g class="fv-animated fv-budget-focus"><path class="fv-budget-bracket" d="M450 23h-6v26h6M605 23h6v26h-6"/></g>`)
+    }),
+    'firmware-agent-contract': n => ({
+      kind:'contract', title:'产物向前走，每一步都遵守同一份约定',
+      status:['构建先输出产物与日志，不把成功等同验收。','检查变更和风险，再进入允许的测试范围。','限定命令、资源和时长，失败立即留下证据。','把证据交给人复核，再决定下一步。'][n%4],
+      control:'走一步约定', labels:['构建产物','静态检查','限时测试','人工复核'],
+      body:art(`<ellipse class="fv-ground" cx="320" cy="141" rx="289" ry="7"/>
+        <path class="fv-conveyor-base" d="M37 117h565v12H37Z"/>${line('M48 123h542','fv-conveyor-rail')}
+        <rect class="fv-build-frame" x="43" y="29" width="93" height="83" rx="5"/>
+        <g class="fv-animated fv-contract-press"><path class="fv-build-press" d="M63 37h53v14H97v16H82V51H63Z"/></g>
+        <g class="fv-animated fv-contract-build-one"><rect class="fv-build-piece" x="64" y="78" width="23" height="10" rx="2"/></g><g class="fv-animated fv-contract-build-two"><rect class="fv-build-piece" x="95" y="78" width="23" height="10" rx="2"/></g>
+        <path class="fv-inspection-arch" d="M198 112V46q0-15 15-15h56q15 0 15 15v66"/><path class="fv-inspection-shadow" d="M204 111V48q0-10 10-10h55"/>
+        <g class="fv-animated fv-contract-scan"><path class="fv-inspection-beam" d="M208 54h66v16h-66Z"/>${line('M211 62h60','fv-ochre-line')}</g>
+        <rect class="fv-test-shadow" x="344" y="33" width="100" height="84" rx="6"/><rect class="fv-test-chamber" x="338" y="26" width="100" height="84" rx="6"/>
+        <path class="fv-test-limit" d="M350 39h14M350 39v15M426 39h-14M426 39v15M350 98h14M350 98V83M426 98h-14M426 98V83"/>
+        <circle class="fv-timer-face" cx="388" cy="48" r="12"/><g class="fv-animated fv-contract-clock">${line('M388 48v-8','fv-timer-hand')}</g><circle class="fv-sage-fill" cx="388" cy="48" r="2"/>
+        <rect class="fv-snapshot-back" x="513" y="32" width="82" height="88" rx="4"/>
+        <g class="fv-animated fv-contract-report"><rect class="fv-paper" x="506" y="23" width="82" height="88" rx="4"/><text class="fv-note-label" x="518" y="42">复核记录</text>${line('M518 53h57M518 64h48M518 75h57','fv-soft-line')}<rect class="fv-review-pending" x="518" y="87" width="56" height="14" rx="3"/><text class="fv-pending-label" x="546" y="97" text-anchor="middle">待复核</text></g>
+        <g class="fv-animated fv-contract-artifact"><path class="fv-artifact-shadow" d="m72 89 45-6 15 8-45 6Z"/><rect class="fv-firmware-cartridge" x="68" y="77" width="42" height="30" rx="4"/><path class="fv-artifact-label" d="M75 83h28v10H75Z"/>${line('M77 101h5m6 0h5m6 0h4','fv-artifact-pins')}</g>`)
+    }),
+    'document-style-pipeline': n => ({
+      kind:'documents', title:'内容先站稳，风格才有一致的尺度',
+      status:n%2?'层级、术语、引用与预览，分别检查。':'同一组事实，经过可检查的样式契约。',
+      control:'切换风格稿', labels:['结构化内容','样式契约','预览与校验'],
+      body:art(`${sheet(49,24,112,112)}${line('M63 47h24M63 65h69M63 85h44M63 110h78','fv-raw-lines')}${arrow(180,80,39)}<rect class="fv-style-frame" x="243" y="29" width="140" height="99" rx="6"/><g class="fv-style-rule"><rect class="fv-ink-fill" x="260" y="46" width="30" height="7" rx="1"/>${line('M304 49h61M260 70h105M260 91h105M260 111h105','fv-dotted')}<circle class="fv-ochre-fill" cx="286" cy="70" r="5"/><circle class="fv-sage-fill" cx="330" cy="91" r="5"/><circle class="fv-ochre-fill" cx="303" cy="111" r="5"/></g>${arrow(401,80,38)}<rect class="fv-paper" x="461" y="15" width="126" height="123" rx="3"/><rect class="fv-sage-fill" x="476" y="30" width="36" height="4"/><g class="fv-animated fv-doc-title"><rect class="fv-ink-fill" x="476" y="44" width="94" height="9" rx="1"/></g><g class="fv-animated fv-doc-align-one">${line('M476 67h94M476 78h94M476 89h70')}</g><g class="fv-animated fv-doc-align-two"><rect class="fv-soft-fill" x="476" y="101" width="94" height="21" rx="2"/>${line('M483 111h77','fv-sage-line')}</g>${line('M523 144v8H309v-15','fv-return-line')}<path class="fv-sage-fill" d="m305 141 4-6 4 6Z"/>`)
+    })
+  };
+
+  window.FieldnoteVisuals = Object.freeze({
+    render(p, n = 0) {
+      if (!p || !scenes[p.id]) return '';
+      const step = Math.max(0, Math.floor(Number(n) || 0));
+      const scene = scenes[p.id](step);
+      const id = escape(p.id);
+      const disclaimer = scene.kind === 'landscape' ? '原创编辑流程示意，非模型效果样张' : '原创流程示意，非官方演示或实测结果';
+      return `<div class="visual fv-visual motion-scene fv-${scene.kind} ${step?'changed':''}" id="visual-${id}" data-mode="${step%2}"><div class="fv-heading"><strong>${escape(scene.title)}</strong><span class="fv-illustration-note">现场图解</span></div><div class="fv-stage">${scene.body}${labels(scene.labels)}</div><div class="fv-footer"><span class="demo-status" aria-live="polite">${escape(scene.status)}</span><button class="demo-control fv-control" data-demo="${id}" aria-label="${escape(scene.control)}：${escape(p.title)}">${escape(scene.control)}<span aria-hidden="true">↻</span></button></div><p class="fv-caption">${disclaimer} · 交互仅切换说明</p></div>`;
+    }
+  });
+})();
