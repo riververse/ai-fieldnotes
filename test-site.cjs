@@ -893,6 +893,129 @@ check('Optical layers retain detail, mobile, offscreen, print, and reduced-motio
   assert(visualCSS.lastIndexOf('.fv-visual.motion-scene .fv-animated {animation-play-state:paused;}') > lastAnimation, 'Observer pause must override later animation shorthands');
 });
 
+/* Design-system source contracts. These do not claim computed browser layout. */
+function designRules(source, media = []) {
+  source = source.replace(/\/\*[\s\S]*?\*\//g, '');
+  const rules = []; let cursor = 0;
+  while (cursor < source.length) {
+    const open = source.indexOf('{', cursor); if (open < 0) break;
+    const selector = source.slice(cursor, open).trim();
+    let depth = 1, end = open + 1, quote = null;
+    for (; end < source.length && depth; end++) {
+      const char = source[end];
+      if (quote) { if (char === quote && source[end - 1] !== '\\') quote = null; continue; }
+      if (char === '"' || char === "'") quote = char;
+      else if (char === '{') depth++;
+      else if (char === '}') depth--;
+    }
+    assert.equal(depth, 0, 'Balanced CSS block: ' + selector);
+    const body = source.slice(open + 1, end - 1);
+    if (selector.startsWith('@media')) rules.push(...designRules(body, [...media, selector.slice(6).trim()]));
+    else if (!selector.startsWith('@')) rules.push({ selector, media, declarations: Object.fromEntries(body.split(';').filter(x => x.includes(':')).map(x => { const colon = x.indexOf(':'); return [x.slice(0, colon).trim(), x.slice(colon + 1).trim()]; })) });
+    cursor = end;
+  }
+  return rules;
+}
+const designSheet = designRules(css + '\n' + visualCSS);
+const designTokens = designSheet.find(rule => rule.selector === ':root').declarations;
+function designActive(query, width, coarse = false) {
+  return query.split(',').some(alternative => {
+    if (/print|prefers-reduced-motion/.test(alternative)) return false;
+    const max = alternative.match(/max-width\s*:\s*([\d.]+)px/);
+    const min = alternative.match(/min-width\s*:\s*([\d.]+)px/);
+    return (!max || width <= Number(max[1])) && (!min || width >= Number(min[1])) && (!/pointer\s*:\s*coarse/.test(alternative) || coarse);
+  });
+}
+function designValue(selector, property, width = 1440, coarse = false) {
+  let value;
+  for (const rule of designSheet) if (rule.selector.split(',').map(x => x.trim()).includes(selector) && rule.media.every(query => designActive(query, width, coarse)) && property in rule.declarations) value = rule.declarations[property];
+  return value && value.replace(/var\((--[\w-]+)\)/g, (_, token) => { assert(token in designTokens, 'Known design token ' + token); return designTokens[token]; });
+}
+function designContrast(a, b) {
+  const luminance = hex => {
+    const rgb = [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16) / 255).map(v => v <= .04045 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4);
+    return rgb[0] * .2126 + rgb[1] * .7152 + rgb[2] * .0722;
+  };
+  const [low, high] = [luminance(a), luminance(b)].sort((x, y) => x - y);
+  return (high + .05) / (low + .05);
+}
+check('Publication tokens provide one explicit type, space, surface, and control vocabulary', () => {
+  for (const token of ['--canvas', '--white', '--ink', '--text', '--muted', '--green', '--red', '--rule', '--type-caption', '--type-small', '--type-ui', '--type-preview', '--type-body', '--measure-reading', '--target-size', '--shadow-paper']) assert(token in designTokens, token);
+  assert.deepEqual(['--type-caption', '--type-small', '--type-ui', '--type-preview', '--type-body'].map(x => parseFloat(designTokens[x])), [11, 12, 13, 14, 17]);
+  assert.deepEqual(Array.from({ length: 8 }, (_, i) => parseFloat(designTokens['--space-' + (i + 1)])), [4, 8, 12, 16, 24, 32, 40, 48]);
+  assert.equal(designTokens['--target-size'], '44px');
+  assert.equal(designValue('.visual.fv-visual', 'font-family'), designTokens['--sans']);
+  assert(!/@import|@font-face/.test(css + visualCSS), 'No new external font or stylesheet dependency');
+});
+check('Explicit publication text and action pairs meet contrast thresholds', () => {
+  for (const background of [designTokens['--canvas'], designTokens['--white'], '#edf1e6']) for (const text of ['--ink', '--text', '--muted', '--green', '--red']) assert(designContrast(designTokens[text], background) >= 4.5, text + ' on ' + background);
+  assert(designContrast(designTokens['--white'], designTokens['--green']) >= 4.5, 'Task button label');
+  assert(designContrast(designTokens['--green'], designTokens['--selected']) >= 3, 'Selected/focus indicator');
+});
+check('Article prose and meaningful metadata retain readable font floors at every breakpoint', () => {
+  for (const width of [320, 360, 390, 420, 650, 760, 1024, 1440]) {
+    for (const selector of ['.post-byline small', '.post-label', '.detail-evidence', '.source-list small', '.source-facts', '.fv-visual .fv-caption']) assert(parseFloat(designValue(selector, 'font-size', width)) >= 11, selector + ' at ' + width);
+    assert(parseFloat(designValue('.post-detail p', 'font-size', width)) >= 16, 'Article body at ' + width);
+    assert(parseFloat(designValue('.post-dek', 'font-size', width)) >= 14, 'Feed preview at ' + width);
+    assert(parseFloat(designValue('.post-detail p', 'line-height', width)) >= 1.85, 'Article rhythm at ' + width);
+    if (width <= 650) assert.equal(designValue('.search-field input', 'font-size', width), '16px');
+  }
+});
+check('Key controls declare real 44px targets rather than relying on padding arithmetic', () => {
+  for (const width of [320, 390, 650, 760, 1440]) for (const coarse of [false, true]) {
+    for (const selector of ['.nav-link', '.region-filter button', '#show-all', '.read-button', '.icon-button', '.post-tags button', '.article-toolbar>button', '.article-return', '.try-this-heading button', '.source-list a', '.fv-visual .fv-control', '.search-field']) assert(parseFloat(designValue(selector, 'min-height', width, coarse)) >= 44, selector + ' at ' + width);
+    assert(parseFloat(designValue('.icon-button', 'min-width', width, coarse)) >= 44);
+    if (width <= 650) {
+      assert(parseFloat(designValue('.mobile-categories button', 'min-height', width, coarse)) >= 44);
+      assert(parseFloat(designValue('.mobile-shelf', 'min-width', width, coarse)) >= 44);
+    }
+  }
+});
+check('Title wrapping, reading measure, and narrow controls have deliberate fallback rules', () => {
+  assert.equal(designValue('.post-title', 'text-wrap'), 'balance');
+  assert.equal(designValue('.article-title', 'text-wrap'), 'balance');
+  assert.equal(designValue('.post-detail', 'max-width'), '40em');
+  assert.equal(designValue('.post-title', 'overflow-wrap'), 'anywhere');
+  assert.equal(designValue('.post-title', 'border-top'), undefined, 'Body separator must not leak into titles');
+  assert.equal(designValue('.article-title', 'padding-top'), undefined, 'Body padding must not leak into titles');
+  for (const selector of ['.post-actions', '.filter-line', '.try-this-heading']) assert.equal(designValue(selector, 'flex-wrap', 320), 'wrap');
+  assert.equal(designValue('.post-label', 'grid-column', 390), '2');
+  assert.equal(designValue('.post-label', 'max-width', 390), 'none');
+  assert.equal(designValue('.post-label', 'white-space', 390), 'normal');
+  assert.equal(designValue('.source-list a span:last-child', 'flex-shrink'), '0');
+  assert.equal(designValue('.try-this textarea', 'resize', 390), 'vertical');
+  assert.equal(designValue('.try-this textarea', 'font-size', 390), '16px');
+});
+check('Focus, selected feedback, and sources preserve non-color cues', () => {
+  assert.equal(designValue('button:focus-visible', 'outline'), '2px solid ' + designTokens['--green']);
+  assert.equal(designValue('.search-field:focus-within', 'outline'), '2px solid ' + designTokens['--green']);
+  assert.equal(designValue('.icon-button.saved', 'background'), designTokens['--red-light']);
+  assert.equal(designValue('.source-list a', 'text-decoration'), 'underline');
+  assert.equal(designValue('.source-list li:before', 'content'), 'counter(source, decimal-leading-zero)');
+  const env = boot(); const p = data.posts[0]; env.click('#post-' + p.id + ' [data-save]');
+  assert.equal(env.get('#post-' + p.id + ' [data-save]').getAttribute('aria-pressed'), 'true');
+  assert(env.get('#post-' + p.id + ' [data-save]').textContent.includes('已剪报'));
+});
+check('All article category frames retain original labels, dates, links, and full source counts', () => {
+  for (const p of data.posts) {
+    const env = boot({ url: 'https://example.test/publication/' + C.postHash(p.id) });
+    const article = env.get('#article-view .article-paper');
+    assert.equal(article.dataset.category, C.categoryFor(p));
+    assert(article.querySelector('.post-label').textContent.includes(p.evidenceBadge || (p.kind === 'experiment' ? '原创实验方案' : p.label || '选读')));
+    assert.equal(article.querySelectorAll('.source-list a').length, p.sources.length);
+    assert.equal(article.querySelector('textarea').value, p.tryThis.prompt);
+    assert(article.querySelector('.source-facts').textContent.includes(p.verifiedAt || data.site.verifiedAt));
+  }
+});
+check('Project design rules document references, attribution, original choices, and verification limits', () => {
+  const design = read('DESIGN.md'); const notices = read('THIRD_PARTY_NOTICES.md');
+  for (const name of ['design-md/claude/DESIGN.md', 'design-md/wired/DESIGN.md', 'design-md/framer/DESIGN.md']) assert(design.includes(name));
+  assert(design.includes('3b605329240ce735b510037cca322f1831fdd7f8'));
+  assert(design.includes('44px') && design.includes('40em') && design.includes('not calculate real browser layout'));
+  assert(notices.includes('Copyright (c) 2026 VoltAgent') && notices.includes('Permission is hereby granted, free of charge'));
+  assert(!css.includes('Copernicus') && !css.includes('WiredDisplay') && !css.includes('GT Walsheim'));
+});
+
 (async () => {
   let passed = 0;
   for (const [name, fn] of suites) {

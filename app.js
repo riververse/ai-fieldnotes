@@ -106,7 +106,7 @@
       document.title = '文章未找到 · AI 现场';
       return;
     }
-    articleView.innerHTML = `<div class="article-toolbar"><button data-back><span aria-hidden="true">←</span> 返回信息流</button><span>${e(C.categories[C.categoryFor(p)])} <i aria-hidden="true">/</i> 约 ${Number(p.readMinutes) || 3} 分钟</span>${utilities(p)}</div><article class="article-paper" aria-labelledby="article-title">${byline(p)}<h1 class="article-title" id="article-title" tabindex="-1">${e(p.title)}</h1><p class="article-dek">${e(p.dek)}</p>${visual(p)}<div class="post-detail">${detail(p)}</div>${tags(p)}</article>`;
+    articleView.innerHTML = `<div class="article-toolbar"><button data-back><span aria-hidden="true">←</span> 返回信息流</button><span>${e(C.categories[C.categoryFor(p)])} <i aria-hidden="true">/</i> 约 ${Number(p.readMinutes) || 3} 分钟</span>${utilities(p)}</div><article class="article-paper" data-category="${e(C.categoryFor(p))}" aria-labelledby="article-title">${byline(p)}<h1 class="article-title" id="article-title" tabindex="-1">${e(p.title)}</h1><p class="article-dek">${e(p.dek)}</p>${visual(p)}<div class="post-detail">${detail(p)}</div>${tags(p)}</article>`;
     document.title = p.title + ' · AI 现场';
     observeMotion();
   }

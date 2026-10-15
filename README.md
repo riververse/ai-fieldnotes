@@ -43,7 +43,7 @@ The site needs these nine files to run:
 - `content.json`
 - `favicon.svg`
 
-`README.md`, `build.py`, and `test-site.cjs` are optional for serving but useful for maintenance.
+`README.md`, `DESIGN.md`, `THIRD_PARTY_NOTICES.md`, `build.py`, and `test-site.cjs` are optional for serving but useful for maintenance and attribution.
 
 The three visible sections are `industry` (AI观察: industry, models, and product changes), `practice` (用好AI: general AI-use methods across industries), and `embedded` (脑洞实验: embedded engineering tools, methods, and ideas). The feed initially shows all sections; the small 全部 control resets filters and is not a fourth section. Legacy `product` data maps to `industry`. Evidence badges distinguish existing tools, references, and exploratory proposals; none imply the publication independently reproduced a workflow. Regions are `china` or `global`; "global" is an editorial scope, not a claim of universal service availability.
 
@@ -78,7 +78,7 @@ There are no build dependencies or custom-domain requirements. Publishing is pub
 
 ## Testing notes
 
-`test-site.cjs` uses Node's standard library only. It checks editorial structure, data synchronization, relative assets, filtering, search, bookmark recovery, old/new hash links, separate article navigation, Back/Forward restoration, click boundaries, motion preferences, HTML escaping, allowed link protocols, responsive/accessibility hooks, and application boot/event rendering in a DOM/history stub. The 53 suites include the existing 44 behavior and build checks, six full-article and task-copy checks, and three scoped-SVG, particle-budget, and motion-fallback checks. These are DOM/CSS contracts, not browser layout, animation paint, frame-rate, native clipboard, or assistive-technology testing.
+`test-site.cjs` uses Node's standard library only. It checks editorial structure, data synchronization, relative assets, filtering, search, bookmark recovery, old/new hash links, separate article navigation, Back/Forward restoration, click boundaries, motion preferences, HTML escaping, allowed link protocols, responsive/accessibility hooks, and application boot/event rendering in a DOM/history stub. The 61 suites retain the existing 53 behavior, build, full-article and optical-layer checks, then add eight design-system contracts for tokens, numerical text contrast, breakpoint font floors, explicit target sizes, wrap/fallback rules, focus and selected feedback, article metadata preservation, and reference attribution. The small CSS contract reader evaluates declared rules only; it is not a browser CSS engine. These are DOM/CSS contracts, not browser layout, animation paint, frame-rate, native clipboard, or assistive-technology testing.
 
 All editorial summaries and diagrams are original. Source material remains with its respective publishers; links are provided for context and verification. The publication is not affiliated with the vendors covered.
 
@@ -93,6 +93,12 @@ All editorial summaries and diagrams are original. Source material remains with 
 ## Interaction design
 
 The interface uses clear pressed/selected/focus feedback, generous touch targets, a short article-entry transition, preserved reading position, and native scrolling and browser Back/Forward. Motion helps explain the diagrams; system reduced-motion remains authoritative, with offscreen pauses and scene-specific looping rhythms. These features are not a claim of a complete accessibility audit. Design references: [Material interaction foundations](https://m3.material.io/foundations/), [Material motion](https://m3.material.io/styles/motion/overview/how-it-works), [Apple motion guidance](https://developer.apple.com/design/human-interface-guidelines/motion), and [WebKit reduced-motion guidance](https://webkit.org/blog/7551/responsive-design-for-motion/). This is a publication-specific design, not a replica of an operating system.
+
+## Publication design system
+
+`DESIGN.md` is the project-specific design reference: warm paper and forest ink, device-local Chinese serif titles and sans prose, explicit spacing/type roles, readable article metadata, a bounded 40em reading column, and 44px key controls. It records selected ideas and rejected assumptions from the MIT-licensed VoltAgent/awesome-design-md Claude, WIRED, and Framer analyses. Upstream attribution is retained in `THIRD_PARTY_NOTICES.md`; no brand assets, proprietary fonts, external stylesheets, or new runtime dependencies are included.
+
+The design refinement preserves all article content, navigation and animated timelines. Source rows, task packages and narrow metadata receive clearer layout; small text no longer shrinks the article's important dates, badges or captions below 11px. Headline balance is progressive enhancement with ordinary wrapping as fallback. Static tests are followed by real desktop/narrow-browser inspection for each published visual release.
 
 ## Release and cache coherence
 
