@@ -446,7 +446,7 @@ check('HTML escaping and unsafe source protocols are rejected', () => {
 });
 check('Responsive, hidden-view, keyboard focus, print, and reduced-motion hooks exist', () => {
   for (const pattern of [/max-width\s*:\s*650px/, /max-width\s*:\s*360px/, /prefers-reduced-motion\s*:\s*reduce/, /@media\s+print/, /:focus-visible/, /\[hidden\]/]) assert(pattern.test(css), String(pattern));
-  for (const value of ['lang="zh-CN"', 'class="skip-link"', 'type="search"', 'aria-live="polite"', '<main', '<dialog', 'id="article-view"', 'id="motion-toggle"']) assert(index.includes(value));
+  for (const value of ['lang="zh-CN"', 'class="skip-link"', 'type="search"', 'aria-live="polite"', '<main', '<dialog', 'id="article-view"']) assert(index.includes(value));
 });
 check('Touch targets, short article entry, reduced-motion overrides, and native scrolling have hooks', () => {
   assert(/@media\s*\(pointer\s*:\s*coarse\)/.test(css));
@@ -608,18 +608,84 @@ check('Keyboard search shortcut, Escape clearing, and tag search use the feed sa
   const p = data.posts[0]; env.click('#post-' + p.id + ' .post-title a'); env.key('/'); assert.equal(env.document.activeElement.id, 'article-title');
   env.click('#article-view [data-tag]'); assertView(env, 'feed'); assert.equal(env.get('#search').value, p.tags[0]); assert(visiblePosts(env).includes(p.id)); assert.equal(env.document.activeElement.id, 'search');
 });
-check('Motion pause toggles, persists, and follows cross-tab preference changes', () => {
-  const env = boot(); assert.equal(env.get('#motion-toggle').getAttribute('aria-pressed'), 'false'); assert.equal(env.document.body.classList.contains('motion-paused'), false);
-  env.click('#motion-toggle'); assert.equal(env.get('#motion-toggle').getAttribute('aria-pressed'), 'true'); assert.equal(env.storage.get(motionKey), 'paused'); assert.equal(env.get('#motion-label').textContent, '播放动效'); assert(env.document.body.classList.contains('motion-paused'));
-  env.click('#motion-toggle'); assert.equal(env.storage.get(motionKey), 'playing'); assert.equal(env.get('#motion-toggle').getAttribute('aria-pressed'), 'false');
-  env.storageEvent(motionKey, 'paused'); assert(env.document.body.classList.contains('motion-paused'));
-  assert(boot({ storage: { [motionKey]: 'paused' } }).document.body.classList.contains('motion-paused'));
+check('Animation controls are absent and retired storage cannot disable scenes', () => {
+  const env = boot({ storage: { [motionKey]: 'paused' } });
+  assert.equal(env.document.querySelector('#motion-toggle, #motion-label, .motion-indicator'), null);
+  assert.equal(env.document.body.classList.contains('motion-paused'), false);
+  env.storageEvent(motionKey, 'paused');
+  assert.equal(env.document.body.classList.contains('motion-paused'), false);
+  assert.equal(env.storage.get(motionKey), 'paused', 'Retired preference is ignored without rewriting unrelated storage');
+  assert.equal(boot({ storageReadError: true }).document.body.classList.contains('motion-paused'), false);
 });
-check('System reduced-motion is static and disabled, while preserving manual preference', () => {
-  const env = boot({ reducedMotion: true }); assert(env.document.body.classList.contains('motion-paused')); assert.equal(env.get('#motion-toggle').disabled, true); assert.equal(env.get('#motion-toggle').getAttribute('aria-pressed'), 'true'); assert.equal(env.get('#motion-label').textContent, '静态阅读');
-  env.click('#motion-toggle'); assert.equal(env.storage.has(motionKey), false);
-  env.reduce(false); assert.equal(env.get('#motion-toggle').disabled, false); assert.equal(env.document.body.classList.contains('motion-paused'), false);
-  env.click('#motion-toggle'); env.reduce(true); env.reduce(false); assert.equal(env.get('#motion-toggle').getAttribute('aria-pressed'), 'true');
+check('System reduced-motion stays authoritative without a visible switch', () => {
+  const env = boot({ reducedMotion: true, storage: { [motionKey]: 'paused' } });
+  assert(env.document.body.classList.contains('motion-paused'));
+  env.reduce(false); assert.equal(env.document.body.classList.contains('motion-paused'), false);
+  env.reduce(true); assert(env.document.body.classList.contains('motion-paused'));
+  env.storageEvent(motionKey, 'playing'); assert(env.document.body.classList.contains('motion-paused'));
+  env.reduce(false); assert.equal(env.document.body.classList.contains('motion-paused'), false);
+});
+check('Automatic scenes settle within 4.8 seconds and boundary crossings cannot restart them', () => {
+  const env = boot({ observer: true }), observer = env.observers[0];
+  const scene = env.get('.sunset-scene');
+  assert(!scene.classList.contains('motion-settled'));
+  env.tick(6000); assert(!scene.classList.contains('motion-settled'), 'Offscreen scene must not consume its first pass');
+  observer.callback([{ target: scene, isIntersecting: true }]);
+  env.tick(2000); observer.callback([{ target: scene, isIntersecting: false }]);
+  assert(!scene.classList.contains('is-visible'));
+  env.tick(1000); observer.callback([{ target: scene, isIntersecting: true }]);
+  env.tick(1799); assert(!scene.classList.contains('motion-settled'));
+  env.tick(1); assert(scene.classList.contains('motion-settled'));
+  observer.callback([{ target: scene, isIntersecting: false }]);
+  observer.callback([{ target: scene, isIntersecting: true }]);
+  assert(scene.classList.contains('motion-settled'));
+  assert(/\.motion-scene\s+\*\s*\{[^}]*animation-duration:\s*4\.8s\s*!important/.test(css));
+  assert(/\.motion-scene\s+\*\s*\{[^}]*animation-iteration-count:\s*1\s*!important/.test(css));
+  assert(/\.motion-scene\.motion-settled\s+\*\s*\{[^}]*animation-duration:\s*0s\s*!important/.test(css));
+});
+check('Seen scenes stay still after rerender; diagram controls explicitly allow one fresh pass', () => {
+  const env = boot(), p = data.posts[0], selector = '#visual-' + p.id;
+  env.tick(4800); assert(env.get(selector).classList.contains('motion-settled'));
+  env.click('#post-' + p.id + ' [data-save]');
+  assert(env.get(selector).classList.contains('motion-settled'), 'Bookmark rerender must not restart a seen scene');
+  env.click('#post-' + p.id + ' [data-demo]');
+  assert(!env.get(selector).classList.contains('motion-settled'));
+  env.tick(4800); assert(env.get(selector).classList.contains('motion-settled'));
+  env.click('#post-' + p.id + ' .post-title a');
+  assert(env.get(selector).classList.contains('motion-settled'), 'Article route must not replay the same diagram automatically');
+  env.back(); assert(env.get(selector).classList.contains('motion-settled'));
+});
+check('Editorial chrome is concise while source, demonstration, and local-storage notices survive', () => {
+  for (const removed of ['慢一点看，想清楚再动手', '读到这里，也可以开始动手', '从一个小问题、一条可信来源', '好用，比热闹重要', '带着你的问题读', '读原始资料，做自己的判断', '独立整理 · 保留判断 · 鼓励实践']) assert(!index.includes(removed), removed);
+  const env = boot(); assert.equal(env.document.querySelector('.sunset-label'), null);
+  assert.equal(env.get('.sunset-scene').textContent.trim(), '', 'Scenery must have no overlaid slogan');
+  const note = env.get('#editorial-note').textContent;
+  for (const retained of ['原始资料', '核验日期', '官方事实', '原创实验', '非官方界面或模型输出', '不调用模型或执行真实任务', '当前浏览器', '追踪统计']) assert(note.includes(retained), retained);
+  assert(env.get('#endnote').textContent.includes('如果换个问法呢？'));
+  env.click('#try-practice'); assert.equal(env.history.state.feed.category, 'practice');
+  for (const p of data.posts) {
+    const article = boot({ url: 'https://example.test/publication/' + C.postHash(p.id) });
+    if (p.caveat) assert(article.get('.caveat').textContent.includes(p.caveat));
+    if (p.license) assert(article.get('.source-list').textContent.includes(p.license));
+    assert(article.get('.source-list').textContent.includes('核验'));
+  }
+});
+check('Header birds have independent wing pivots, arcs, and finite glide exits', () => {
+  const env = boot(), flock = env.get('.hero-flock');
+  assert.equal(flock.querySelectorAll('.bird-flight').length, 3);
+  assert.equal(flock.querySelectorAll('.bird-pose').length, 3);
+  assert.equal(flock.querySelectorAll('.bird-body').length, 3);
+  assert.equal(flock.querySelectorAll('.bird-wing-left').length, 3);
+  assert.equal(flock.querySelectorAll('.bird-wing-right').length, 3);
+  for (const depth of ['near', 'middle', 'far']) {
+    assert(flock.querySelector('.bird-flight--' + depth));
+    for (const name of ['bird-pass-' + depth, 'bird-pitch-' + depth, 'bird-stroke-left-' + depth, 'bird-stroke-right-' + depth]) assert(css.includes('@keyframes ' + name), name);
+  }
+  assert(!css.includes('@keyframes bird-wing '), 'Remove the old scaleY flap');
+  assert(!css.includes('@keyframes birds-cross '), 'Remove whole-flock linear translation');
+  assert(!/\.bird[^{}]*\{[^}]*scaleY/.test(css));
+  assert(css.includes('transform-origin: 0 0'));
+  for (const finalX of ['335px', '300px', '257px']) assert(css.includes('translate(' + finalX), 'Each bird exits the 360-unit SVG from its own starting position');
 });
 check('Intersection observer controls active scenes and reconnects after routing', () => {
   const env = boot({ observer: true }), observer = env.observers[0]; assert.equal(observer.targets.size, visiblePosts(env).length + 1);

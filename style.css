@@ -29,10 +29,6 @@ input { min-width: 0; }
 .masthead-tagline { color: var(--muted); font-size: 12px; }
 .masthead-controls { margin-left: auto; display: flex; align-items: center; gap: 20px; }
 #edition-date { font-size: 10px; color: var(--muted); }
-.motion-toggle { display: flex; align-items: center; gap: 6px; border: 1px solid #c7cab9; border-radius: 18px; padding: 7px 10px; font-size: 10px; background: #f5f2e9; white-space: nowrap; min-height: 32px; }
-.motion-toggle[aria-pressed="true"] { color: var(--green); }
-.motion-toggle:disabled { opacity: .75; }
-.motion-indicator { width: 11px; display: inline-block; }
 .layout { display: grid; grid-template-columns: 164px minmax(0, 1fr) 208px; gap: 28px; align-items: start; margin-top: 27px; }
 main { min-width: 0; outline: none; }
 .rail-sticky { position: sticky; top: 111px; }
@@ -60,16 +56,157 @@ main { min-width: 0; outline: none; }
 .feed-intro p:last-child { font-size: 11px; color: var(--muted); line-height: 1.7; margin: 0; }
 .sunset-scene { width: 48%; flex-shrink: 0; position: relative; overflow: hidden; border-radius: 80px 80px 7px 7px; align-self: stretch; min-height: 175px; background: #e4d2b9; }
 .sunset-scene svg { position: absolute; width: 100%; height: 100%; inset: 0; object-fit: cover; }
-.sunset-label { position: absolute; bottom: 11px; left: 15px; right: 15px; text-align: center; color: #f5eedf; font: 10px var(--serif); letter-spacing: 1px; }
 .hero-orb { animation: sun-set 13s ease-in-out infinite alternate; }
-.hero-flock { animation: birds-cross 12s linear infinite; animation-delay: -3s; }
+
 .hero-cloud { animation: cloud-drift 16s ease-in-out infinite alternate; }
-.bird-wing { transform-origin: 60px 77px; animation: bird-wing 1.7s ease-in-out infinite alternate; }
+
+/* A brief passage: separate birds, shoulder-hinged wings, then open-wing glide.
+   Static transforms use the finished state, so removing animation never jumps
+   the flock back into the sky. Visibility/reduced-motion remain scene-owned. */
+.hero-flock { animation: none; transform: none; }
+.bird-flight, .bird-pose, .bird-wing-left, .bird-wing-right {
+  transform-box: view-box;
+  transform-origin: 0 0;
+}
+.bird-flight--near {
+  transform: translate(335px,-7px);
+  animation: bird-pass-near 4.8s linear 1 both;
+}
+.bird-flight--middle {
+  transform: translate(300px,3px);
+  animation: bird-pass-middle 4.8s linear 1 both;
+}
+.bird-flight--far {
+  transform: translate(257px,-12px);
+  animation: bird-pass-far 4.8s linear 1 both;
+}
+.bird-pose--near { transform: rotate(-1deg); animation: bird-pitch-near 4.8s ease-in-out 1 both; }
+.bird-pose--middle { transform: rotate(1deg); animation: bird-pitch-middle 4.8s ease-in-out 1 both; }
+.bird-pose--far { transform: rotate(-2deg); animation: bird-pitch-far 4.8s ease-in-out 1 both; }
+/* Near-constant forward speed with shallow, different arcs. */
+@keyframes bird-pass-near {
+  0% { transform: translate(0,0); }
+  18.958% { transform: translate(67px,-5px); }
+  37.917% { transform: translate(134px,-9px); }
+  56.875% { transform: translate(201px,-11px); }
+  75.833% { transform: translate(268px,-10px); }
+  94.792% { transform: translate(335px,-7px); }
+  100% { transform: translate(335px,-7px); }
+}
+@keyframes bird-pass-middle {
+  0% { transform: translate(0,0); }
+  17.292% { transform: translate(60px,2px); }
+  34.583% { transform: translate(120px,6px); }
+  51.875% { transform: translate(180px,8px); }
+  69.167% { transform: translate(240px,7px); }
+  86.458% { transform: translate(300px,3px); }
+  100% { transform: translate(300px,3px); }
+}
+@keyframes bird-pass-far {
+  0% { transform: translate(0,0); }
+  17.917% { transform: translate(51.4px,-2px); }
+  35.833% { transform: translate(102.8px,-6px); }
+  53.75% { transform: translate(154.2px,-10px); }
+  71.667% { transform: translate(205.6px,-12px); }
+  89.583% { transform: translate(257px,-12px); }
+  100% { transform: translate(257px,-12px); }
+}
+@keyframes bird-pitch-near {
+  0% { transform: rotate(-4deg); }
+  35% { transform: rotate(-2deg); }
+  65% { transform: rotate(2deg); }
+  100% { transform: rotate(-1deg); }
+}
+@keyframes bird-pitch-middle {
+  0% { transform: rotate(2deg); }
+  30% { transform: rotate(4deg); }
+  70% { transform: rotate(-3deg); }
+  100% { transform: rotate(1deg); }
+}
+@keyframes bird-pitch-far {
+  0% { transform: rotate(1deg); }
+  35% { transform: rotate(-4deg); }
+  75% { transform: rotate(-1deg); }
+  100% { transform: rotate(-2deg); }
+}
+.bird-flight--near .bird-wing-left { animation: bird-stroke-left-near 4.8s ease-in-out 1 both; }
+.bird-flight--near .bird-wing-right { animation: bird-stroke-right-near 4.8s ease-in-out 1 both; }
+.bird-flight--middle .bird-wing-left { animation: bird-stroke-left-middle 4.8s ease-in-out 1 both; }
+.bird-flight--middle .bird-wing-right { animation: bird-stroke-right-middle 4.8s ease-in-out 1 both; }
+.bird-flight--far .bird-wing-left { animation: bird-stroke-left-far 4.8s ease-in-out 1 both; }
+.bird-flight--far .bird-wing-right { animation: bird-stroke-right-far 4.8s ease-in-out 1 both; }
+/* Opposing rotations at the shoulder, with the phase and tempo encoded in
+   keyframes. The shared scene may safely force duration:4.8s and delay:0s.
+   Each bird finishes its last stroke before the long open-wing glide. */
+@keyframes bird-stroke-left-near {
+  0% { transform: rotate(14deg); }
+  5% { transform: rotate(28deg); }
+  10% { transform: rotate(-21deg); }
+  17% { transform: rotate(24deg); }
+  23% { transform: rotate(-17deg); }
+  30% { transform: rotate(17deg); }
+  36% { transform: rotate(-9deg); }
+  44% { transform: rotate(0deg); }
+  100% { transform: rotate(0deg); }
+}
+@keyframes bird-stroke-right-near {
+  0% { transform: rotate(-12.6deg); }
+  5.6% { transform: rotate(-25.2deg); }
+  10.6% { transform: rotate(18.9deg); }
+  17.6% { transform: rotate(-21.6deg); }
+  23.6% { transform: rotate(15.3deg); }
+  30.6% { transform: rotate(-15.3deg); }
+  36.6% { transform: rotate(8.1deg); }
+  44.6% { transform: rotate(0deg); }
+  100% { transform: rotate(0deg); }
+}
+@keyframes bird-stroke-left-middle {
+  0% { transform: rotate(-17deg); }
+  4% { transform: rotate(16deg); }
+  9% { transform: rotate(-14deg); }
+  15% { transform: rotate(20deg); }
+  20% { transform: rotate(-11deg); }
+  28% { transform: rotate(0deg); }
+  100% { transform: rotate(0deg); }
+}
+@keyframes bird-stroke-right-middle {
+  0% { transform: rotate(15.3deg); }
+  4.6% { transform: rotate(-14.4deg); }
+  9.6% { transform: rotate(12.6deg); }
+  15.6% { transform: rotate(-18deg); }
+  20.6% { transform: rotate(9.9deg); }
+  28.6% { transform: rotate(0deg); }
+  100% { transform: rotate(0deg); }
+}
+@keyframes bird-stroke-left-far {
+  0% { transform: rotate(25deg); }
+  6% { transform: rotate(-19deg); }
+  15% { transform: rotate(22deg); }
+  23% { transform: rotate(-15deg); }
+  32% { transform: rotate(14deg); }
+  40% { transform: rotate(-7deg); }
+  49% { transform: rotate(0deg); }
+  100% { transform: rotate(0deg); }
+}
+@keyframes bird-stroke-right-far {
+  0% { transform: rotate(-22.5deg); }
+  6.6% { transform: rotate(17.1deg); }
+  15.6% { transform: rotate(-19.8deg); }
+  23.6% { transform: rotate(13.5deg); }
+  32.6% { transform: rotate(-12.6deg); }
+  40.6% { transform: rotate(6.3deg); }
+  49.6% { transform: rotate(0deg); }
+  100% { transform: rotate(0deg); }
+}
+
+/* Every automatic scene completes one short pass, with no visible controls. */
+.motion-scene * { animation-duration: 4.8s !important; animation-delay: 0s !important; animation-iteration-count: 1 !important; animation-fill-mode: both !important; }
+.motion-scene.motion-settled * { animation-duration: 0s !important; }
 .motion-scene:not(.is-visible) *, .motion-paused .motion-scene * { animation-play-state: paused !important; }
 @keyframes sun-set { from { transform: translate(0,-12px); } to { transform: translate(-14px,27px); } }
-@keyframes birds-cross { from { transform: translate(-130px,15px); } to { transform: translate(300px,-23px); } }
+
 @keyframes cloud-drift { from { transform: translateX(-13px); } to { transform: translateX(19px); } }
-@keyframes bird-wing { from { transform: scaleY(.4); } to { transform: scaleY(1); } }
+
 .feed-tools { padding: 8px 0 15px; margin-bottom: 10px; }
 .category-description { color: var(--muted); font-size: 11px; line-height: 1.7; margin: 0 0 13px; }
 .search-row { display: flex; gap: 10px; }
@@ -225,7 +362,6 @@ dialog input { width: 100%; padding: 11px; background: var(--white); border: 1px
   .masthead { min-height: 69px; gap: 10px; margin: 0 3px; }
   .wordmark { font-size: 30px; }
   .wordmark small { display: block; font-size: 12px; }
-  .motion-toggle { padding: 7px 9px; font-size: 9px; }
   .layout { display: block; margin-top: 12px; }
   .left-rail { display: none; }
   .feed-intro { padding: 7px 4px 16px; min-height: 149px; gap: 5px; }
@@ -233,7 +369,6 @@ dialog input { width: 100%; padding: 11px; background: var(--white); border: 1px
   .feed-intro h1 { font-size: 26px; line-height: 1.45; margin-bottom: 11px; }
   .feed-intro p:last-child { font-size: 10px; }
   .sunset-scene { width: 46%; min-height: 132px; border-radius: 65px 65px 5px 5px; }
-  .sunset-label { font-size: 8px; letter-spacing: 0; left: 7px; right: 7px; }
   .sunset-scene svg { width: 132%; max-width: none; left: -16%; }
   .feed-tools { padding: 0 3px 12px; margin-bottom: 8px; }
   .mobile-categories { display: flex; justify-content: space-between; padding: 5px 0 14px; }
@@ -317,8 +452,8 @@ button:active, .read-button:active { background-color: #dce3d18a; }
 .motion-paused .article-view.is-entering .article-paper { animation: none; }
 @keyframes article-arrive { from { opacity: .7; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 @media (pointer:coarse), (max-width:650px) {
-  .motion-toggle, .nav-link, .mobile-categories button, .mobile-shelf, .region-filter button, #show-all, .read-button, .icon-button, .post-tags button, .article-toolbar>button, .article-return, .text-button, .try-this-heading button, .demo-control, .source-list a, .dialog-close { min-height: 44px; }
-  .motion-toggle, .mobile-shelf, .icon-button, .dialog-close { min-width: 44px; }
+  .nav-link, .mobile-categories button, .mobile-shelf, .region-filter button, #show-all, .read-button, .icon-button, .post-tags button, .article-toolbar>button, .article-return, .text-button, .try-this-heading button, .demo-control, .source-list a, .dialog-close { min-height: 44px; }
+  .mobile-shelf, .icon-button, .dialog-close { min-width: 44px; }
   .search-field { min-height: 44px; }
   .icon-button { justify-content: center; }
   .post-tags { column-gap: 14px; row-gap: 0; margin-top: 8px; margin-bottom: 0; }
@@ -331,12 +466,12 @@ button:active, .read-button:active { background-color: #dce3d18a; }
 @media(prefers-reduced-motion:reduce) {
   html { scroll-behavior: auto; }
   *, *:before, *:after { animation: none !important; transition: none !important; }
-  .hero-flock { transform: translate(45px,-5px); }
+
 }
 @media print {
   body { background: white; }
   .paper { padding: 0; max-width: none; }
-  .reading-progress, .left-rail, .right-rail, .feed-tools, .utility-actions, .demo-control, .toast, .endnote, .skip-link, .read-button, footer, .motion-toggle, .article-toolbar, .article-return { display: none !important; }
+  .reading-progress, .left-rail, .right-rail, .feed-tools, .utility-actions, .demo-control, .toast, .endnote, .skip-link, .read-button, footer, .article-toolbar, .article-return { display: none !important; }
   .layout { display: block; }
   .masthead { position: static; margin-bottom: 20px; }
   main { padding: 0; }

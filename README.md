@@ -72,7 +72,8 @@ There are no build dependencies or custom-domain requirements. Publishing is pub
 - Article title, "阅读全文", and non-interactive card space open a separate article view. The feed and sidebars leave the reading area. Title links support keyboard access, new tabs, and direct deep links.
 - "返回信息流" and browser Back return to the previous category, region, search, saved-only state, and scroll position. Browser Forward reopens the article; refreshing a history entry retains its state where the browser supports the History API.
 - Article tags return to a filtered feed. Copy, bookmark, source links, and diagram controls never open a card accidentally. Copying a URL does not change the current route.
-- "暂停动效" pauses all scenes and remembers the choice in this browser. System reduced-motion is always respected and shows "静态阅读"; informative labels remain readable. Scenes outside the viewport pause through IntersectionObserver (without that API, motion runs with the same pause controls).
+- Scenes make one short automatic pass of at most 4.8 seconds, then rest at a readable final frame. No animation switch is shown. System reduced-motion is always respected, and offscreen scenes pause through IntersectionObserver. A scene does not restart on boundary crossings, filtering, or return navigation during the same page visit; the existing diagram buttons can explicitly run the next demonstration. Old local pause values no longer suppress animation. Without IntersectionObserver, scenes still settle within the same deadline.
+- The sunset birds have separate curved flight paths, small pitch changes, and independently timed shoulder-pivot wing strokes. Each flaps into a glide and exits the frame before the 4.8-second automatic pass ends.
 - Visible keyboard focus, semantic headings, button states, source links, reduced-motion preference, responsive layout, and a print stylesheet are included.
 
 ## Testing notes
@@ -91,7 +92,7 @@ All editorial summaries and diagrams are original. Source material remains with 
 
 ## Interaction design
 
-The interface uses clear pressed/selected/focus feedback, generous touch targets, a short article-entry transition, preserved reading position, and native scrolling and browser Back/Forward. Motion helps explain the diagrams; reduced-motion and the pause control remain authoritative. Design references: [Material interaction foundations](https://m3.material.io/foundations/), [Material motion](https://m3.material.io/styles/motion/overview/how-it-works), [Apple motion guidance](https://developer.apple.com/design/human-interface-guidelines/motion), and [WebKit reduced-motion guidance](https://webkit.org/blog/7551/responsive-design-for-motion/). This is a publication-specific design, not a replica of an operating system.
+The interface uses clear pressed/selected/focus feedback, generous touch targets, a short article-entry transition, preserved reading position, and native scrolling and browser Back/Forward. Motion helps explain the diagrams; system reduced-motion remains authoritative and automatic scenes end within 4.8 seconds. Design references: [Material interaction foundations](https://m3.material.io/foundations/), [Material motion](https://m3.material.io/styles/motion/overview/how-it-works), [Apple motion guidance](https://developer.apple.com/design/human-interface-guidelines/motion), and [WebKit reduced-motion guidance](https://webkit.org/blog/7551/responsive-design-for-motion/). This is a publication-specific design, not a replica of an operating system.
 
 ## Release and cache coherence
 

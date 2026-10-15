@@ -1,19 +1,19 @@
 <!doctype html>
-<html lang="zh-CN" data-release="20261015r3-302861c20c76">
+<html lang="zh-CN" data-release="20261015r3-76a248788ebe">
 <head>
   <meta charset="utf-8">
-  <meta name="app-release" content="20261015r3-302861c20c76">
+  <meta name="app-release" content="20261015r3-76a248788ebe">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#eeeade">
-  <meta name="description" content="AI 现场是一份独立的中文 AI 阅读刊物：从中国与全球产业，到模型、图像、Skills、MCP 与嵌入式工作流。读原始资料，做自己的判断。">
+  <meta name="description" content="AI 现场是一份独立的中文 AI 阅读刊物：从中国与全球产业，到模型、图像、Skills、MCP 与嵌入式工作流。新消息、新用法，也留一点脑洞。">
   <title>AI 现场 · AI Fieldnotes</title>
-  <link rel="icon" href="./favicon.svg?v=20261015r3-302861c20c76" type="image/svg+xml">
-  <link rel="stylesheet" href="./style.css?v=20261015r3-302861c20c76">
-  <link rel="stylesheet" href="./visuals.css?v=20261015r3-302861c20c76">
-  <script src="./content-data.js?v=20261015r3-302861c20c76" defer></script>
-  <script src="./site-core.js?v=20261015r3-302861c20c76" defer></script>
-  <script src="./visuals.js?v=20261015r3-302861c20c76" defer></script>
-  <script src="./app.js?v=20261015r3-302861c20c76" defer></script>
+  <link rel="icon" href="./favicon.svg?v=20261015r3-76a248788ebe" type="image/svg+xml">
+  <link rel="stylesheet" href="./style.css?v=20261015r3-76a248788ebe">
+  <link rel="stylesheet" href="./visuals.css?v=20261015r3-76a248788ebe">
+  <script src="./content-data.js?v=20261015r3-76a248788ebe" defer></script>
+  <script src="./site-core.js?v=20261015r3-76a248788ebe" defer></script>
+  <script src="./visuals.js?v=20261015r3-76a248788ebe" defer></script>
+  <script src="./app.js?v=20261015r3-76a248788ebe" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main-content">跳到文章</a>
@@ -21,8 +21,8 @@
   <div class="paper">
     <header class="masthead" id="top">
       <a class="wordmark" href="#feed" data-home aria-label="AI 现场首页"><span class="wordmark-ai">AI</span> 现场<small>Fieldnotes</small></a>
-      <p class="masthead-tagline">读原始资料，做自己的判断。</p>
-      <div class="masthead-controls"><span id="edition-date">资料核验 2026.10.15</span><button id="motion-toggle" class="motion-toggle" aria-pressed="false"><span class="motion-indicator" aria-hidden="true">Ⅱ</span><span id="motion-label">暂停动效</span></button></div>
+      <p class="masthead-tagline">AI 的新消息，与下一种用法。</p>
+      <div class="masthead-controls"><span id="edition-date">资料核验 2026.10.15</span></div>
     </header>
 
     <div class="layout">
@@ -36,7 +36,7 @@
           </nav>
           <button class="shelf-button" id="shelf-button" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18l-6-4-6 4z"/></svg><span>我的剪报</span><span id="bookmark-count">0</span></button>
           <p class="local-note">剪报只保存在当前浏览器。</p>
-          <div class="rail-note"><span class="note-kicker">本期关注</span><h3>从模型竞赛，<br>走向工作现场。</h3><p>除了“又强了多少”，也问一问：接入什么，怎么验证，哪里需要人。</p><div class="stamp">读 · 想 · 试</div></div>
+          <div class="rail-note"><span class="note-kicker">本期关注</span><h3>从模型竞赛，<br>走向工作现场。</h3><p>模型走出聊天框，会遇上什么？</p><div class="stamp">读 · 想 · 试</div></div>
           <a class="back-top" href="#top">回到顶部 ↑</a>
         </div>
       </aside>
@@ -46,8 +46,41 @@
         <section class="feed-intro" aria-labelledby="feed-title">
           <div class="intro-copy"><p class="overline">AI 现场 · 本期选读</p><h1 id="feed-title">看见变化，<br>也找到用法。</h1><p>值得读的消息，值得试的想法。</p></div>
           <div class="sunset-scene motion-scene" role="img" aria-label="夕阳缓缓落向群山，飞鸟掠过天空的原创动画">
-            <svg viewBox="0 0 360 210" aria-hidden="true"><defs><linearGradient id="hero-sky" x2="0" y2="1"><stop stop-color="#eee6d9"/><stop offset=".65" stop-color="#edc2a4"/><stop offset="1" stop-color="#d29465"/></linearGradient><linearGradient id="hero-sun" x2="0" y2="1"><stop stop-color="#f7cb76"/><stop offset="1" stop-color="#dc7748"/></linearGradient></defs><path fill="url(#hero-sky)" d="M0 0h360v210H0z"/><circle class="hero-orb" cx="253" cy="81" r="38" fill="url(#hero-sun)"/><path class="hero-cloud" d="M24 57h79m-59 9h89m118-22h61" fill="none" stroke="#fff5e2" stroke-width="2" opacity=".55"/><path d="M0 164Q53 102 125 139T257 140T360 106v104H0Z" fill="#a6ab91"/><path d="M0 177Q83 150 160 174T360 145v65H0Z" fill="#718371"/><path d="M0 197Q71 170 143 194T360 179v31H0Z" fill="#425c51"/><g class="hero-flock" stroke="#4b5148" fill="none" stroke-width="1.8" stroke-linecap="round"><path class="bird-wing" d="M48 77q6-8 12 0 6-8 12 0"/><path d="M77 64q4-6 8 0 4-6 8 0m19 22q4-6 8 0 4-6 8 0"/></g></svg>
-            <span class="sunset-label">慢一点看，想清楚再动手。</span>
+            <svg viewBox="0 0 360 210" aria-hidden="true"><defs><linearGradient id="hero-sky" x2="0" y2="1"><stop stop-color="#eee6d9"/><stop offset=".65" stop-color="#edc2a4"/><stop offset="1" stop-color="#d29465"/></linearGradient><linearGradient id="hero-sun" x2="0" y2="1"><stop stop-color="#f7cb76"/><stop offset="1" stop-color="#dc7748"/></linearGradient></defs><path fill="url(#hero-sky)" d="M0 0h360v210H0z"/><circle class="hero-orb" cx="253" cy="81" r="38" fill="url(#hero-sun)"/><path class="hero-cloud" d="M24 57h79m-59 9h89m118-22h61" fill="none" stroke="#fff5e2" stroke-width="2" opacity=".55"/><path d="M0 164Q53 102 125 139T257 140T360 106v104H0Z" fill="#a6ab91"/><path d="M0 177Q83 150 160 174T360 145v65H0Z" fill="#718371"/><path d="M0 197Q71 170 143 194T360 179v31H0Z" fill="#425c51"/><g class="hero-flock" stroke="#4b5148" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+  <g transform="translate(70 82)">
+    <g class="bird-flight bird-flight--near">
+      <g transform="scale(.98)">
+        <g class="bird-pose bird-pose--near">
+          <path class="bird-body" d="M-.5-.8 0 1.1 1 2.8"/>
+          <g class="bird-wing-left"><path d="M0 0Q-3.1-3.5-6.7-3.7Q-9.3-3.5-12-1.4"/></g>
+          <g class="bird-wing-right"><path d="M0 0Q3.4-4 6.9-3.7Q9.6-3.1 12.4-1.9"/></g>
+        </g>
+      </g>
+    </g>
+  </g>
+  <g transform="translate(110 59)">
+    <g class="bird-flight bird-flight--middle">
+      <g transform="scale(.76)">
+        <g class="bird-pose bird-pose--middle">
+          <path class="bird-body" d="M-.5-.8 0 1.1 1 2.8"/>
+          <g class="bird-wing-left"><path d="M0 0Q-3.1-3.5-6.7-3.7Q-9.3-3.5-12-1.4"/></g>
+          <g class="bird-wing-right"><path d="M0 0Q3.4-4 6.9-3.7Q9.6-3.1 12.4-1.9"/></g>
+        </g>
+      </g>
+    </g>
+  </g>
+  <g transform="translate(151 78)">
+    <g class="bird-flight bird-flight--far">
+      <g transform="scale(.62)">
+        <g class="bird-pose bird-pose--far">
+          <path class="bird-body" d="M-.5-.8 0 1.1 1 2.8"/>
+          <g class="bird-wing-left"><path d="M0 0Q-3.1-3.5-6.7-3.7Q-9.3-3.5-12-1.4"/></g>
+          <g class="bird-wing-right"><path d="M0 0Q3.4-4 6.9-3.7Q9.6-3.1 12.4-1.9"/></g>
+        </g>
+      </g>
+    </g>
+  </g>
+</g></svg>
           </div>
         </section>
         <div class="feed-tools">
@@ -60,20 +93,20 @@
         </div>
         <div id="feed" tabindex="-1" aria-label="文章信息流"></div>
         <div id="empty-state" class="empty-state" hidden><span aria-hidden="true">▱</span><h2>这里暂时没有文章</h2><p id="empty-message">换个关键词，或看看全部现场。</p><button class="text-button" id="reset-filters">清除筛选</button></div>
-        <div class="endnote" id="endnote"><div class="endnote-mark" aria-hidden="true">✳</div><h2>读到这里，也可以开始动手了。</h2><p>从一个小问题、一条可信来源、一次可复现的实验开始。</p><button id="try-practice" class="text-button">去看用好AI <span aria-hidden="true">↗</span></button></div>
+        <div class="endnote" id="endnote"><div class="endnote-mark" aria-hidden="true">✳</div><h2>如果换个问法呢？</h2><p>同一个工具，还能玩出什么？</p><button id="try-practice" class="text-button">去看用好AI <span aria-hidden="true">↗</span></button></div>
         <noscript><p class="no-script">请启用 JavaScript 以阅读文章、筛选和保存剪报。原始文章数据也可直接查看 <a href="./content.json">content.json</a>。</p></noscript>
         </div>
         <section id="article-view" class="article-view" aria-label="文章阅读" hidden></section>
       </main>
 
       <aside class="right-rail" aria-label="阅读指南与编者说明">
-        <section class="editor-pick"><p class="rail-heading">阅读路线 <span>Start here</span></p><h2>先看趋势，<br>再把它用起来。</h2><ol><li><button data-category="industry"><span>01</span><div><strong>看大图景</strong><small>模型、产业与开放生态</small></div></button></li><li><button data-category="practice"><span>02</span><div><strong>接入真实工具</strong><small>跨行业的 AI 使用方法</small></div></button></li><li><button data-category="embedded"><span>03</span><div><strong>把想法放进工程</strong><small>已有工具、工程方法与新想法</small></div></button></li></ol></section>
-        <section class="margin-note"><span class="asterisk" aria-hidden="true">✳</span><h2>好用，比热闹重要。</h2><p>一个能复现的小工作流，往往比十个“震撼发布”更值得收藏。</p><p class="pencil-note">带着你的问题读。</p></section>
-        <section class="editorial-note" id="editorial-note"><p class="rail-heading">编者说明</p><p>这是一份静态策展刊物，不是实时新闻流。每篇标注原始资料与核验日期；解读、官方事实和原创实验分别说明。</p><p>图解为本站原创示意，不是官方界面或模型输出。交互只在本页演示，不调用模型或执行真实任务。</p><p>收藏只写入本地浏览器。本站不设登录、追踪统计或付费推广。</p><details class="standards"><summary>我们怎样选与写</summary><p>优先链接官方公告、文档、代码仓库与论文。资料日期不等于核验日期；未实测的性能和自动化能力，不写成已完成的结果。</p></details></section>
-        <div class="colophon">AI 现场<br><span>Read the source.<br>Make your own sense.</span></div>
+        <section class="editor-pick"><p class="rail-heading">阅读路线 <span>Start here</span></p><h2>趋势、工具，<br>还有一点脑洞。</h2><ol><li><button data-category="industry"><span>01</span><div><strong>看大图景</strong><small>模型、产业与开放生态</small></div></button></li><li><button data-category="practice"><span>02</span><div><strong>接入真实工具</strong><small>跨行业的 AI 使用方法</small></div></button></li><li><button data-category="embedded"><span>03</span><div><strong>把想法放进工程</strong><small>已有工具、工程方法与新想法</small></div></button></li></ol></section>
+        <section class="margin-note"><span class="asterisk" aria-hidden="true">✳</span><h2>这个想法，还能拐个弯。</h2><p>如果把代码助手接上示波器呢？</p></section>
+        <section class="editorial-note" id="editorial-note"><p class="rail-heading">编者说明</p><p>内容为静态选编，附原始资料与核验日期；官方事实、解读与原创实验分别标注。</p><p>图解为本站原创示意，非官方界面或模型输出；交互仅在本页演示，不调用模型或执行真实任务。</p><p>收藏保存在当前浏览器；本站不设登录、追踪统计或付费推广。</p><details class="standards"><summary>我们怎样选与写</summary><p>优先链接官方公告、文档、代码仓库与论文。资料日期不等于核验日期；未实测的性能和自动化能力，不写成已完成的结果。</p></details></section>
+        <div class="colophon">AI 现场<br><span>Ideas in the wild.<br>What happens next?</span></div>
       </aside>
     </div>
-    <footer><a href="#top">AI 现场 <span>AI Fieldnotes</span></a><p>独立整理 · 保留判断 · 鼓励实践<small id="release-version" data-release="20261015r3-302861c20c76">版本 20261015r3-302861c20c76</small></p><span>资料会过时，原始信源值得再看。</span></footer>
+    <footer><a href="#top">AI 现场 <span>AI Fieldnotes</span></a><p>AI观察 · 用好AI · 脑洞实验<small id="release-version" data-release="20261015r3-76a248788ebe">版本 20261015r3-76a248788ebe</small></p><span>消息、方法与尚未命名的可能。</span></footer>
   </div>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
   <dialog id="link-dialog" aria-labelledby="link-dialog-title"><form method="dialog"><button class="dialog-close" aria-label="关闭">×</button><h2 id="link-dialog-title">文章链接</h2><p>复制下面的地址，即可直接打开这篇文章。</p><label for="link-input" class="sr-only">文章地址</label><input id="link-input" readonly><button class="text-button">完成</button></form></dialog>

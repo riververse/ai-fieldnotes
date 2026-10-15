@@ -14,10 +14,9 @@
   const feedView = document.getElementById('feed-view');
   const articleView = document.getElementById('article-view');
   const storageKey = 'ai-fieldnotes-bookmarks-v1';
-  const motionKey = 'ai-fieldnotes-motion-v1';
   const baseTitle = 'AI 现场 · AI Fieldnotes';
-  let rawSaved = null, motionPaused = false;
-  try { rawSaved = localStorage.getItem(storageKey); motionPaused = localStorage.getItem(motionKey) === 'paused'; } catch (_) {}
+  let rawSaved = null;
+  try { rawSaved = localStorage.getItem(storageKey); } catch (_) {}
   const state = { category: 'all', region: 'all', query: '', savedOnly: false, saved: C.parseSaved(rawSaved, new Set(byId.keys())) };
   const demos = new Map();
   let currentId = null, feedSnapshot = null, toastTimer, positionTimer, entryTimer, progressFrame = false, storageWorks = true;
@@ -28,24 +27,35 @@
   };
   const avatar = { industry: '观', practice: '用', embedded: '试' };
   const visual = p => window.FieldnoteVisuals ? window.FieldnoteVisuals.render(p, demos.get(p.id) || 0) : '';
+  // Autoplay is brief and once per scene for this page visit. The retired local
+  // pause setting is deliberately ignored; system reduced-motion stays authoritative.
+  const playedScenes = new Set(), startedNodes = new WeakSet();
+  function startMotion(el) {
+    if (motionQuery.matches || startedNodes.has(el)) return;
+    startedNodes.add(el);
+    const key = el.id || 'hero-sunset';
+    if (playedScenes.has(key)) { el.classList.add('motion-settled'); return; }
+    playedScenes.add(key);
+    // CSS reaches its natural final frame within 4.8 seconds. This deadline also
+    // settles an offscreen/hidden scene so repeated boundary crossings never replay it.
+    setTimeout(() => el.classList.add('motion-settled'), 4800);
+  }
   const observer = typeof IntersectionObserver !== 'undefined' ? new IntersectionObserver(entries => {
-    entries.forEach(entry => entry.target.classList.toggle('is-visible', entry.isIntersecting));
+    entries.forEach(entry => {
+      entry.target.classList.toggle('is-visible', entry.isIntersecting);
+      if (entry.isIntersecting) startMotion(entry.target);
+    });
   }, { rootMargin: '40px', threshold: 0.05 }) : null;
   function observeMotion() {
     if (observer) observer.disconnect();
     document.querySelectorAll('.motion-scene').forEach(el => {
-      if (observer) observer.observe(el); else el.classList.add('is-visible');
+      if (observer) observer.observe(el);
+      else { el.classList.add('is-visible'); startMotion(el); }
     });
   }
   function applyMotion() {
-    const reduced = motionQuery.matches;
-    document.body.classList.toggle('motion-paused', motionPaused || reduced);
-    const button = document.getElementById('motion-toggle');
-    button.disabled = reduced;
-    button.setAttribute('aria-pressed', String(motionPaused || reduced));
-    button.setAttribute('aria-label', reduced ? '已跟随系统减少动态效果设置' : motionPaused ? '播放所有动效' : '暂停所有动效');
-    document.getElementById('motion-label').textContent = reduced ? '静态阅读' : motionPaused ? '播放动效' : '暂停动效';
-    button.querySelector('.motion-indicator').textContent = reduced || motionPaused ? '▷' : 'Ⅱ';
+    document.body.classList.toggle('motion-paused', motionQuery.matches);
+    if (!motionQuery.matches) document.querySelectorAll('.motion-scene.is-visible').forEach(startMotion);
   }
   function detail(p) {
     const summaries=p.summary||[];
@@ -57,7 +67,7 @@
     ${analyses.map(x=>typeof x==='string'?`<p>${e(x)}</p>`:`<section class="article-section"><h3>${e(x.heading)}</h3><p>${e(x.text)}</p></section>`).join('')}
     ${p.tryThis?`<section class="try-this"><div class="try-this-heading"><h3>动手试试：一份任务包</h3><button data-copy-prompt="${e(p.id)}">复制任务包</button></div><label class="sr-only" for="prompt-${e(p.id)}">可复制的任务提示</label><textarea id="prompt-${e(p.id)}" readonly rows="5">${e(p.tryThis.prompt)}</textarea><p><strong>预期得到：</strong>${e(p.tryThis.expected)}</p></section>`:''}
     ${steps.length?`<section class="article-section"><h3>${p.kind==='experiment'?'可以怎样验证':'把它用起来'}</h3><ol>${steps.map(x=>`<li>${typeof x==='string'?e(x):`<strong>${e(x.title||x.heading||'')}</strong> ${e(x.text||x.description||'')}`}</li>`).join('')}</ol></section>`:''}
-    ${p.caveat?`<aside class="caveat"><strong>${p.kind==='experiment'?'方案边界':'需要保留的判断'}</strong><p>${e(p.caveat)}</p></aside>`:''}
+    ${p.caveat?`<aside class="caveat"><strong>${p.kind==='experiment'?'方案边界':'适用边界'}</strong><p>${e(p.caveat)}</p></aside>`:''}
     <section class="source-list"><h3>回到原始资料</h3><ol>${(p.sources||[]).map(s=>{const url=C.safeURL(s.url);if(!url)return '';return `<li><a href="${e(url)}" target="_blank" rel="noopener noreferrer"><span>${e(s.title||s.label)}</span><span aria-label="在新标签页打开">↗</span></a><small>${e(new URL(url).hostname)}</small></li>`;}).join('')}</ol><div class="source-facts"><span>${p.date?e((p.dateLabel||'资料日期')+'：'+p.date):e(p.dateLabel||'持续更新资料')}</span><span>核验：${e(p.verifiedAt||data.site.verifiedAt)}</span></div>${p.license?`<p>许可证：${e(p.license)}</p>`:''}${p.maturity?`<p>成熟度：${e(p.maturity)}</p>`:''}${p.maintenance?`<p>维护观察：${e(p.maintenance)}</p>`:''}</section><button class="article-return" data-back>← 返回信息流</button>`;
   }
 
@@ -220,7 +230,6 @@
     const button = event.target.closest('button');
     if (button) {
       if (button.hasAttribute('data-back')) goFeed();
-      else if (button.id === 'motion-toggle') { motionPaused = !motionPaused; try { localStorage.setItem(motionKey, motionPaused ? 'paused' : 'playing'); } catch (_) {} applyMotion(); }
       else if (button.dataset.category) { state.category = button.dataset.category; state.savedOnly = false; filterChanged(); }
       else if (button.dataset.region) { state.region = button.dataset.region; filterChanged(); }
       else if (button.dataset.save) {
@@ -236,6 +245,7 @@
       else if (button.dataset.demo) {
         const id = button.dataset.demo; demos.set(id, (demos.get(id) || 0) + 1);
         const wrapper = button.closest('.visual'), temp = document.createElement('div'); temp.innerHTML = visual(byId.get(id));
+        playedScenes.delete('visual-' + id);
         wrapper.replaceWith(temp.firstElementChild); observeMotion();
         const active = document.querySelector(`${currentId ? '#article-view' : '#feed'} [data-demo="${CSS.escape(id)}"]`); if (active) active.focus({ preventScroll: true });
       } else if (button.id === 'shelf-button' || button.id === 'mobile-shelf') { const showSaved = !state.savedOnly; resetState(); state.savedOnly = showSaved; if (showSaved) state.category = 'all'; filterChanged(); }
@@ -259,7 +269,6 @@
   window.addEventListener('resize', updateProgress);
   window.addEventListener('storage', event => {
     if (event.key === storageKey) { state.saved = C.parseSaved(event.newValue, new Set(byId.keys())); if (currentId) renderArticle(currentId); else renderFeed(); }
-    if (event.key === motionKey) { motionPaused = event.newValue === 'paused'; applyMotion(); }
   });
   if (motionQuery.addEventListener) motionQuery.addEventListener('change', applyMotion);
   else if (motionQuery.addListener) motionQuery.addListener(applyMotion);
