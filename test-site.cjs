@@ -778,6 +778,121 @@ check('Article rendering escapes untrusted content and omits dangerous source UR
   assert(env.get('#article-view').innerHTML.includes('&lt;script&gt;')); assert(env.get('#article-view').querySelectorAll('.source-list a').every(link => link.href.startsWith('https://')));
 });
 
+/* Added after the established 44 baseline suites. Existing suites remain intact. */
+check('Expanded editorial bodies keep previews short and use readable existing section types', () => {
+  assert.equal(data.posts.length, 16);
+  for (const p of data.posts) {
+    assert(p.dek.length < 100, p.id + ': feed preview should remain short');
+    assert(p.summary.length >= 1 && p.summary.length <= 3, p.id);
+    assert(p.analysis.length >= 5, p.id + ': independent article explanation');
+    for (const section of p.analysis) {
+      assert.equal(typeof section.heading, 'string');
+      assert.equal(typeof section.text, 'string');
+      assert(section.text.length > 40 && section.text.length <= 250, p.id + ': readable section');
+    }
+    assert(p.tryThis && p.tryThis.prompt.length >= 60 && p.tryThis.expected.length >= 40, p.id + ': reusable task and expected result');
+    assert(p.steps.length <= 4, p.id + ': concise implementation checklist');
+  }
+});
+check('Editorial aliases stay synchronized and original proposals are not dated as releases', () => {
+  for (const p of data.posts) {
+    assert.deepEqual(p.paragraphs, p.summary, p.id);
+    assert.deepEqual(p.takeaways, p.steps, p.id);
+    assert.equal(p.limitations, p.caveat, p.id);
+    assert.equal(p.verified_date, p.verifiedAt, p.id);
+    if (p.kind === 'experiment') assert.equal(p.date, null, p.id);
+    assert.equal(new Set(p.sources.map(s => s.url)).size, p.sources.length, p.id);
+    assert(p.sources.every(s => s.url.startsWith('https://')), p.id);
+  }
+});
+check('All 16 direct details render every explanatory section and retain their source evidence', () => {
+  for (const p of data.posts) {
+    const env = boot({ url: 'https://example.test/publication/' + C.postHash(p.id) });
+    assertView(env, 'article');
+    const detail = env.get('#article-view');
+    for (const section of p.analysis) {
+      assert(detail.textContent.includes(section.heading), p.id + ': section heading');
+      assert(detail.textContent.includes(section.text), p.id + ': full section text');
+    }
+    assert.equal(detail.querySelectorAll('.source-list a').length, p.sources.length, p.id);
+    assert(detail.textContent.includes(p.caveat), p.id);
+    assert.equal(detail.querySelectorAll('[data-copy-prompt]').length, 1, p.id);
+  }
+});
+check('Every copyable task preserves complete multiline text without changing the article route', async () => {
+  for (const p of data.posts) {
+    const url = 'https://example.test/publication/' + C.postHash(p.id);
+    const env = boot({ url });
+    assert.equal(env.get('#prompt-' + p.id).value, p.tryThis.prompt, p.id);
+    env.click('[data-copy-prompt]'); await env.settle();
+    assert.deepEqual(env.clipboard, [p.tryThis.prompt], p.id);
+    assert.equal(env.location.href, url); assertView(env, 'article');
+  }
+});
+check('Expanded article text is searchable without exposing it in preview cards', () => {
+  const env = boot();
+  for (const p of data.posts) {
+    const phrase = p.analysis[0].text.slice(0, 12);
+    assert(C.filterPosts(data.posts, { ...base(), query: phrase }).some(hit => hit.id === p.id), p.id);
+    const card = env.get('#post-' + p.id);
+    assert.equal(card.querySelectorAll('.article-section,.try-this,.source-list').length, 0, p.id);
+    assert(!card.textContent.includes(p.analysis[0].text), p.id);
+  }
+});
+check('Long article navigation retains latest reading position and a clean feed after return', () => {
+  const p = data.posts.find(post => post.id === 'document-style-pipeline');
+  const env = boot();
+  env.scroll(1200); env.tick(200); env.click('#post-' + p.id + ' .post-title a');
+  env.scroll(2800); env.click('#article-view .article-return');
+  assertView(env, 'feed'); assert.equal(env.window.scrollY, 1200);
+  env.forward(); assertView(env, 'article'); assert.equal(env.window.scrollY, 2800);
+  assert.equal(env.get('#prompt-' + p.id).value, p.tryThis.prompt);
+});
+
+/* Optical-layer contracts: static DOM/CSS checks, not browser paint or frame timing. */
+check('All 64 diagram states namespace SVG definitions and preserve their demo contracts', () => {
+  const scope = { window: {} }; vm.runInNewContext(visuals, scope);
+  const seen = new Set();
+  for (const post of data.posts) for (const state of [0, 1, 2, 3]) {
+    const output = scope.window.FieldnoteVisuals.render(post, state);
+    assert(output.includes(`data-demo="${post.id}"`), post.id);
+    assert(output.includes(`id="visual-${post.id}"`), post.id);
+    assert(output.includes('aria-hidden="true" focusable="false"'), post.id);
+    assert(output.includes('aria-live="polite"'), post.id);
+    const svg = output.match(/<svg[\s\S]*<\/svg>/)[0];
+    const localIds = [...svg.matchAll(/\bid="([^"]+)"/g)].map(match => match[1]);
+    for (const id of localIds) { assert(!seen.has(id), 'SVG definitions must be unique across repeated instances'); seen.add(id); }
+    for (const match of svg.matchAll(/url\(#([^)]+)\)/g)) assert(localIds.includes(match[1]), 'SVG references must resolve inside their own instance');
+  }
+  assert(seen.size > 100, 'Each scene must provide its own scoped definitions');
+  assert.equal(scope.window.FieldnoteVisuals.render({ id: 'missing' }), '');
+});
+check('Diagram particles stay within element and motion budgets without external animation work', () => {
+  const scope = { window: {} }; vm.runInNewContext(visuals, scope);
+  for (const post of data.posts) for (const state of [0, 1, 2, 3]) {
+    const svg = scope.window.FieldnoteVisuals.render(post, state).match(/<svg[\s\S]*<\/svg>/)[0];
+    assert(svg.includes('fv-optical-signals') && svg.includes('fv-flow-runner'), post.id);
+    assert([...svg.matchAll(/<(?!\/)[a-z][^>]*>/g)].length <= 190, post.id + ': SVG element budget');
+    assert([...svg.matchAll(/class="fv-animated fv-flow-runner/g)].length <= 6, post.id + ': particle budget');
+    assert(!/<filter|<animate|<image|<foreignObject|<canvas/.test(svg), post.id);
+  }
+  assert(!/setInterval|requestAnimationFrame|Math\.random|fetch\(/.test(visuals));
+  assert(!/filter\s*:|backdrop-filter|will-change|mix-blend-mode/.test(visualCSS));
+  assert(!/url\(#/.test(visualCSS), 'Scoped SVG IDs must never be hardcoded in global CSS');
+});
+check('Optical layers retain detail, mobile, offscreen, print, and reduced-motion fallbacks', () => {
+  assert(visualCSS.includes('.article-paper .fv-visual .fv-fx-detail {display:inline;}'));
+  assert(visualCSS.includes('.article-paper .fv-visual .fv-fx-detail {display:none;}'));
+  assert(visualCSS.includes('@media (max-width:650px)'));
+  assert(visualCSS.includes('@supports not (offset-path:'));
+  assert(visualCSS.includes('body.motion-paused .fv-visual.motion-scene .fv-animated {animation-play-state:paused!important;}'));
+  assert(visualCSS.includes('@media (prefers-reduced-motion:reduce)'));
+  assert(visualCSS.includes('.fv-visual .fv-flow-runner,.fv-visual .fv-flow-trail,.fv-visual .fv-pulse-ring,.fv-visual .fv-optical-scan'));
+  assert(visualCSS.includes('@media print'));
+  const lastAnimation = visualCSS.lastIndexOf('animation:fv-');
+  assert(visualCSS.lastIndexOf('.fv-visual.motion-scene .fv-animated {animation-play-state:paused;}') > lastAnimation, 'Observer pause must override later animation shorthands');
+});
+
 (async () => {
   let passed = 0;
   for (const [name, fn] of suites) {

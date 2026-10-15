@@ -364,3 +364,81 @@ body.motion-paused .fv-visual.motion-scene .fv-animated {animation-play-state:pa
   .fv-visual .fv-control {display:none;}
   .fv-visual .fv-replay-copy {display:none;}
 }
+
+/* Optical fieldnotes: a bounded signal belongs to a source, route or checkpoint.
+ * Gradients are tiny local fills; no blur filter, blending, canvas or JS ticker.
+ * Feed = one readable signal layer. Article = sources, depth and return paths. */
+.fv-visual .fv-optical-depth,.fv-visual .fv-optical-signals {pointer-events:none;}
+.fv-visual .fv-fx-glow {stroke:none;opacity:.7;}
+.fv-visual .fv-fx-contour {fill:none;stroke:#9aaa87;stroke-width:.8;stroke-opacity:.32;}
+.fv-visual .fv-fx-detail {display:none;}
+.article-paper .fv-visual .fv-fx-detail {display:inline;}
+.fv-visual .fv-flow {--fv-signal:#758c60;--signal-period:8s;--fv-delay:0s;}
+.fv-visual .fv-flow-amber {--fv-signal:#bd8040;}
+.fv-visual .fv-flow-track {fill:none;stroke:var(--fv-signal);stroke-width:4;stroke-opacity:.065;}
+.fv-visual .fv-flow-trail {fill:none;stroke:var(--fv-signal);stroke-width:3;stroke-opacity:.28;stroke-dasharray:12 88;animation:fv-trace-pass 8s linear infinite;animation-duration:var(--signal-period);animation-delay:var(--fv-delay);}
+.fv-visual .fv-flow-runner {offset-path:var(--fv-path);offset-rotate:0deg;offset-anchor:0px 0px;animation:fv-particle-route 8s linear infinite;animation-duration:var(--signal-period);animation-delay:var(--fv-delay);}
+.fv-visual .fv-particle-halo {stroke:none;opacity:.86;}
+.fv-visual .fv-particle-core {fill:var(--fv-signal);stroke:#faf5df;stroke-width:.65;}
+.fv-visual .fv-particle-light {fill:#fff6d8;stroke:none;}
+.fv-visual .fv-flow-quiet .fv-flow-track,.fv-visual .fv-flow-quiet .fv-flow-trail {display:none;}
+.fv-visual .fv-signal-pulse {--fv-signal:#7b9366;--signal-period:8s;--fv-delay:0s;}
+.fv-visual .fv-signal-pulse.fv-flow-amber {--fv-signal:#bd8040;}
+.fv-visual .fv-pulse-ring {fill:none;stroke:var(--fv-signal);stroke-width:1.2;transform-origin:0 0;animation:fv-signal-bloom 8s ease-out infinite;animation-duration:var(--signal-period);animation-delay:var(--fv-delay);}
+.fv-visual .fv-pulse-seat {fill:none;stroke:var(--fv-signal);stroke-width:.65;stroke-opacity:.14;}
+.fv-visual .fv-optical-scan {--signal-period:8s;--fv-delay:0s;}
+.fv-visual .fv-scan-pass {animation:fv-optical-sweep 8s cubic-bezier(.4,0,.3,1) infinite;animation-duration:var(--signal-period);animation-delay:var(--fv-delay);}
+.fv-visual .fv-scan-edge {fill:none;stroke:#cba160;stroke-width:1;stroke-opacity:.65;}
+.fv-visual .fv-sun-ray {stroke:none;opacity:.58;}
+.fv-visual .fv-sky-light {transform-origin:409px 35px;animation:fv-sunlight-drift 15s ease-in-out infinite alternate;}
+.fv-visual .fv-sky-haze {animation:fv-atmosphere-drift 18s ease-in-out infinite alternate;}
+.fv-visual .fv-haze-stroke {fill:none;stroke:#fff0ce;stroke-width:4;stroke-opacity:.21;}
+.fv-landscape .fv-flow-amber {--fv-signal:#fff1cb;}
+.fv-landscape .fv-particle-core {stroke:#e5bf84;stroke-opacity:.6;}
+.fv-visual .fv-conflict-outline {fill:none;stroke:#bd8040;stroke-width:1.1;animation:fv-audit-attention 9s ease-in-out infinite;}
+.fv-visual .fv-budget-aura {fill-opacity:.18;stroke:#9aae85;stroke-opacity:.24;stroke-width:1;}
+@keyframes fv-particle-route {0%{offset-distance:0%;opacity:0}9%{opacity:.95}83%{opacity:.95}100%{offset-distance:100%;opacity:0}}
+@keyframes fv-trace-pass {0%{stroke-dashoffset:100;opacity:0}12%{opacity:.7}82%{opacity:.7}100%{stroke-dashoffset:0;opacity:0}}
+@keyframes fv-signal-bloom {0%,10%{transform:scale(.76);opacity:0}27%{opacity:.42}65%,100%{transform:scale(1.27);opacity:0}}
+@keyframes fv-optical-sweep {0%,10%{transform:translateY(0);opacity:0}18%{opacity:.85}73%{transform:translateY(var(--fv-scan-span));opacity:.85}84%,100%{transform:translateY(var(--fv-scan-span));opacity:0}}
+@keyframes fv-sunlight-drift {0%{transform:rotate(-4deg);opacity:.4}100%{transform:rotate(5deg);opacity:.9}}
+@keyframes fv-atmosphere-drift {0%{transform:translateX(-8px);opacity:.5}100%{transform:translateX(10px);opacity:1}}
+@keyframes fv-audit-attention {0%,20%,100%{stroke-opacity:.18}46%,70%{stroke-opacity:.65}}
+
+/* Detail illustrations get breathing room, not a different rendering API. */
+.article-paper .fv-visual .fv-stage {height:205px;margin:5px 10px 0;}
+.article-paper .fv-visual .fv-art {height:172px;top:0;}
+.article-paper .fv-visual .fv-labels {bottom:10px;font-size:11px;}
+.article-paper .fv-visual .fv-fx-glow {opacity:.95;}
+.article-paper .fv-visual .fv-flow-track {stroke-opacity:.1;}
+.article-paper .fv-visual .fv-flow-trail {stroke-width:3.5;stroke-opacity:.34;}
+/* Later animation shorthand must never override the observer's paused state. */
+.fv-visual.motion-scene .fv-animated {animation-play-state:paused;}
+.fv-visual.motion-scene.is-visible .fv-animated {animation-play-state:running;}
+body.motion-paused .fv-visual.motion-scene .fv-animated {animation-play-state:paused!important;}
+@supports not (offset-path:path('M0 0H1')) {
+  .fv-visual .fv-flow-runner {display:none;}
+}
+@media (max-width:650px) {
+  .article-paper .fv-visual .fv-stage {height:165px;margin:3px 0 0;}
+  .article-paper .fv-visual .fv-art {height:131px;}
+  .article-paper .fv-visual .fv-labels {font-size:10px;bottom:8px;}
+  /* Small screens keep primary motion and larger particles; no secondary paths. */
+  .article-paper .fv-visual .fv-fx-detail {display:none;}
+  .fv-visual .fv-particle-core {r:2.6px;}
+  .fv-visual .fv-flow-trail {stroke-width:2.5;}
+}
+@media (max-width:380px) {
+  .article-paper .fv-visual .fv-stage {height:153px;}
+  .article-paper .fv-visual .fv-art {height:118px;}
+  .article-paper .fv-visual .fv-labels {font-size:9px;}
+}
+@media (prefers-reduced-motion:reduce) {
+  .fv-visual .fv-animated {animation:none!important;transition:none!important;opacity:1!important;transform:none!important;}
+  .fv-visual .fv-flow-runner,.fv-visual .fv-flow-trail,.fv-visual .fv-pulse-ring,.fv-visual .fv-optical-scan,.fv-visual .fv-sky-light,.fv-visual .fv-sky-haze {display:none!important;}
+  .fv-visual .fv-budget-aura {display:none;}
+}
+@media print {
+  .fv-visual .fv-optical-depth,.fv-visual .fv-optical-signals {display:none!important;}
+  .fv-visual .fv-animated {animation:none!important;}
+}

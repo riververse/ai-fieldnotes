@@ -78,13 +78,13 @@ There are no build dependencies or custom-domain requirements. Publishing is pub
 
 ## Testing notes
 
-`test-site.cjs` uses Node's standard library only. It checks editorial structure, data synchronization, relative assets, filtering, search, bookmark recovery, old/new hash links, separate article navigation, Back/Forward restoration, click boundaries, motion preferences, HTML escaping, allowed link protocols, responsive/accessibility hooks, and application boot/event rendering in a DOM/history stub. It does not replace browser layout, keyboard, actual clipboard, or assistive-technology testing.
+`test-site.cjs` uses Node's standard library only. It checks editorial structure, data synchronization, relative assets, filtering, search, bookmark recovery, old/new hash links, separate article navigation, Back/Forward restoration, click boundaries, motion preferences, HTML escaping, allowed link protocols, responsive/accessibility hooks, and application boot/event rendering in a DOM/history stub. The 53 suites include the existing 44 behavior and build checks, six full-article and task-copy checks, and three scoped-SVG, particle-budget, and motion-fallback checks. These are DOM/CSS contracts, not browser layout, animation paint, frame-rate, native clipboard, or assistive-technology testing.
 
 All editorial summaries and diagrams are original. Source material remains with its respective publishers; links are provided for context and verification. The publication is not affiliated with the vendors covered.
 
 ## Design and implementation notes
 
-- The original article bodies and source URLs are preserved; section assignments follow the three-section redesign, and new sourced embedded-engineering pieces extend the publication. `content.json` and its generated bundle remain the editorial source of truth.
+- All 16 stable article IDs, feed titles and previews, category assignments, and source dates are preserved. Independent article bodies explain the background, a worked example, a reusable task, and how to judge its output. First-party references are rechecked, broad index links are replaced with precise source pages where appropriate, and additional primary references support corrections. `content.json` and its generated bundle remain the editorial source of truth.
 - `visuals.js` maps the current article IDs to original scenes. These explain concepts; they do not claim live model calls, tool execution, measured latency, or vendor output.
 - `style.css` owns layout, article typography, and the sunset introduction. `visuals.css` owns explanatory-scene styles and keyframes.
 - Routing is static-host-friendly: no server rewrites are needed. The page path remains the same and article IDs live in the URL fragment.

@@ -204,6 +204,116 @@
     })
   };
 
+
+  /* Small, authored optical accents follow the information in each illustration.
+   * No random particle field, timers, canvas, filters, SMIL or external assets.
+   * Everything animated shares the existing viewport observer's fv-animated hook. */
+  let renderSerial = 0;
+  let scanSerial = 0;
+  const effectDefs = `<defs>
+    <radialGradient id="fv-fx-amber"><stop stop-color="#e6ba72" stop-opacity=".72"/><stop offset=".38" stop-color="#d6a35d" stop-opacity=".3"/><stop offset="1" stop-color="#d6a35d" stop-opacity="0"/></radialGradient>
+    <radialGradient id="fv-fx-sage"><stop stop-color="#adc59a" stop-opacity=".7"/><stop offset=".4" stop-color="#99b185" stop-opacity=".24"/><stop offset="1" stop-color="#99b185" stop-opacity="0"/></radialGradient>
+    <linearGradient id="fv-fx-scan" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#d7aa67" stop-opacity="0"/><stop offset="1" stop-color="#d7aa67" stop-opacity=".28"/></linearGradient>
+    <linearGradient id="fv-fx-daylight" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff4c5" stop-opacity=".45"/><stop offset="1" stop-color="#fff4c5" stop-opacity="0"/></linearGradient>
+  </defs>`;
+  const glow = (x,y,rx,ry,tone='sage',detail=false) => `<ellipse class="fv-fx-glow${detail?' fv-fx-detail':''}" cx="${x}" cy="${y}" rx="${rx}" ry="${ry}" fill="url(#fv-fx-${tone})"/>`;
+  const contour = d => `<path class="fv-fx-contour fv-fx-detail" d="${d}"/>`;
+  const flow = (d, {tone='sage',period=7,delay=0,count=2,detail=false,quiet=false}={}) => {
+    const timing = `--signal-period:${period}s;--fv-delay:${delay}s`;
+    return `<g class="fv-flow fv-flow-${tone}${detail?' fv-fx-detail':''}${quiet?' fv-flow-quiet':''}" style="${timing}">
+      <path class="fv-flow-track" d="${d}"/>
+      <path class="fv-animated fv-flow-trail" pathLength="100" d="${d}"/>
+      ${Array.from({length:count},(_,i)=>`<g class="fv-animated fv-flow-runner${i>1?' fv-fx-detail':''}" style="--fv-path:path('${d}');--fv-delay:${delay-i*period/count}s">
+        <circle class="fv-particle-halo" r="8" fill="url(#fv-fx-${tone})"/>
+        <circle class="fv-particle-core" r="2.3"/><circle class="fv-particle-light" cx="-.6" cy="-.7" r=".7"/>
+      </g>`).join('')}
+    </g>`;
+  };
+  const pulse = (x,y,r,{tone='sage',period=7,delay=0,detail=false}={}) => `<g class="fv-signal-pulse fv-flow-${tone}${detail?' fv-fx-detail':''}" transform="translate(${x} ${y})" style="--signal-period:${period}s;--fv-delay:${delay}s"><circle class="fv-animated fv-pulse-ring" r="${r}"/><circle class="fv-pulse-seat" r="${r*.82}"/></g>`;
+  const scan = (x,y,w,h,{period=8,delay=0,detail=false}={}) => {
+    const id = `fv-scan-window-${++scanSerial}`;
+    return `<g class="fv-optical-scan${detail?' fv-fx-detail':''}" transform="translate(${x} ${y})" style="--signal-period:${period}s;--fv-delay:${delay}s;--fv-scan-span:${h}px"><defs><clipPath id="${id}"><rect width="${w}" height="${h}" rx="2"/></clipPath></defs><g clip-path="url(#${id})"><g class="fv-animated fv-scan-pass"><rect y="-14" width="${w}" height="14" fill="url(#fv-fx-scan)"/><path class="fv-scan-edge" d="M0 0H${w}"/></g></g></g>`;
+  };
+  const accents = {
+    balance: () => ({
+      back:glow(320,88,106,65)+contour('M151 35Q320-4 489 35M151 40v-9m338 9v-9'),
+      front:flow('M174 120C207 146 246 149 282 126',{period:9,tone:'sage'})+flow('M466 120C433 146 394 149 358 126',{period:9,delay:-4.5,tone:'amber'})+pulse(342,105,17,{period:9,delay:-3})+flow('M202 28Q320 9 438 28',{period:12,count:1,detail:true,quiet:true})
+    }),
+    migration: () => ({
+      back:glow(464,80,80,68)+contour('M414 21h96M414 139h96'),
+      front:flow('M133 43H221Q242 43 242 65V80H285',{period:8,tone:'amber'})+flow('M133 119H221Q242 119 242 97V80H285',{period:8,delay:-4,count:1})+flow('M505 80H558',{period:8,delay:-5,count:1})+pulse(303,79,23,{tone:'amber',period:8,delay:-4,detail:true})+scan(440,57,46,46,{period:8,delay:-4,detail:true})
+    }),
+    multimodal: () => ({
+      back:glow(441,86,64,48,'amber')+contour('M49 146h321m-292-3v6m73-6v6m73-6v6m73-6v6'),
+      front:`<g class="fv-animated fv-playhead fv-fx-detail"><rect x="145" y="29" width="15" height="96" fill="url(#fv-fx-daylight)"/></g>`+flow('M392 60H424Q439 60 439 75V87H459',{tone:'amber',period:10})+flow('M392 105H424Q439 105 439 92V87H459',{period:10,delay:-4,count:1})+pulse(481,46,11,{period:10,delay:-7})+scan(478,91,99,22,{period:10,delay:-6,detail:true})
+    }),
+    landscape: () => ({
+      back:'',
+      front:`<defs><clipPath id="fv-fx-sky-only"><path d="M34 8H606V82L537 106 459 75 364 111 285 45 200 105 120 60 34 118Z"/></clipPath></defs><g clip-path="url(#fv-fx-sky-only)">
+        <g class="fv-animated fv-sky-light"><path class="fv-sun-ray" fill="url(#fv-fx-daylight)" d="M407 25 275 113 332 120 430 38Z"/><path class="fv-sun-ray fv-fx-detail" fill="url(#fv-fx-daylight)" d="m423 24 118 91-35 12-98-89Z"/>${glow(409,52,102,61,'amber')}</g>
+        <g class="fv-animated fv-sky-haze"><path class="fv-haze-stroke" d="M67 44q60-13 125-7M469 33q59-7 109 5"/></g>
+        ${flow('M344 29Q397 9 465 41',{tone:'amber',period:15,count:2,quiet:true})}${flow('M484 62Q446 35 394 25',{tone:'amber',period:18,count:1,quiet:true,detail:true})}
+      </g>`
+    }),
+    evidence: () => ({
+      back:glow(327,78,118,69)+contour('M234 142h174M242 18h8m147 0h8'),
+      front:flow('M164 73H238',{period:10})+flow('M412 74H480',{period:10,delay:-5,tone:'amber'})+scan(497,44,67,43,{period:10,delay:-5,detail:true})+flow('M525 143V149H126V135',{period:12,delay:-5,count:1,detail:true,quiet:true})
+    }),
+    terminal: () => ({
+      back:glow(433,80,74,66,'amber')+contour('M379 18h105M379 140h105'),
+      front:scan(47,44,270,87,{period:7,delay:-2})+flow('M332 78H388',{period:7,count:2})+flow('M473 79H496',{period:8,delay:-3,tone:'amber',count:1})+pulse(520,79,23,{tone:'amber',period:8,detail:true})
+    }),
+    browser: () => ({
+      back:glow(357,79,64,61)+contour('M448 21h9m-9 115h9'),
+      front:scan(65,56,224,63,{period:9,delay:-2})+flow('M329 79H359V48H390',{period:9,count:1})+flow('M329 79H390',{period:9,delay:-3,count:1})+flow('M329 79H359V110H390',{period:9,delay:-6,count:1,detail:true})+flow('M434 79H461',{tone:'amber',period:9,delay:-6,count:1})+pulse(553,107,17,{period:9,delay:-6,detail:true})
+    }),
+    skill: () => ({
+      back:glow(354,80,119,61)+contour('M271 119h166M293 112v14m61-14v14m61-14v14'),
+      front:flow('M265 80H478',{period:9,tone:'amber',count:2})+pulse(293,80,28,{period:9})+pulse(354,80,28,{period:9,delay:-3,detail:true})+pulse(415,80,28,{period:9,delay:-6,detail:true})+scan(513,51,61,53,{period:11,delay:-5,detail:true})
+    }),
+    embedded: () => ({
+      back:glow(285,39,79,38)+contour('M234 7h101M426 23h109'),
+      front:flow('M124 82H174V38H243',{period:10,count:2,tone:'amber'})+flow('M325 38H372V82H434',{period:10,delay:-4,count:2})+flow('M574 105V149H82V134',{period:12,delay:-5,count:2,detail:true,quiet:true})+pulse(216,122,18,{tone:'amber',period:10,detail:true})
+    }),
+    replay: () => ({
+      back:glow(315,78,94,64)+contour('M226 16h167M240 21v-9m140 9v-9'),
+      front:flow('M198 100H231V82H258',{period:12,tone:'amber',count:2})+flow('M383 82H472',{period:12,delay:-5,count:2})+scan(491,52,95,41,{period:12,delay:-6,detail:true})+pulse(554,60,15,{tone:'amber',period:12,delay:-7,detail:true})
+    }),
+    fuzz: () => ({
+      back:glow(309,79,105,67,'amber')+contour('M231 23h162M231 132h162'),
+      front:flow('M151 53Q174 53 187 78H239',{period:8,count:1,tone:'amber'})+flow('M151 96Q175 96 187 78H239',{period:8,delay:-4,count:1})+flow('M383 79H432V41H493',{period:9,delay:-2,count:1})+flow('M383 79H493',{period:9,delay:-5,count:1})+flow('M525 117H549',{period:11,delay:-6,count:1,tone:'amber',detail:true})+pulse(582,77,15,{period:11,tone:'amber',detail:true})
+    }),
+    probe: () => ({
+      back:glow(204,83,57,66,'amber')+contour('M493 29h120M493 137h120'),
+      /* The only moving request path ends before the locked permission boundary. */
+      front:flow('M144 83H182',{period:8,count:2,tone:'amber'})+pulse(205,83,24,{tone:'amber',period:8})+scan(249,51,68,48,{period:10,delay:-3,detail:true})+`<path class="fv-fx-contour fv-fx-detail" d="M347 139h132m-66-4v8"/>`
+    }),
+    registers: () => ({
+      back:glow(317,76,94,65)+contour('M242 16h150M242 137h150'),
+      front:scan(62,64,115,49,{period:9})+flow('M194 72H245',{period:9,count:2,tone:'amber'})+flow('M384 73H439',{period:9,delay:-4,count:2})+flow('M520 61H536',{period:9,delay:-5,count:1,detail:true,quiet:true})+flow('M520 83H536',{period:9,delay:-7,count:1,detail:true,quiet:true})+`<rect class="fv-animated fv-conflict-outline fv-fx-detail" x="534" y="94" width="57" height="23" rx="4"/>`
+    }),
+    edgeai: () => ({
+      back:glow(246,81,64,67,'amber')+contour('M207 133h201M219 129v8m181-8v8'),
+      front:flow('M189 80H216',{period:10,tone:'amber',count:2})+flow('M273 81H291',{period:10,delay:-4,count:2})+flow('M189 54Q202 54 216 74',{period:10,count:1,tone:'amber',detail:true})+flow('M189 103Q202 103 216 88',{period:10,delay:-5,count:1,detail:true})+`<g class="fv-animated fv-budget-focus fv-fx-detail"><rect class="fv-budget-aura" fill="url(#fv-fx-sage)" x="452" y="16" width="151" height="40" rx="8"/></g>`
+    }),
+    contract: () => ({
+      back:glow(241,79,66,62,'amber')+glow(388,76,65,61,'sage',true),
+      front:`<g class="fv-animated fv-contract-scan"><rect x="208" y="43" width="66" height="18" fill="url(#fv-fx-scan)"/></g>`+flow('M138 123H196',{period:15,delay:-3,count:1,tone:'amber'})+flow('M286 123H336',{period:15,delay:-7,count:1})+flow('M440 123H504',{period:15,delay:-10,count:1,tone:'amber'})+pulse(388,48,19,{period:15,delay:-7,detail:true})+scan(518,49,57,29,{period:15,delay:-11,detail:true})
+    }),
+    documents: () => ({
+      back:glow(313,80,104,66)+contour('M450 17v120m144-120v120M444 44h12m132 0h12M444 89h12m132 0h12'),
+      front:flow('M163 80H240',{period:10,count:2})+flow('M385 80H458',{period:10,delay:-5,tone:'amber',count:2})+scan(475,42,96,82,{period:10,delay:-4,detail:true})+flow('M523 144V152H309V138',{period:13,delay:-7,count:1,detail:true,quiet:true})
+    })
+  };
+  function illuminate(body,kind) {
+    const layers=accents[kind] ? accents[kind]() : {back:'',front:''};
+    const marked=body.replace(/(<svg\b[^>]*>)/,`$1${effectDefs}<g class="fv-optical-depth" aria-hidden="true">${layers.back}</g>`).replace('</svg>',`<g class="fv-optical-signals" aria-hidden="true">${layers.front}</g></svg>`);
+    /* Feed and article can coexist while one route is hidden. Scope every SVG
+     * gradient and clip ID per render, including the original landscape defs. */
+    const namespace=`fv-render-${++renderSerial}-`;
+    return marked.replace(/\bid="([^"]+)"/g,(_,id)=>`id="${namespace}${id}"`).replace(/url\(#([^)]+)\)/g,(_,id)=>`url(#${namespace}${id})`);
+  }
+
   window.FieldnoteVisuals = Object.freeze({
     render(p, n = 0) {
       if (!p || !scenes[p.id]) return '';
@@ -211,7 +321,7 @@
       const scene = scenes[p.id](step);
       const id = escape(p.id);
       const disclaimer = scene.kind === 'landscape' ? '原创编辑流程示意，非模型效果样张' : '原创流程示意，非官方演示或实测结果';
-      return `<div class="visual fv-visual motion-scene fv-${scene.kind} ${step?'changed':''}" id="visual-${id}" data-mode="${step%2}"><div class="fv-heading"><strong>${escape(scene.title)}</strong><span class="fv-illustration-note">现场图解</span></div><div class="fv-stage">${scene.body}${labels(scene.labels)}</div><div class="fv-footer"><span class="demo-status" aria-live="polite">${escape(scene.status)}</span><button class="demo-control fv-control" data-demo="${id}" aria-label="${escape(scene.control)}：${escape(p.title)}">${escape(scene.control)}<span aria-hidden="true">↻</span></button></div><p class="fv-caption">${disclaimer} · 交互仅切换说明</p></div>`;
+      return `<div class="visual fv-visual motion-scene fv-${scene.kind} ${step?'changed':''}" id="visual-${id}" data-mode="${step%2}"><div class="fv-heading"><strong>${escape(scene.title)}</strong><span class="fv-illustration-note">现场图解</span></div><div class="fv-stage">${illuminate(scene.body,scene.kind)}${labels(scene.labels)}</div><div class="fv-footer"><span class="demo-status" aria-live="polite">${escape(scene.status)}</span><button class="demo-control fv-control" data-demo="${id}" aria-label="${escape(scene.control)}：${escape(p.title)}">${escape(scene.control)}<span aria-hidden="true">↻</span></button></div><p class="fv-caption">${disclaimer} · 交互仅切换说明</p></div>`;
     }
   });
 })();
