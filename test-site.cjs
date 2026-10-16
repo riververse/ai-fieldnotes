@@ -211,7 +211,7 @@ check('Content: unique safe IDs, real article bodies, dates, caveats, and HTTPS 
   for (const p of data.posts) {
     assert(/^[a-z0-9-]+$/.test(p.id)); assert(C.categories[C.categoryFor(p)]); assert(['china', 'global'].includes(p.region));
     assert(p.title && p.dek && p.summary.length && p.analysis.length && p.caveat); assert(p.sources.length > 0);
-    assert.equal(p.verifiedAt, data.site.verifiedAt); assert(/^\d{4}-\d{2}-\d{2}$/.test(p.verifiedAt));
+    assert(p.verifiedAt <= data.site.verifiedAt, p.id + ': article verification cannot exceed the latest site verification'); assert(/^\d{4}-\d{2}-\d{2}$/.test(p.verifiedAt));
     if (p.date) assert(/^\d{4}-\d{2}-\d{2}$/.test(p.date));
     for (const source of p.sources) assert(C.safeURL(source.url).startsWith('https://'));
     if (p.tryThis) assert(p.tryThis.prompt && p.tryThis.expected);
@@ -244,7 +244,7 @@ function assertReleaseCoherence(markup) {
   const publicationURL = new URL('https://example.test/publication/');
   const release = document.querySelector('html').getAttribute('data-release');
   assert(release && release.trim() === release, 'HTML must declare a nonempty release version');
-  assert.match(release, /^20261015r3-[0-9a-f]{12}$/, 'Release must include the deterministic asset digest');
+  assert.match(release, /^20261016r1-[0-9a-f]{12}$/, 'Release must include the deterministic asset digest');
   const metadata = document.querySelectorAll('meta[name="app-release"]');
   assert.equal(metadata.length, 1, 'Exactly one app-release meta tag is required');
   assert.equal(metadata[0].getAttribute('content'), release, 'Release metadata must match HTML');
@@ -785,7 +785,7 @@ check('Article rendering escapes untrusted content and omits dangerous source UR
 
 /* Added after the established 44 baseline suites. Existing suites remain intact. */
 check('Expanded editorial bodies keep previews short and use readable existing section types', () => {
-  assert.equal(data.posts.length, 25);
+  assert.equal(data.posts.length, 27);
   for (const p of data.posts) {
     assert(p.dek.length < 100, p.id + ': feed preview should remain short');
     assert(p.summary.length >= 1 && p.summary.length <= 3, p.id);
@@ -810,7 +810,7 @@ check('Editorial aliases stay synchronized and original proposals are not dated 
     assert(p.sources.every(s => s.url.startsWith('https://')), p.id);
   }
 });
-check('All 25 direct details render every explanatory section and retain their source evidence', () => {
+check('All 27 direct details render every explanatory section and retain their source evidence', () => {
   for (const p of data.posts) {
     const env = boot({ url: 'https://example.test/publication/' + C.postHash(p.id) });
     assertView(env, 'article');
@@ -1079,7 +1079,7 @@ check('Nine practical guides expand the category without altering the original s
     const post = data.posts.find(p => p.id === id); assert(post, id); assert.equal(digest(post), expected, id + ': original content must remain exact');
   }
   const guideIDs = ["dot-meeting-brief", "dot-bounded-follow-up", "dot-change-request", "research-conflicting-sources", "writing-two-examples", "orders-cleaning-audit", "image-edit-invariants", "video-learning-evidence", "codex-small-fix-loop"];
-  assert.equal(data.posts.length, 25); assert.equal(data.posts.filter(p => p.category === 'practice').length, 12);
+  assert(data.posts.length >= 25); assert(data.posts.filter(p => p.category === 'practice').length >= 12);
   for (const id of guideIDs) {
     const p = data.posts.find(post => post.id === id); assert(p, id); assert.equal(p.category, 'practice'); assert.equal(p.kind, 'guide'); assert.equal(p.date, null);
     assert(p.analysis.length >= 7, id + ': substantial worked guide'); assert(p.tryThis.prompt.length >= 200 && p.tryThis.expected.length >= 70, id + ': full worked input and expected output');
@@ -1096,15 +1096,82 @@ check('Added guide scenes have specific titles, labels, and complete automatic e
     assert(!output.includes('data-demo=') && !output.includes('<button'), id + ': explanatory diagrams are not controls');
   }
 });
-check('Practical category exposes all twelve complete articles with short feed previews', () => {
+check('Practical category retains its twelve earlier articles and short feed previews', () => {
   const env = boot(); env.click('.mobile-categories [data-category="practice"]');
-  assert.equal(visiblePosts(env).length, 12); assert.equal(env.get('.region-filter').hidden, true);
+  assert.equal(visiblePosts(env).length, data.posts.filter(p => p.category === 'practice').length); assert.equal(env.get('.region-filter').hidden, true);
   for (const id of ["dot-meeting-brief", "dot-bounded-follow-up", "dot-change-request", "research-conflicting-sources", "writing-two-examples", "orders-cleaning-audit", "image-edit-invariants", "video-learning-evidence", "codex-small-fix-loop"]) {
     const p = data.posts.find(post => post.id === id); const card = env.get('#post-' + id); assert(card, id);
     assert.equal(card.querySelectorAll('.article-section,.try-this,.source-list').length, 0, id);
     env.click('#post-' + id + ' .post-title a'); assertView(env, 'article');
     assert.equal(env.get('#prompt-' + id).value, p.tryThis.prompt, id); assert(env.get('#article-view').textContent.includes(p.tryThis.expected), id);
-    env.click('#article-view .article-return'); assertView(env, 'feed'); assert.equal(visiblePosts(env).length, 12);
+    env.click('#article-view .article-return'); assertView(env, 'feed'); assert.equal(visiblePosts(env).length, data.posts.filter(p => p.category === 'practice').length);
+  }
+});
+
+/* Daily edition: selective source verification and two new, untested workflows. */
+check('October 16 additions preserve all twenty-five earlier post objects exactly', () => {
+  const expected = {"sol-quality-cost": "f53d3c7c9d9c8b8b75da105a631a8a74df7ceaf105b77adf03ffad445b882b6a", "deepseek-v41-migration": "0035d8cb2f15b2b156f403e3c87339c4356affc3a71dc623bc20d642e9f2979c", "qwen-omni-evidence": "220ef0f3c13e3f04c6b332933a303feb528d06e1458ec410510e4b0924f9c359", "images25-edit-brief": "3baf2ae3963446ddc58573af93650d0815cfdb24ba9287d5022927e03dd73dff", "renode-replay-lab": "bbc451336852b1abd4d491dfab43c79cc5fac6719bcefeece8304947508aa261", "firmware-fuzz-harness": "52204b6f516e75ca58f3ecb7b9154fe9d30bd698d9ff29ab865f12c5ced39058", "debug-probe-mcp": "063fa655a3e4838d61f72683df248a15fe8e0c7185fc909684d4c986a7fece58", "datasheet-register-audit": "7ad32920da96b7456f3c19971fa940a7528e0338609da7bd07886c53fd7ea708", "stm32-edge-ai-budget": "819ad707afc2051fe064ce466d246159ef51d35dec3c2cd3ded40d6666908811", "firmware-agent-contract": "146a2eadf17defae9c0266ea2d82e35dd33eb6b480fc3a8a2ca32f262d4a62a9", "context-task-eval": "8c96cdbc3b373c90733bc5b218854baa24f99c9e6043ad19d2f3b76d34c86095", "espressif-mcp-workflow": "90b01873f620cb39f7e0040e56ea68e6881489c0ccc4d1b214f97ef95573e628", "playwright-mcp-boundary": "cb62e3ed8797602aa5df5717d7abb4cde1d87a57981ce342a881c6643a2dcea5", "skills-license-eval": "de1ddf6ab2990d2887a2a3324d7a2a6b90012a4f13121d7ff4759408523356d8", "embedded-regression-copilot": "3d1ff145b4ddef0c06132990ee8f6c7ac18b2243e34e89cda1b3be8b01f00211", "document-style-pipeline": "6d85313adc53f5a592474f69acdb78ce4164c63492147baa7a117f6ffc7d110a", "dot-meeting-brief": "1e1e08ae0719a820459a68a4a0ef0356e3dd37570b4b2cf224041cf7a5f533b2", "dot-bounded-follow-up": "76111ec1587cae86e39d500343d2945d973f5b958dd0586347950ed163a42478", "dot-change-request": "73bdc58095365cb1c20fb099a3a0a8f2dc84bd45988efbc55cd4fc8735d6fbd1", "research-conflicting-sources": "7f426c4e27e151214b91384b022eaa1e8063019ca554fc1c53e1a2a0fd8c8923", "writing-two-examples": "08492c0f960d7d9c49a7fdabb6eec727741e85032cc143497b317ec43cd0d522", "orders-cleaning-audit": "f043208c83891bb78919dd894df9af97f87ec06b1d528a020134cdaa80631828", "image-edit-invariants": "db530d20a56191678834b869b084f8d5237047b21363e8408f81bedf6d1df94b", "video-learning-evidence": "d0cd75374d542553b4bd74f3bbc76dd7d44bd30435a0b0cff3fe20f2838d0963", "codex-small-fix-loop": "d1182d94cd77032b8a7c49962a91661e5928f09dac1410ba622d20449681c7e8"};
+  const digest = value => require('node:crypto').createHash('sha256').update(JSON.stringify(value)).digest('hex');
+  for (const [id, hash] of Object.entries(expected)) {
+    const p = data.posts.find(post => post.id === id); assert(p, id); assert.equal(digest(p), hash, id);
+  }
+  assert.equal(data.posts.length, 27);
+  assert.deepEqual(['industry', 'practice', 'embedded'].map(category => data.posts.filter(p => C.categoryFor(p) === category).length), [4, 13, 10]);
+});
+check('Selective updates retain honest per-article source verification dates', () => {
+  assert.equal(data.site.verifiedAt, '2026-10-16');
+  assert(data.site.editorialNote.includes('各篇保留实际资料核验日'));
+  const env = boot(); assert.equal(env.get('#edition-date').textContent, '最近核验 2026.10.16');
+  const current = new Set(['minicpm-local-image-check', 'sensor-unknown-state-gmm']);
+  for (const p of data.posts) {
+    assert.equal(p.verifiedAt, current.has(p.id) ? '2026-10-16' : '2026-10-15', p.id);
+    assert.equal(p.verified_date, p.verifiedAt, p.id);
+    assert.equal(p.date, current.has(p.id) ? null : p.date);
+  }
+  assert(env.get('#editorial-note').textContent.includes('各篇保留实际核验日'));
+});
+check('New complete articles retain model-tag, evidence, resource, and rejection boundaries', () => {
+  const mini = data.posts.find(p => p.id === 'minicpm-local-image-check');
+  const gmm = data.posts.find(p => p.id === 'sensor-unknown-state-gmm');
+  for (const p of [mini, gmm]) {
+    assert(p.analysis.length >= 8 && p.analysis.map(x => x.text).join('').length >= 1400, p.id);
+    assert(p.tryThis.prompt.length >= 300 && p.tryThis.expected.length >= 120, p.id);
+    assert(p.evidence.includes('未') && p.caveat.includes('没有') || p.caveat.includes('未生成'), p.id);
+    assert(p.sources.length >= 5 && p.sources.every(x => x.url.startsWith('https://')), p.id);
+  }
+  const m = JSON.stringify(mini), g = JSON.stringify(gmm);
+  for (const value of [':1b', 'Q4_K_M', '1.8GB', '22GB', '模型包大小', 'Apache-2.0', '无法确定', '深色遮挡块']) assert(m.includes(value), value);
+  for (const value of ['NaN/Inf', '非有限分数', '正常停机', '负对数似然', '最终测试', 'C99', '1,024 字节', 'BSD 3-Clause', '未上板']) assert(g.includes(value), value);
+  assert.equal(3 * 12.50, 37.5);
+  const windows = Math.floor((30 * 1024 - 256) / 128) + 1;
+  assert.equal(windows, 239); assert.equal(windows * 8, 1912); assert.equal(windows * 4, 956);
+});
+check('New teaching scenes are original, article-specific, automatic, and non-interactive', () => {
+  const env = boot();
+  for (const [id, title, key] of [
+    ['minicpm-local-image-check', '让图片里的空白，在答案里仍然空着', '未提供'],
+    ['sensor-unknown-state-gmm', '给不熟悉的输入，留一个未知出口', '未知 · 待查']
+  ]) {
+    const scene = env.get('#visual-' + id);
+    assert(scene.textContent.includes(title) && scene.textContent.includes(key), id);
+    assert.equal(scene.querySelectorAll('button').length, 0);
+    assert.equal(scene.querySelectorAll('.fv-note-transcript li').length, 2);
+    assert(scene.querySelector('.fv-note-window'));
+    env.click(scene); assertView(env, 'feed');
+  }
+  env.reduce(true); assert(env.document.body.classList.contains('motion-paused'));
+});
+check('New articles support filtered reading, prompt copy, bookmarks, and return navigation', async () => {
+  for (const id of ['minicpm-local-image-check', 'sensor-unknown-state-gmm']) {
+    const p = data.posts.find(x => x.id === id), env = boot();
+    env.click('.mobile-categories [data-category="' + p.category + '"]');
+    env.input(p.title); assert.deepEqual(visiblePosts(env), [id]); assert(env.get('.region-filter').hidden);
+    env.click('#post-' + id + ' .post-title a'); assertView(env, 'article');
+    assert.equal(env.get('#prompt-' + id).value, p.tryThis.prompt);
+    env.click('#article-view [data-copy-prompt]'); await env.settle(); assert.equal(env.clipboard.at(-1), p.tryThis.prompt);
+    env.click('#article-view [data-save]'); assert(env.storage.get(storageKey).includes(id));
+    env.back(); assertView(env, 'feed'); assert.deepEqual(visiblePosts(env), [id]);
+    env.forward(); assertView(env, 'article'); assert(env.get('#article-title').textContent.includes(p.title));
   }
 });
 

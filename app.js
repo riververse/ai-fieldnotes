@@ -251,7 +251,7 @@
   if (motionQuery.addEventListener) motionQuery.addEventListener('change', applyMotion);
   else if (motionQuery.addListener) motionQuery.addListener(applyMotion);
   try { history.scrollRestoration = 'manual'; } catch (_) {}
-  document.getElementById('edition-date').textContent = '资料核验 ' + (data.site.verifiedAt || '2026-10-15').replace(/-/g, '.');
+  document.getElementById('edition-date').textContent = '最近核验 ' + (data.site.verifiedAt || '2026-10-16').replace(/-/g, '.');
   if (history.state && history.state.feed) { feedSnapshot = history.state.feed; restoreSnapshot(feedSnapshot); }
   else feedSnapshot = snapshot(0);
   const initialId = C.idFromHash(location.hash);

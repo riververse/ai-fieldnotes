@@ -206,6 +206,55 @@
 
 
   /* Practical guide scene variants: shared abstract art, article-specific meaning. */
+  /* Daily additions: original teaching diagrams, never measured model output. */
+  scenes['minicpm-local-image-check'] = n => ({
+    kind:'evidence', title:'让图片里的空白，在答案里仍然空着',
+    status:n%2?'1.8GB 是所列模型包大小，不是运行内存。':'逐格核对原图；看不清和未填写要分别留下。',
+    labels:['带空白格的教学图','本地 1B 读图','字段 · 未提供 · 复查'],
+    body:art(`<ellipse class="fv-ground" cx="320" cy="143" rx="278" ry="7"/>
+      <rect class="fv-paper" x="43" y="21" width="122" height="111" rx="5"/>
+      <text class="fv-note-label" x="58" y="42">教学清单</text>
+      <rect class="fv-table-head" x="55" y="53" width="98" height="17"/>
+      ${line('M55 53v60h98V53M55 70h98M55 91h98M98 53v60','fv-register-grid')}
+      <text class="fv-field-text" x="61" y="85">3</text><text class="fv-field-text" x="104" y="85">12.50</text>
+      <text class="fv-field-text" x="61" y="106">8</text>
+      ${arrow(184,77,46)}
+      <rect class="fv-ink-fill" x="247" y="24" width="157" height="101" rx="7"/>
+      <rect class="fv-paper" x="259" y="35" width="133" height="76" rx="3"/>
+      <text class="fv-note-label" x="326" y="61" text-anchor="middle">本地读图</text>
+      <text class="fv-note-label" x="326" y="86" text-anchor="middle">:1b</text>
+      <path class="fv-sage-fill" d="m235 127 181 0-14 11H249Z"/>
+      ${arrow(424,77,45)}
+      <rect class="fv-paper" x="484" y="23" width="116" height="109" rx="4"/>
+      <text class="fv-note-label" x="497" y="44">逐格复查</text>${line('M497 54h89','fv-soft-line')}
+      <text class="fv-field-text" x="498" y="75">3 × 12.50</text>
+      <rect class="fv-source-tag" x="497" y="87" width="89" height="24" rx="3"/>
+      <text class="fv-field-text" x="541" y="103" text-anchor="middle">未提供</text>`)
+  });
+  scenes['sensor-unknown-state-gmm'] = n => ({
+    kind:'evidence', title:'给不熟悉的输入，留一个未知出口',
+    status:n%2?'越过模型边界不等于机械故障；先记录、待复核。':'先按采集批次分组，避免重叠窗口泄漏到测试。',
+    labels:['波形与独立批次','特征空间 · 示意边界','继续分类 / 未知待查'],
+    body:art(`<ellipse class="fv-ground" cx="320" cy="144" rx="280" ry="7"/>
+      <rect class="fv-paper" x="38" y="24" width="126" height="106" rx="5"/>
+      <text class="fv-note-label" x="52" y="45">独立批次</text>
+      ${line('M50 70q8-25 16 0t16 0t16 0t16 0t16 0t16 0','fv-sage-line')}
+      ${line('M50 101q5-16 10 0t10 0t10 0t10 0t10 0t10 0t10 0t10 0t10 0t10 0','fv-ochre-line')}
+      ${arrow(181,77,48)}
+      <rect class="fv-paper" x="245" y="16" width="163" height="120" rx="5"/>
+      ${line('M260 30v90h134','fv-soft-line')}
+      <ellipse class="fv-check-disc" cx="292" cy="89" rx="23" ry="24"/>
+      <ellipse class="fv-check-disc" cx="351" cy="58" rx="25" ry="21"/>
+      ${[[284,84],[294,97],[302,84],[343,52],[351,65],[361,56]].map(([x,y])=>`<circle class="fv-sage-fill" cx="${x}" cy="${y}" r="3"/>`).join('')}
+      <circle class="fv-ochre-fill" cx="372" cy="108" r="5"/>
+      <text class="fv-field-text" x="381" y="111">?</text>
+      ${line('M412 77h35V43h35M447 77v35h35','fv-circuit')}
+      <rect class="fv-paper" x="484" y="23" width="116" height="40" rx="4"/>
+      <text class="fv-field-text" x="542" y="47" text-anchor="middle">继续分类</text>
+      <rect class="fv-source-tag" x="484" y="92" width="116" height="40" rx="4"/>
+      <text class="fv-field-text" x="542" y="116" text-anchor="middle">未知 · 待查</text>`)
+  });
+
   const guideSceneVariants = {
   "dot-meeting-brief": {
     "source": "context-task-eval",
