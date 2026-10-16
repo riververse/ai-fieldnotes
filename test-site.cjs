@@ -244,7 +244,7 @@ function assertReleaseCoherence(markup) {
   const publicationURL = new URL('https://example.test/publication/');
   const release = document.querySelector('html').getAttribute('data-release');
   assert(release && release.trim() === release, 'HTML must declare a nonempty release version');
-  assert.match(release, /^20261016r1-[0-9a-f]{12}$/, 'Release must include the deterministic asset digest');
+  assert.match(release, /^20261016r2-[0-9a-f]{12}$/, 'Release must include the deterministic asset digest');
   const metadata = document.querySelectorAll('meta[name="app-release"]');
   assert.equal(metadata.length, 1, 'Exactly one app-release meta tag is required');
   assert.equal(metadata[0].getAttribute('content'), release, 'Release metadata must match HTML');
@@ -785,7 +785,7 @@ check('Article rendering escapes untrusted content and omits dangerous source UR
 
 /* Added after the established 44 baseline suites. Existing suites remain intact. */
 check('Expanded editorial bodies keep previews short and use readable existing section types', () => {
-  assert.equal(data.posts.length, 27);
+  assert.equal(data.posts.length, 43);
   for (const p of data.posts) {
     assert(p.dek.length < 100, p.id + ': feed preview should remain short');
     assert(p.summary.length >= 1 && p.summary.length <= 3, p.id);
@@ -810,7 +810,7 @@ check('Editorial aliases stay synchronized and original proposals are not dated 
     assert(p.sources.every(s => s.url.startsWith('https://')), p.id);
   }
 });
-check('All 27 direct details render every explanatory section and retain their source evidence', () => {
+check('All 43 direct details render every explanatory section and retain their source evidence', () => {
   for (const p of data.posts) {
     const env = boot({ url: 'https://example.test/publication/' + C.postHash(p.id) });
     assertView(env, 'article');
@@ -1072,8 +1072,8 @@ check('Project design rules document references, attribution, original choices, 
 });
 
 /* Practical guide expansion: original content is immutable; new scope is explicit. */
-check('Nine practical guides expand the category without altering the original sixteen articles', () => {
-  const originalHashes = {"sol-quality-cost": "f53d3c7c9d9c8b8b75da105a631a8a74df7ceaf105b77adf03ffad445b882b6a", "deepseek-v41-migration": "0035d8cb2f15b2b156f403e3c87339c4356affc3a71dc623bc20d642e9f2979c", "qwen-omni-evidence": "220ef0f3c13e3f04c6b332933a303feb528d06e1458ec410510e4b0924f9c359", "images25-edit-brief": "3baf2ae3963446ddc58573af93650d0815cfdb24ba9287d5022927e03dd73dff", "renode-replay-lab": "bbc451336852b1abd4d491dfab43c79cc5fac6719bcefeece8304947508aa261", "firmware-fuzz-harness": "52204b6f516e75ca58f3ecb7b9154fe9d30bd698d9ff29ab865f12c5ced39058", "debug-probe-mcp": "063fa655a3e4838d61f72683df248a15fe8e0c7185fc909684d4c986a7fece58", "datasheet-register-audit": "7ad32920da96b7456f3c19971fa940a7528e0338609da7bd07886c53fd7ea708", "stm32-edge-ai-budget": "819ad707afc2051fe064ce466d246159ef51d35dec3c2cd3ded40d6666908811", "firmware-agent-contract": "146a2eadf17defae9c0266ea2d82e35dd33eb6b480fc3a8a2ca32f262d4a62a9", "context-task-eval": "8c96cdbc3b373c90733bc5b218854baa24f99c9e6043ad19d2f3b76d34c86095", "espressif-mcp-workflow": "90b01873f620cb39f7e0040e56ea68e6881489c0ccc4d1b214f97ef95573e628", "playwright-mcp-boundary": "cb62e3ed8797602aa5df5717d7abb4cde1d87a57981ce342a881c6643a2dcea5", "skills-license-eval": "de1ddf6ab2990d2887a2a3324d7a2a6b90012a4f13121d7ff4759408523356d8", "embedded-regression-copilot": "3d1ff145b4ddef0c06132990ee8f6c7ac18b2243e34e89cda1b3be8b01f00211", "document-style-pipeline": "6d85313adc53f5a592474f69acdb78ce4164c63492147baa7a117f6ffc7d110a"};
+check('Nine practical guides retain original IDs and the approved DeepSeek source correction', () => {
+  const originalHashes = {"sol-quality-cost": "f53d3c7c9d9c8b8b75da105a631a8a74df7ceaf105b77adf03ffad445b882b6a", "deepseek-v41-migration": "05ea75bf12ecfaf87c4ba8bfb4a84fcdf41deeec532bbdab6ba13efc7698b376", "qwen-omni-evidence": "220ef0f3c13e3f04c6b332933a303feb528d06e1458ec410510e4b0924f9c359", "images25-edit-brief": "3baf2ae3963446ddc58573af93650d0815cfdb24ba9287d5022927e03dd73dff", "renode-replay-lab": "bbc451336852b1abd4d491dfab43c79cc5fac6719bcefeece8304947508aa261", "firmware-fuzz-harness": "52204b6f516e75ca58f3ecb7b9154fe9d30bd698d9ff29ab865f12c5ced39058", "debug-probe-mcp": "063fa655a3e4838d61f72683df248a15fe8e0c7185fc909684d4c986a7fece58", "datasheet-register-audit": "7ad32920da96b7456f3c19971fa940a7528e0338609da7bd07886c53fd7ea708", "stm32-edge-ai-budget": "819ad707afc2051fe064ce466d246159ef51d35dec3c2cd3ded40d6666908811", "firmware-agent-contract": "146a2eadf17defae9c0266ea2d82e35dd33eb6b480fc3a8a2ca32f262d4a62a9", "context-task-eval": "8c96cdbc3b373c90733bc5b218854baa24f99c9e6043ad19d2f3b76d34c86095", "espressif-mcp-workflow": "90b01873f620cb39f7e0040e56ea68e6881489c0ccc4d1b214f97ef95573e628", "playwright-mcp-boundary": "cb62e3ed8797602aa5df5717d7abb4cde1d87a57981ce342a881c6643a2dcea5", "skills-license-eval": "de1ddf6ab2990d2887a2a3324d7a2a6b90012a4f13121d7ff4759408523356d8", "embedded-regression-copilot": "3d1ff145b4ddef0c06132990ee8f6c7ac18b2243e34e89cda1b3be8b01f00211", "document-style-pipeline": "6d85313adc53f5a592474f69acdb78ce4164c63492147baa7a117f6ffc7d110a"};
   const digest = value => require('node:crypto').createHash('sha256').update(JSON.stringify(value)).digest('hex');
   for (const [id, expected] of Object.entries(originalHashes)) {
     const post = data.posts.find(p => p.id === id); assert(post, id); assert.equal(digest(post), expected, id + ': original content must remain exact');
@@ -1109,24 +1109,24 @@ check('Practical category retains its twelve earlier articles and short feed pre
 });
 
 /* Daily edition: selective source verification and two new, untested workflows. */
-check('October 16 additions preserve all twenty-five earlier post objects exactly', () => {
-  const expected = {"sol-quality-cost": "f53d3c7c9d9c8b8b75da105a631a8a74df7ceaf105b77adf03ffad445b882b6a", "deepseek-v41-migration": "0035d8cb2f15b2b156f403e3c87339c4356affc3a71dc623bc20d642e9f2979c", "qwen-omni-evidence": "220ef0f3c13e3f04c6b332933a303feb528d06e1458ec410510e4b0924f9c359", "images25-edit-brief": "3baf2ae3963446ddc58573af93650d0815cfdb24ba9287d5022927e03dd73dff", "renode-replay-lab": "bbc451336852b1abd4d491dfab43c79cc5fac6719bcefeece8304947508aa261", "firmware-fuzz-harness": "52204b6f516e75ca58f3ecb7b9154fe9d30bd698d9ff29ab865f12c5ced39058", "debug-probe-mcp": "063fa655a3e4838d61f72683df248a15fe8e0c7185fc909684d4c986a7fece58", "datasheet-register-audit": "7ad32920da96b7456f3c19971fa940a7528e0338609da7bd07886c53fd7ea708", "stm32-edge-ai-budget": "819ad707afc2051fe064ce466d246159ef51d35dec3c2cd3ded40d6666908811", "firmware-agent-contract": "146a2eadf17defae9c0266ea2d82e35dd33eb6b480fc3a8a2ca32f262d4a62a9", "context-task-eval": "8c96cdbc3b373c90733bc5b218854baa24f99c9e6043ad19d2f3b76d34c86095", "espressif-mcp-workflow": "90b01873f620cb39f7e0040e56ea68e6881489c0ccc4d1b214f97ef95573e628", "playwright-mcp-boundary": "cb62e3ed8797602aa5df5717d7abb4cde1d87a57981ce342a881c6643a2dcea5", "skills-license-eval": "de1ddf6ab2990d2887a2a3324d7a2a6b90012a4f13121d7ff4759408523356d8", "embedded-regression-copilot": "3d1ff145b4ddef0c06132990ee8f6c7ac18b2243e34e89cda1b3be8b01f00211", "document-style-pipeline": "6d85313adc53f5a592474f69acdb78ce4164c63492147baa7a117f6ffc7d110a", "dot-meeting-brief": "1e1e08ae0719a820459a68a4a0ef0356e3dd37570b4b2cf224041cf7a5f533b2", "dot-bounded-follow-up": "76111ec1587cae86e39d500343d2945d973f5b958dd0586347950ed163a42478", "dot-change-request": "73bdc58095365cb1c20fb099a3a0a8f2dc84bd45988efbc55cd4fc8735d6fbd1", "research-conflicting-sources": "7f426c4e27e151214b91384b022eaa1e8063019ca554fc1c53e1a2a0fd8c8923", "writing-two-examples": "08492c0f960d7d9c49a7fdabb6eec727741e85032cc143497b317ec43cd0d522", "orders-cleaning-audit": "f043208c83891bb78919dd894df9af97f87ec06b1d528a020134cdaa80631828", "image-edit-invariants": "db530d20a56191678834b869b084f8d5237047b21363e8408f81bedf6d1df94b", "video-learning-evidence": "d0cd75374d542553b4bd74f3bbc76dd7d44bd30435a0b0cff3fe20f2838d0963", "codex-small-fix-loop": "d1182d94cd77032b8a7c49962a91661e5928f09dac1410ba622d20449681c7e8"};
+check('Earlier edition retains its post objects with only the approved DeepSeek source correction', () => {
+  const expected = {"sol-quality-cost": "f53d3c7c9d9c8b8b75da105a631a8a74df7ceaf105b77adf03ffad445b882b6a", "deepseek-v41-migration": "05ea75bf12ecfaf87c4ba8bfb4a84fcdf41deeec532bbdab6ba13efc7698b376", "qwen-omni-evidence": "220ef0f3c13e3f04c6b332933a303feb528d06e1458ec410510e4b0924f9c359", "images25-edit-brief": "3baf2ae3963446ddc58573af93650d0815cfdb24ba9287d5022927e03dd73dff", "renode-replay-lab": "bbc451336852b1abd4d491dfab43c79cc5fac6719bcefeece8304947508aa261", "firmware-fuzz-harness": "52204b6f516e75ca58f3ecb7b9154fe9d30bd698d9ff29ab865f12c5ced39058", "debug-probe-mcp": "063fa655a3e4838d61f72683df248a15fe8e0c7185fc909684d4c986a7fece58", "datasheet-register-audit": "7ad32920da96b7456f3c19971fa940a7528e0338609da7bd07886c53fd7ea708", "stm32-edge-ai-budget": "819ad707afc2051fe064ce466d246159ef51d35dec3c2cd3ded40d6666908811", "firmware-agent-contract": "146a2eadf17defae9c0266ea2d82e35dd33eb6b480fc3a8a2ca32f262d4a62a9", "context-task-eval": "8c96cdbc3b373c90733bc5b218854baa24f99c9e6043ad19d2f3b76d34c86095", "espressif-mcp-workflow": "90b01873f620cb39f7e0040e56ea68e6881489c0ccc4d1b214f97ef95573e628", "playwright-mcp-boundary": "cb62e3ed8797602aa5df5717d7abb4cde1d87a57981ce342a881c6643a2dcea5", "skills-license-eval": "de1ddf6ab2990d2887a2a3324d7a2a6b90012a4f13121d7ff4759408523356d8", "embedded-regression-copilot": "3d1ff145b4ddef0c06132990ee8f6c7ac18b2243e34e89cda1b3be8b01f00211", "document-style-pipeline": "6d85313adc53f5a592474f69acdb78ce4164c63492147baa7a117f6ffc7d110a", "dot-meeting-brief": "1e1e08ae0719a820459a68a4a0ef0356e3dd37570b4b2cf224041cf7a5f533b2", "dot-bounded-follow-up": "76111ec1587cae86e39d500343d2945d973f5b958dd0586347950ed163a42478", "dot-change-request": "73bdc58095365cb1c20fb099a3a0a8f2dc84bd45988efbc55cd4fc8735d6fbd1", "research-conflicting-sources": "7f426c4e27e151214b91384b022eaa1e8063019ca554fc1c53e1a2a0fd8c8923", "writing-two-examples": "08492c0f960d7d9c49a7fdabb6eec727741e85032cc143497b317ec43cd0d522", "orders-cleaning-audit": "f043208c83891bb78919dd894df9af97f87ec06b1d528a020134cdaa80631828", "image-edit-invariants": "db530d20a56191678834b869b084f8d5237047b21363e8408f81bedf6d1df94b", "video-learning-evidence": "d0cd75374d542553b4bd74f3bbc76dd7d44bd30435a0b0cff3fe20f2838d0963", "codex-small-fix-loop": "d1182d94cd77032b8a7c49962a91661e5928f09dac1410ba622d20449681c7e8"};
   const digest = value => require('node:crypto').createHash('sha256').update(JSON.stringify(value)).digest('hex');
   for (const [id, hash] of Object.entries(expected)) {
     const p = data.posts.find(post => post.id === id); assert(p, id); assert.equal(digest(p), hash, id);
   }
-  assert.equal(data.posts.length, 27);
-  assert.deepEqual(['industry', 'practice', 'embedded'].map(category => data.posts.filter(p => C.categoryFor(p) === category).length), [4, 13, 10]);
+  assert.equal(data.posts.length, 43);
+  assert.deepEqual(['industry', 'practice', 'embedded'].map(category => data.posts.filter(p => C.categoryFor(p) === category).length), [15, 13, 15]);
 });
 check('Selective updates retain honest per-article source verification dates', () => {
   assert.equal(data.site.verifiedAt, '2026-10-16');
   assert(data.site.editorialNote.includes('各篇保留实际资料核验日'));
   const env = boot(); assert.equal(env.get('#edition-date').textContent, '最近核验 2026.10.16');
-  const current = new Set(['minicpm-local-image-check', 'sensor-unknown-state-gmm']);
+  const current = new Set(["minicpm-local-image-check", "sensor-unknown-state-gmm", "deepseek-v41-migration", "opus55-fast-access", "gptlive11-voice-corrections", "gemini4-argon-long-work", "runway-kling-api-workflow", "glm-legal-evidence-chain", "qwen-image21-api-alpha", "gpt6-intelligent-ui", "haiku55-subagent-budget", "nano-banana21-continuity", "embeddinggemma2-local-retrieval", "mistral-large4-preview", "mplab-agent-telemetry-pacing", "memfault-crash-evidence-chain", "assertllm2-rtl-property-review", "firment-waveform-evidence", "cantools-ai-wire-contract"]);
   for (const p of data.posts) {
     assert.equal(p.verifiedAt, current.has(p.id) ? '2026-10-16' : '2026-10-15', p.id);
     assert.equal(p.verified_date, p.verifiedAt, p.id);
-    assert.equal(p.date, current.has(p.id) ? null : p.date);
+    if (['minicpm-local-image-check', 'sensor-unknown-state-gmm'].includes(p.id)) assert.equal(p.date, null);
   }
   assert(env.get('#editorial-note').textContent.includes('各篇保留实际核验日'));
 });
@@ -1172,6 +1172,106 @@ check('New articles support filtered reading, prompt copy, bookmarks, and return
     env.click('#article-view [data-save]'); assert(env.storage.get(storageKey).includes(id));
     env.back(); assertView(env, 'feed'); assert.deepEqual(visiblePosts(env), [id]);
     env.forward(); assertView(env, 'article'); assert(env.get('#article-title').textContent.includes(p.title));
+  }
+});
+
+
+/* October breadth release: strict addition, correction, provenance and scene contracts. */
+const octoberIndustryIds = ["opus55-fast-access","gptlive11-voice-corrections","gemini4-argon-long-work","runway-kling-api-workflow","glm-legal-evidence-chain","qwen-image21-api-alpha","gpt6-intelligent-ui","haiku55-subagent-budget","nano-banana21-continuity","embeddinggemma2-local-retrieval","mistral-large4-preview"];
+const octoberEmbeddedIds = ["mplab-agent-telemetry-pacing","memfault-crash-evidence-chain","assertllm2-rtl-property-review","firment-waveform-evidence","cantools-ai-wire-contract"];
+const octoberIds = [...octoberIndustryIds, ...octoberEmbeddedIds];
+const sha256 = value => require('node:crypto').createHash('sha256').update(value).digest('hex');
+check('October coverage adds exactly eleven industry and five distinct embedded workflows', () => {
+  assert.equal(data.posts.length, 43);
+  assert.deepEqual(['industry', 'practice', 'embedded'].map(c => data.posts.filter(p => C.categoryFor(p) === c).length), [15,13,15]);
+  assert.equal(new Set(octoberIds).size, 16);
+  for (const id of octoberIndustryIds) {
+    const p=data.posts.find(p=>p.id===id); assert(p,id); assert.equal(p.category,'industry');
+    assert(p.date >= '2026-10-01' && p.date <= '2026-10-16',id); assert(p.dateLabel,id);
+  }
+  for (const id of octoberEmbeddedIds) {
+    const p=data.posts.find(p=>p.id===id); assert(p,id); assert.equal(p.category,'embedded');
+    assert.equal(p.date,null,id); assert(p.dateLabel,id);
+  }
+  assert.equal(octoberIndustryIds.filter(id=>data.posts.find(p=>p.id===id).region==='china').length,2);
+});
+check('All earlier articles have exact approved hashes, with one bounded factual correction', () => {
+  const expected={"minicpm-local-image-check":"fd0add86b8ae410daf0349b44d383d17df575eb0d1d69ab111d26fe04a5714b7","sensor-unknown-state-gmm":"3b4eac0dd79fb5970aed643285a55a7bfe0cf27c58567093353906e8bd4e8d3f","sol-quality-cost":"f53d3c7c9d9c8b8b75da105a631a8a74df7ceaf105b77adf03ffad445b882b6a","deepseek-v41-migration":"05ea75bf12ecfaf87c4ba8bfb4a84fcdf41deeec532bbdab6ba13efc7698b376","qwen-omni-evidence":"220ef0f3c13e3f04c6b332933a303feb528d06e1458ec410510e4b0924f9c359","images25-edit-brief":"3baf2ae3963446ddc58573af93650d0815cfdb24ba9287d5022927e03dd73dff","renode-replay-lab":"bbc451336852b1abd4d491dfab43c79cc5fac6719bcefeece8304947508aa261","firmware-fuzz-harness":"52204b6f516e75ca58f3ecb7b9154fe9d30bd698d9ff29ab865f12c5ced39058","debug-probe-mcp":"063fa655a3e4838d61f72683df248a15fe8e0c7185fc909684d4c986a7fece58","datasheet-register-audit":"7ad32920da96b7456f3c19971fa940a7528e0338609da7bd07886c53fd7ea708","stm32-edge-ai-budget":"819ad707afc2051fe064ce466d246159ef51d35dec3c2cd3ded40d6666908811","firmware-agent-contract":"146a2eadf17defae9c0266ea2d82e35dd33eb6b480fc3a8a2ca32f262d4a62a9","context-task-eval":"8c96cdbc3b373c90733bc5b218854baa24f99c9e6043ad19d2f3b76d34c86095","espressif-mcp-workflow":"90b01873f620cb39f7e0040e56ea68e6881489c0ccc4d1b214f97ef95573e628","playwright-mcp-boundary":"cb62e3ed8797602aa5df5717d7abb4cde1d87a57981ce342a881c6643a2dcea5","skills-license-eval":"de1ddf6ab2990d2887a2a3324d7a2a6b90012a4f13121d7ff4759408523356d8","embedded-regression-copilot":"3d1ff145b4ddef0c06132990ee8f6c7ac18b2243e34e89cda1b3be8b01f00211","document-style-pipeline":"6d85313adc53f5a592474f69acdb78ce4164c63492147baa7a117f6ffc7d110a","dot-meeting-brief":"1e1e08ae0719a820459a68a4a0ef0356e3dd37570b4b2cf224041cf7a5f533b2","dot-bounded-follow-up":"76111ec1587cae86e39d500343d2945d973f5b958dd0586347950ed163a42478","dot-change-request":"73bdc58095365cb1c20fb099a3a0a8f2dc84bd45988efbc55cd4fc8735d6fbd1","research-conflicting-sources":"7f426c4e27e151214b91384b022eaa1e8063019ca554fc1c53e1a2a0fd8c8923","writing-two-examples":"08492c0f960d7d9c49a7fdabb6eec727741e85032cc143497b317ec43cd0d522","orders-cleaning-audit":"f043208c83891bb78919dd894df9af97f87ec06b1d528a020134cdaa80631828","image-edit-invariants":"db530d20a56191678834b869b084f8d5237047b21363e8408f81bedf6d1df94b","video-learning-evidence":"d0cd75374d542553b4bd74f3bbc76dd7d44bd30435a0b0cff3fe20f2838d0963","codex-small-fix-loop":"d1182d94cd77032b8a7c49962a91661e5928f09dac1410ba622d20449681c7e8"};
+  for(const [id,hash] of Object.entries(expected)) assert.equal(sha256(JSON.stringify(data.posts.find(p=>p.id===id))),hash,id);
+  const p=data.posts.find(p=>p.id==='deepseek-v41-migration');
+  assert.equal(p.date,'2026-09-10'); assert.equal(p.verifiedAt,'2026-10-16');
+  assert(p.summary[1].includes('本刊旧版曾记录') && p.summary[1].includes('继续提供 V4 Pro'));
+  assert(p.summary[1].includes('没有单列补注日期'));
+  assert(p.sources.some(s=>s.url==='https://api-docs.deepseek.com/updates/'));
+  assert(!p.caveat.includes('尚未解决')); assert(!p.maturity.includes('待核实'));
+});
+check('New articles are full independent guides with usable tasks, caveats and primary sources', () => {
+  for(const id of octoberIds) {
+    const p=data.posts.find(p=>p.id===id);
+    const body=[...p.summary,...p.analysis.map(x=>x.text)].join('');
+    assert(body.length>=1100,id+': independent depth'); assert(p.analysis.length>=7,id);
+    assert(p.tryThis.prompt.length>=150 && p.tryThis.expected.length>=80,id+': complete task');
+    assert(p.sources.length>=3,id+': multiple source roles'); assert(p.evidence.includes('未'),id);
+    assert(p.caveat.length>=80,id); assert.equal(p.verifiedAt,'2026-10-16');
+    assert(!p.date || p.date<='2026-10-16',id); assert(p.sources.every(x=>/^https:\/\//.test(x.url)),id);
+    assert(!JSON.stringify(p).includes('sandbox:/') && !JSON.stringify(p).includes('/workspace/'),id);
+  }
+});
+check('News chronology distinguishes launches, access updates, preview and unshipped weights', () => {
+  const text=id=>JSON.stringify(data.posts.find(p=>p.id===id));
+  const rules={
+    'opus55-fast-access':['9 月 22','10 月 15','Azure','Fast'],
+    'gemini4-argon-long-work':['9 月 30','10 月 13'],
+    'qwen-image21-api-alpha':['9月20','10月2','10月9','Qwen Research License'],
+    'mistral-large4-preview':['10月6','月底','公开预览'],
+    'runway-kling-api-workflow':['Sora','2026','Seedance','Kling'],
+    'glm-legal-evidence-chain':['邀测','不提供法律意见']
+  };
+  for(const [id,terms] of Object.entries(rules)) for(const term of terms) assert(text(id).replace(/\s+/g,'').includes(term.replace(/\s+/g,'')),id+': '+term);
+  assert(data.posts.find(p=>p.id==='runway-kling-api-workflow').sources.some(s=>s.url.includes('sora-discontinuation')));
+});
+check('Embedded articles distinguish real AI implementations, research and one original combination', () => {
+  const text=id=>JSON.stringify(data.posts.find(p=>p.id===id));
+  for(const id of octoberEmbeddedIds) {
+    const p=data.posts.find(p=>p.id===id); assert(p.license && p.maturity,id); assert(p.caveat.includes('未') || p.caveat.includes('没有'),id);
+  }
+  for(const term of ['商业','JasperGold','LICENSE','只读']) assert(text('assertllm2-rtl-property-review').includes(term),term);
+  for(const term of ['rc2','MIT','sigrok','置信']) assert(text('firment-waveform-evidence').includes(term),term);
+  assert(text('cantools-ai-wire-contract').includes('原创'));
+  assert(text('memfault-crash-evidence-chain').includes('只读'));
+  assert(text('mplab-agent-telemetry-pacing').includes('官方'));
+});
+check('Existing renderers, behavior, typography and motion assets remain byte-for-byte unchanged', () => {
+  const files={"style.css":"5e159c776246dcd48bf52117e649feb7250bbffb9f49a707bbb2d9b3cf3c5c8b","visuals.css":"7cf30aa521f1fe9e7589608376199737cb797efc3ab2a63799c97d7ac0d4d00d","app.js":"3f11837199a84b29e606682c4b88a17632fea212e8cabad2eab2570564305157","site-core.js":"b4f96a7f0557c322c3c2e42cfcf14d1545585d06420cfc1147c03bc5b7b33589","favicon.svg":"b33e38910db7f167eb595800e4fa779577885204e090115732215704f1be1db5","DESIGN.md":"23cb37aa5f8c5df788d9587f03e8e2b01a2b955f5d26b4862e7f1dc5439e5a96","THIRD_PARTY_NOTICES.md":"e10fafb73c4164f3cc2f5350a0ec70c500ab6417cc935a9140b69e49b74daf60"}; for(const [file,hash] of Object.entries(files)) assert.equal(sha256(read(file)),hash,file);
+  const expected={"minicpm-local-image-check":"fa17a45f81ee28c814e29c26d199cc8755d082856373289c73671e071875cb12","sensor-unknown-state-gmm":"2a249413d4e9ab7d75f558b93234c16ebe2e78505a5eeadd992094aa3eed7c3a","sol-quality-cost":"21ac08e4a30889f92d381fa976e7f9eb05a33efa05c444f3afaed743c986649e","deepseek-v41-migration":"c552e257157ccebf462c5d2de48023234cebcf5f38861ca937e78dcdfdf2e790","qwen-omni-evidence":"253ecdbfa2c0dea216716d0be36a7381b1f70652f31638785a4178ed713f3ee0","images25-edit-brief":"ba77c9ee45199dfcaf0bca9cd9f31438ee82d06766a092731add3035bec0b9c2","renode-replay-lab":"02529004caba1c922ab3d690b3aad588fab1ca33eae0daef85b89c3f56511a99","firmware-fuzz-harness":"089f5a9ebdf188ab3e4575eab1f5c756732aadb3177952f01431567c8fd7f4d3","debug-probe-mcp":"ca23b159b62c8fdf7ab35ebec262ffe31fe11b3dd941e631cb2dd1de06ab432f","datasheet-register-audit":"ac50c025ad093bba38ff389df2334f5f29e01fc87ad0ee97aebf1d427ecf5701","stm32-edge-ai-budget":"3463da3b40663b7296560028a5b8af5e3efcd084d6ebe3cc47f397b89327896f","firmware-agent-contract":"cf9dbbe92d84749fb634e26345b8b5e72c7a5ca1dcefb74e320a94dd18b3029f","context-task-eval":"4cf4541762a4b088e7f4011943066ecf25c12ab4115ffb51c12e582f06cf30f9","espressif-mcp-workflow":"63fa25ccd1534820f5899d41ca7a0116fc39e57b7d519f5dde0ba1d07dc68a96","playwright-mcp-boundary":"d13701f012853926a1c127ccd36325b94083ade013acf0ac06971e8b95d6a6ed","skills-license-eval":"de41448284606b587eb01f3f52467148abfe329eb4afb64f7095d6de51652553","embedded-regression-copilot":"0d8d2283b73273ccc9a7d3796502bcc1829e51c11901f43981694c80d21ac2ea","document-style-pipeline":"6e4abe39ece7436424ab728a07da99038cb267dd0f0c08c91806354f13c07b75","dot-meeting-brief":"4a18fe99ee18228ac2ea8dd08c7d06816bbc7dd475642a09df71b664289f3e34","dot-bounded-follow-up":"84e7fc7f83600649ed9d672287d8dfd0cc33ffdecae66cd7a7e5a0340e789eb3","dot-change-request":"2d78da6f25d6ea5d47d3067a5d597d8e304b41602a0321d27c90e9d2daf8cc73","research-conflicting-sources":"f2ddf755914405abf96632ad8b54e6353f492322f3d36384bade89dbabb505e2","writing-two-examples":"fda4d9625c4a38559a612483510673de3a65cb0f28478f943f5f3e8bb8addd10","orders-cleaning-audit":"eac249de66543c18ca22b17f9a961174a336d9db5bed9a69d4498fbf2c61cef6","image-edit-invariants":"8fbc5aaee484a75ba7f90badfee66feefcb16c4eea375ed91be3cb8c9ec69b02","video-learning-evidence":"fe6f5a20880ffcc649a26c4ec6cf8a01bef309ce178247c6757ddb7c44a986d0","codex-small-fix-loop":"97e754ab244ea90773db163c6b8959f96f555cd1ba2234d015455d6cdb27f670"};
+  for(const [id,hash] of Object.entries(expected)) {
+    const scope={window:{}}; vm.runInNewContext(visuals,scope);
+    assert.equal(sha256(scope.window.FieldnoteVisuals.render(data.posts.find(p=>p.id===id))),hash,id);
+  }
+});
+check('Every new scene has its own accurate title, labels and two complete automatic notes', () => {
+  const specs={"gpt6-intelligent-ui":{"art":"interface","title":"回答成为小工具，事实仍要能核对","labels":["具体问题与约束","回答中的临时界面","结果回到原始事实"],"status":["临时界面帮助探索，不等于已经执行外部事务。","同一组输入应得到可复核的计算与解释。"]},"haiku55-subagent-budget":{"source":"sol-quality-cost","title":"把子任务的用量，算进整次交付","labels":["子任务验收","上下文与推理配置","费用与返工"],"status":["每 token 单价下降，不等于每件工作同比省钱。","主代理和子代理都要计费，失败重试也入账。"]},"gemini4-argon-long-work":{"source":"context-task-eval","title":"长任务的每个结论，都保留回查路径","labels":["版本与原始材料","逐项核对任务","证据与待补项"],"status":["九月宣布与十月正式开放，是不同的事件。","修复声明不是复测记录；长上下文不能替代证据。"]},"nano-banana21-continuity":{"art":"continuity","title":"逐轮换场景，保留同一个主体","labels":["固定主体参考","每轮只改一件事","身份与细节对照"],"status":["图为连续编辑的教学示意，不是模型生成样张。","一次只改一个要素；发现主体漂移就退回已通过版本。"]},"embeddinggemma2-local-retrieval":{"art":"retrieval","title":"让不同材料，进入同一张检索地图","labels":["文字 · 图像 · 声音","共享表示空间","排序后回查原件"],"status":["向量接近用于寻找候选，不等于答案已经正确。","按需加载编码器；本地索引也要核对资源与数据范围。"]},"runway-kling-api-workflow":{"art":"video","title":"先选镜头，再选入口与生成档位","labels":["镜头和参考资料","草稿与成片分阶段","时长 · 声音 · 费用"],"status":["十月更新是平台入口变化，不能改写成底层模型首发。","草稿增强与音频可能另计费；先核对所选模型的支持项。"]},"glm-legal-evidence-chain":{"source":"context-task-eval","title":"先交事实卡，再讨论专业结论","labels":["有编号的原始材料","事实与推断分开","引用与未知项"],"status":["邀测与正式开放不同；本文只演示信息整理。","计划完成不等于已经完成，缺失附件不能靠模型补出。"]},"qwen-image21-api-alpha":{"art":"alpha","title":"透明风车，要经得起三种底色检查","labels":["自造纸风车","真实 Alpha 通道","三色合成验收"],"status":["棋盘格只是透明预览的惯例，画出棋盘格不算透明。","十月为托管 API 上新；权重发布日和许可另行区分。"]},"mistral-large4-preview":{"art":"preview","title":"API 预览与权重交付，分成两步判断","labels":["十月六日 API 预览","同材料持续验收","权重仍为未来计划"],"status":["公开预览允许行为更新，固定验收样本仍需重跑。","截至十月十六日，不能把月底权重计划写成已可下载。"]},"mplab-agent-telemetry-pacing":{"art":"telemetry","title":"读取与发布分开，数据流才有节奏","labels":["ADC 与 I2C 输入","定时发布与缓冲","遥测协议验收"],"status":["厂商已展示 AI 工作流，本刊未上板验证时序。","读取频率、输出频率与串口容量要分别核算。"]},"memfault-crash-evidence-chain":{"art":"trace","title":"从一次现场崩溃，走到可验证的假设","labels":["指定现场 trace","版本与源码对应","事实 · 假设 · 验证"],"status":["同一设备可产生多条 trace，不能把两种计数混用。","只读权限仍会涉及数据传输，先确认项目与模型授权。"]},"assertllm2-rtl-property-review":{"art":"assertion","title":"一条断言，既要能证明，也要能检错","labels":["规格与候选属性","前提可达性与证明","变异缺陷对照"],"status":["触发条件从未发生，属性也可能真空通过。","完整运行需要商业 JasperGold；只读学习不等于复现。"]},"firment-waveform-evidence":{"art":"waveform","title":"引脚真正输出什么，要看原始捕获","labels":["安全引脚与接线","逻辑分析仪捕获","频率与占空比检查"],"status":["方波是目标机制示意，本刊未生成任何硬件测量。","低置信度不能判为通过，固件日志不能替代电平证据。"]},"cantools-ai-wire-contract":{"art":"canframe","title":"字节由合同确定，AI 负责组织核对","labels":["DBC 字段与单位","独立黄金字节","Python 与 C 对照"],"status":["这是一条原创 AI 教学组合，不是 cantools 自带的 AI 功能。","先做离线编解码；不向车辆或在线总线发送测试帧。"]},"opus55-fast-access":{"art":"latency","title":"更快的输出，仍需单独计算费用","labels":["同一任务与模型","推理速度档","等待与费用分开记"],"status":["Opus 5.5 Fast 正式开放，是服务档位变化，不是新模型首发。","输出速度不等于整项任务速度，工具等待和重试仍需计入。"]},"gptlive11-voice-corrections":{"art":"voice","title":"语音更顺畅，也要听清最后一次更正","labels":["说话与打断","主模型与轻量分层","关键事实回读核对"],"status":["新声音与口音是体验更新，不代表可以自动替人承诺。","数字和否定句回读确认；全双工不是此次首次出现。"]}}; const env=boot();
+  for(const id of octoberIds) {
+    const node=env.get('#visual-'+id), spec=specs[id]; assert(node,id);
+    assert(node.textContent.includes(spec.title),id);
+    for(const label of spec.labels) assert(node.querySelector('.fv-labels').textContent.includes(label),id);
+    assert.deepEqual(node.querySelectorAll('.fv-note-transcript li').map(x=>x.textContent),spec.status,id);
+    assert.equal(node.querySelectorAll('button,[data-demo],[aria-live]').length,0,id);
+    env.click(node); assertView(env,'feed');
+  }
+});
+check('All sixteen additions keep category/region search, prompt copy, bookmarks and Back/Forward', async () => {
+  for(const id of octoberIds) {
+    const p=data.posts.find(p=>p.id===id), env=boot();
+    env.click('.mobile-categories [data-category="'+p.category+'"]');
+    if(p.category==='industry') env.click('[data-region="'+p.region+'"]');
+    env.input(p.title); assert.deepEqual(visiblePosts(env),[id],id);
+    assert.equal(env.get('.region-filter').hidden,p.category!=='industry',id);
+    env.click('#post-'+id+' .post-title a'); assertView(env,'article');
+    env.click('#article-view [data-copy-prompt]'); await env.settle(); assert.equal(env.clipboard.at(-1),p.tryThis.prompt,id);
+    env.click('#article-view [data-save]'); assert(env.storage.get(storageKey).includes(id),id);
+    env.back(); assertView(env,'feed'); assert.deepEqual(visiblePosts(env),[id],id);
+    env.forward(); assertView(env,'article'); assert.equal(env.get('#article-title').textContent,p.title,id);
   }
 });
 

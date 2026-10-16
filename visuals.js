@@ -378,6 +378,246 @@
   }
   /* End practical guide scene variants. */
 
+  /* October coverage: original conceptual artwork; no generated vendor samples. */
+  const coverageText = (x, y, value, centered = false) => `<text class="fv-note-label" x="${x}" y="${y}"${centered ? ' text-anchor="middle"' : ''}>${escape(value)}</text>`;
+  const coveragePanel = (x, y, w, h) => `<rect class="fv-paper" x="${x}" y="${y}" width="${w}" height="${h}" rx="5"/>`;
+  const coverageRoute = () => `${arrow(181,74,47)}${arrow(425,74,45)}`;
+  const coverageWindmill = (x,y,scale=1) => `<g transform="translate(${x} ${y}) scale(${scale})">${line('M0 0v44','fv-heavy')}<path class="fv-sage-fill" d="M0 0-22-22 0-15ZM0 0 22 22 0 15Z"/><path class="fv-ochre-fill" d="M0 0 22-22 15 0ZM0 0-22 22-15 0Z"/><circle class="fv-paper" cx="0" cy="0" r="4"/></g>`;
+  const coverageTravelCup = (x,y,scale=1) => `<g transform="translate(${x} ${y}) scale(${scale})"><rect x="-13" y="-14" width="26" height="47" rx="5" fill="#344b66"/><rect x="-15" y="-21" width="30" height="10" rx="3" fill="#f1eadb" stroke="#5b655f" stroke-width="1.4"/><circle cx="0" cy="2" r="3" fill="#d5ad54"/><circle cx="0" cy="13" r="3" fill="#d5ad54"/></g>`;
+  const coverageArt = {
+    preview: () => art(`${coveragePanel(40,24,124,110)}${coverageText(102,45,'公开预览',true)}${coverageText(102,71,'API',true)}${line('M54 91h94M54 109h71')}${coverageRoute()}${coveragePanel(245,19,166,119)}${coverageText(328,40,'相同材料反复验收',true)}${[263,307,351].map((x,i)=>`${sheet(x,55,37,64)}${coverageText(x+18,73,String(i+1),true)}`).join('')}${coveragePanel(484,24,119,110)}${coverageText(543,45,'权重交付',true)}<rect class="fv-boundary" x="498" y="57" width="90" height="58" rx="3"/>${coverageText(543,80,'月底计划',true)}${coverageText(543,101,'尚未开放',true)}`),
+    interface: () => art(`${coveragePanel(40,24,124,110)}${coverageText(54,45,'一个具体问题')}${line('M54 61h95M54 75h74M54 89h87')}${coverageRoute()}${coveragePanel(245,19,166,119)}${coverageText(259,40,'回答中的临时工具')}<rect class="fv-soft-fill" x="258" y="51" width="140" height="26" rx="3"/>${line('M268 64h44m14 0h58')}<rect class="fv-highlight" x="258" y="86" width="66" height="36" rx="3"/><rect class="fv-soft-fill" x="333" y="86" width="65" height="36" rx="3"/>${coverageText(291,108,'输入',true)}${coverageText(365,108,'结果',true)}${coveragePanel(484,24,119,110)}${coverageText(497,45,'回到原始事实')}${line('M497 61h91M497 75h70M497 89h84')}${check(574,113)}`),
+    latency: () => art(`${coveragePanel(40,24,124,110)}${coverageText(54,45,'同一任务与模型')}${line('M54 64h96M54 80h78M54 96h87')}${coverageRoute()}${coveragePanel(245,19,166,119)}${coverageText(328,40,'选择推理速度档',true)}${line('M260 66h134M260 105h134','fv-soft-line')}<rect class="fv-sage-fill" x="261" y="59" width="82" height="8" rx="3"/><rect class="fv-ochre-fill" x="261" y="98" width="119" height="8" rx="3"/>${coverageText(260,85,'速度档示意 · 非测量')}${coveragePanel(484,24,119,110)}${coverageText(497,45,'分开记录')}${coverageText(497,68,'等待 · 生成')}${coverageText(497,90,'重试 · 费用')}${line('M497 108h87')}`),
+    voice: () => art(`${coveragePanel(40,24,124,110)}${coverageText(102,45,'说话与倾听',true)}${[0,1,2,3,4,5,6,7,8].map((i)=>`<rect class="fv-sage-fill" x="${55+i*11}" y="${82-[8,16,24,17,29,19,11,21,9][i]/2}" width="5" height="${[8,16,24,17,29,19,11,21,9][i]}" rx="2"/>`).join('')}${coverageRoute()}${coveragePanel(245,19,166,119)}${coverageText(328,40,'语音服务分层',true)}<rect class="fv-highlight" x="260" y="54" width="136" height="25" rx="3"/><rect class="fv-soft-fill" x="260" y="91" width="136" height="25" rx="3"/>${coverageText(328,71,'GPT-Live-1.1',true)}${coverageText(328,108,'Quip',true)}${coveragePanel(484,24,119,110)}${coverageText(497,45,'可观察的体验')}${coverageText(497,67,'口音与断句')}${coverageText(497,89,'打断与等待')}${coverageText(497,111,'逐项复核')}`),
+    continuity: () => art(`${coveragePanel(40,24,124,110)}${coverageText(102,45,'同一主体参考',true)}${coverageTravelCup(102,78,.9)}${coverageRoute()}${coveragePanel(245,19,166,119)}${coverageText(328,40,'逐轮改变场景',true)}${[260,307,354].map((x,i)=>`<rect class="${i%2?'fv-highlight':'fv-soft-fill'}" x="${x}" y="52" width="39" height="69" rx="3"/>${coverageTravelCup(x+19,78,.8)}`).join('')}${coveragePanel(484,24,119,110)}${coverageText(497,45,'逐轮对照')}${coverageText(497,67,'形状 · 文字')}${coverageText(497,89,'位置 · 颜色')}${line('M497 107h87')}`),
+    retrieval: () => art(`${coveragePanel(40,24,124,110)}${coverageText(102,45,'不同类型材料',true)}${coverageText(54,68,'文字   图像')}${line('M55 83h20m8-5 8 10 8-10 8 10 8-10 8 10','fv-sage-line')}${coverageText(54,113,'音频   视频')}${coverageRoute()}${coveragePanel(245,19,166,119)}${coverageText(328,40,'统一向量空间',true)}${line('M262 113V54M262 113h132','fv-soft-line')}${[[278,92],[291,83],[309,95],[342,63],[352,80],[378,58],[366,99]].map(([x,y],i)=>`<circle class="fv-${i<3?'sage':'ochre'}-fill" cx="${x}" cy="${y}" r="4"/>`).join('')}<ellipse class="fv-selection" cx="293" cy="90" rx="28" ry="20"/>${coveragePanel(484,24,119,110)}${coverageText(497,45,'候选材料排序')}${[62,84,106].map((y,i)=>`${coverageText(497,y,String(i+1))}${line(`M512 ${y-3}h${72-i*12}`)}`).join('')}`),
+    video: () => art(`${coveragePanel(40,24,124,110)}${coverageText(102,45,'镜头与参考材料',true)}${line('M54 61h96M54 75h73')}<rect class="fv-soft-fill" x="55" y="88" width="38" height="29" rx="3"/><rect class="fv-highlight" x="103" y="88" width="47" height="29" rx="3"/>${coverageRoute()}${coveragePanel(245,19,166,119)}${coverageText(328,40,'入口与模型分开选',true)}<rect class="fv-soft-fill" x="260" y="54" width="62" height="62" rx="4"/><rect class="fv-highlight" x="333" y="54" width="63" height="62" rx="4"/>${coverageText(291,79,'草稿',true)}${coverageText(291,101,'480p',true)}${coverageText(365,79,'成片',true)}${coverageText(365,101,'另计费',true)}${coveragePanel(484,24,119,110)}${coverageText(497,45,'导出前核对')}${coverageText(497,67,'时长与声音')}${coverageText(497,89,'画幅与授权')}${line('M497 108h85')}`),
+    alpha: () => art(`${coveragePanel(40,24,124,110)}${coverageText(102,45,'描述与参考图',true)}${coverageWindmill(102,79,.85)}${coverageRoute()}${coveragePanel(245,19,166,119)}${coverageText(328,40,'真正的透明通道',true)}${Array.from({length:5},(_,r)=>Array.from({length:8},(_,c)=>`<rect class="${(r+c)%2?'fv-soft-fill':'fv-paper'}" x="${263+c*16}" y="${51+r*15}" width="16" height="15"/>`).join('')).join('')}${coverageWindmill(328,79,.85)}${coveragePanel(484,24,119,110)}${coverageText(543,45,'三种底色合成',true)}${['fv-paper','fv-ink-fill','fv-ochre-fill'].map((cls,i)=>`<rect class="${cls}" x="${496+i*33}" y="56" width="31" height="64" rx="3"/>${coverageWindmill(511+i*33,79,.55)}`).join('')}`),
+    telemetry: () => art(`${coveragePanel(40,24,124,110)}${coverageText(102,45,'ADC 与 I2C',true)}${line('M54 72h16v-14h18v29h18V66h20v18h20','fv-sage-line')}${coverageText(102,113,'读取速率',true)}${coverageRoute()}${coveragePanel(245,19,166,119)}${coverageText(328,40,'定时发布 · 有限缓冲',true)}${line('M263 96h131','fv-soft-line')}${[274,306,338,370].map(x=>`${line(`M${x} 62v43`)}<circle class="fv-ochre-fill" cx="${x}" cy="96" r="4"/>`).join('')}${coverageText(328,122,'刻度为机制示意',true)}${coveragePanel(484,24,119,110)}${coverageText(543,45,'Data Streamer',true)}${line('M498 111V59M498 111h88','fv-soft-line')}${line('M500 99l15-13 17 7 16-25 17 9 18-11','fv-sage-line')}`),
+    trace: () => art(`${coveragePanel(40,24,124,110)}${coverageText(102,45,'一个现场崩溃',true)}${[65,85,105].map((y,i)=>`<circle class="fv-${i===1?'ochre':'sage'}-fill" cx="60" cy="${y}" r="4"/>${line(`M73 ${y}h${[72,58,66][i]}`)}`).join('')}${coverageRoute()}${coveragePanel(245,19,166,119)}${coverageText(328,40,'锁定同一条证据链',true)}${coverageText(261,65,'trace / 软件版本')}${coverageText(261,87,'硬件 / 构建标识')}${coverageText(261,109,'匹配的源码')}${coveragePanel(484,24,119,110)}${coverageText(497,45,'分开写结论')}${coverageText(497,68,'已见事实')}${coverageText(497,90,'候选原因')}${coverageText(497,112,'下一步验证')}`),
+    assertion: () => art(`${coveragePanel(40,24,124,110)}${coverageText(102,45,'规格与 RTL',true)}${line('M54 63h94M54 78h77M54 93h86')}${coverageRoute()}${coveragePanel(245,19,166,119)}${coverageText(328,40,'AI 起草 SVA',true)}<rect class="fv-highlight" x="260" y="54" width="136" height="25" rx="3"/>${coverageText(328,71,'假设 → 保证',true)}${coverageText(261,101,'证明通过后仍查')}${coverageText(261,119,'触发覆盖与空真')}${coveragePanel(484,24,119,110)}${coverageText(497,45,'对照注入错误')}${line('M500 67h37m7-5 8 10 8-10 8 10','fv-ochre-line')}${coverageText(497,94,'能否抓住坏设计')}${coverageText(497,114,'研究结果 ≠ 保证')}`),
+    waveform: () => art(`${coveragePanel(40,24,124,110)}${coverageText(102,45,'目标引脚与地线',true)}<rect class="fv-sage-fill" x="69" y="61" width="57" height="42" rx="4"/>${line('M126 70h24M126 92h24','fv-pins')}${coverageText(102,122,'确认安全电平',true)}${coverageRoute()}${coveragePanel(245,19,166,119)}${coverageText(328,40,'捕获原始电平',true)}${line('M260 103h16V63h29v40h28V63h29v40h31','fv-sage-line')}${coverageText(328,123,'目标方波示意',true)}${coveragePanel(484,24,119,110)}${coverageText(497,45,'确定性测量')}${coverageText(497,67,'频率与占空比')}${coverageText(497,89,'样本与置信度')}${coverageText(497,111,'不以日志代波形')}`),
+    canframe: () => art(`${coveragePanel(40,24,124,110)}${coverageText(102,45,'DBC 信号合同',true)}${coverageText(54,68,'位宽与字节序')}${coverageText(54,91,'比例与偏移')}${line('M54 109h94')}${coverageRoute()}${coveragePanel(245,19,166,119)}${coverageText(328,40,'独立手算黄金字节',true)}${Array.from({length:8},(_,i)=>`<rect class="${i%2?'fv-soft-fill':'fv-highlight'}" x="${259+i*17}" y="59" width="16" height="22"/>`).join('')}${coverageText(328,108,'Python / C 双路核对',true)}${coveragePanel(484,24,119,110)}${coverageText(497,45,'分开检查')}${coverageText(497,67,'有效值编解码')}${coverageText(497,89,'非法值处理')}${coverageText(497,111,'离线，不发总线')}`)
+  };
+
+  const coverageSceneSpecs = {
+  "gpt6-intelligent-ui": {
+    "art": "interface",
+    "title": "回答成为小工具，事实仍要能核对",
+    "labels": [
+      "具体问题与约束",
+      "回答中的临时界面",
+      "结果回到原始事实"
+    ],
+    "status": [
+      "临时界面帮助探索，不等于已经执行外部事务。",
+      "同一组输入应得到可复核的计算与解释。"
+    ]
+  },
+  "haiku55-subagent-budget": {
+    "source": "sol-quality-cost",
+    "title": "把子任务的用量，算进整次交付",
+    "labels": [
+      "子任务验收",
+      "上下文与推理配置",
+      "费用与返工"
+    ],
+    "status": [
+      "每 token 单价下降，不等于每件工作同比省钱。",
+      "主代理和子代理都要计费，失败重试也入账。"
+    ]
+  },
+  "gemini4-argon-long-work": {
+    "source": "context-task-eval",
+    "title": "长任务的每个结论，都保留回查路径",
+    "labels": [
+      "版本与原始材料",
+      "逐项核对任务",
+      "证据与待补项"
+    ],
+    "status": [
+      "九月宣布与十月正式开放，是不同的事件。",
+      "修复声明不是复测记录；长上下文不能替代证据。"
+    ]
+  },
+  "nano-banana21-continuity": {
+    "art": "continuity",
+    "title": "逐轮换场景，保留同一个主体",
+    "labels": [
+      "固定主体参考",
+      "每轮只改一件事",
+      "身份与细节对照"
+    ],
+    "status": [
+      "图为连续编辑的教学示意，不是模型生成样张。",
+      "一次只改一个要素；发现主体漂移就退回已通过版本。"
+    ]
+  },
+  "embeddinggemma2-local-retrieval": {
+    "art": "retrieval",
+    "title": "让不同材料，进入同一张检索地图",
+    "labels": [
+      "文字 · 图像 · 声音",
+      "共享表示空间",
+      "排序后回查原件"
+    ],
+    "status": [
+      "向量接近用于寻找候选，不等于答案已经正确。",
+      "按需加载编码器；本地索引也要核对资源与数据范围。"
+    ]
+  },
+  "runway-kling-api-workflow": {
+    "art": "video",
+    "title": "先选镜头，再选入口与生成档位",
+    "labels": [
+      "镜头和参考资料",
+      "草稿与成片分阶段",
+      "时长 · 声音 · 费用"
+    ],
+    "status": [
+      "十月更新是平台入口变化，不能改写成底层模型首发。",
+      "草稿增强与音频可能另计费；先核对所选模型的支持项。"
+    ]
+  },
+  "glm-legal-evidence-chain": {
+    "source": "context-task-eval",
+    "title": "先交事实卡，再讨论专业结论",
+    "labels": [
+      "有编号的原始材料",
+      "事实与推断分开",
+      "引用与未知项"
+    ],
+    "status": [
+      "邀测与正式开放不同；本文只演示信息整理。",
+      "计划完成不等于已经完成，缺失附件不能靠模型补出。"
+    ]
+  },
+  "qwen-image21-api-alpha": {
+    "art": "alpha",
+    "title": "透明风车，要经得起三种底色检查",
+    "labels": [
+      "自造纸风车",
+      "真实 Alpha 通道",
+      "三色合成验收"
+    ],
+    "status": [
+      "棋盘格只是透明预览的惯例，画出棋盘格不算透明。",
+      "十月为托管 API 上新；权重发布日和许可另行区分。"
+    ]
+  },
+  "mistral-large4-preview": {
+    "art": "preview",
+    "title": "API 预览与权重交付，分成两步判断",
+    "labels": [
+      "十月六日 API 预览",
+      "同材料持续验收",
+      "权重仍为未来计划"
+    ],
+    "status": [
+      "公开预览允许行为更新，固定验收样本仍需重跑。",
+      "截至十月十六日，不能把月底权重计划写成已可下载。"
+    ]
+  },
+  "mplab-agent-telemetry-pacing": {
+    "art": "telemetry",
+    "title": "读取与发布分开，数据流才有节奏",
+    "labels": [
+      "ADC 与 I2C 输入",
+      "定时发布与缓冲",
+      "遥测协议验收"
+    ],
+    "status": [
+      "厂商已展示 AI 工作流，本刊未上板验证时序。",
+      "读取频率、输出频率与串口容量要分别核算。"
+    ]
+  },
+  "memfault-crash-evidence-chain": {
+    "art": "trace",
+    "title": "从一次现场崩溃，走到可验证的假设",
+    "labels": [
+      "指定现场 trace",
+      "版本与源码对应",
+      "事实 · 假设 · 验证"
+    ],
+    "status": [
+      "同一设备可产生多条 trace，不能把两种计数混用。",
+      "只读权限仍会涉及数据传输，先确认项目与模型授权。"
+    ]
+  },
+  "assertllm2-rtl-property-review": {
+    "art": "assertion",
+    "title": "一条断言，既要能证明，也要能检错",
+    "labels": [
+      "规格与候选属性",
+      "前提可达性与证明",
+      "变异缺陷对照"
+    ],
+    "status": [
+      "触发条件从未发生，属性也可能真空通过。",
+      "完整运行需要商业 JasperGold；只读学习不等于复现。"
+    ]
+  },
+  "firment-waveform-evidence": {
+    "art": "waveform",
+    "title": "引脚真正输出什么，要看原始捕获",
+    "labels": [
+      "安全引脚与接线",
+      "逻辑分析仪捕获",
+      "频率与占空比检查"
+    ],
+    "status": [
+      "方波是目标机制示意，本刊未生成任何硬件测量。",
+      "低置信度不能判为通过，固件日志不能替代电平证据。"
+    ]
+  },
+  "cantools-ai-wire-contract": {
+    "art": "canframe",
+    "title": "字节由合同确定，AI 负责组织核对",
+    "labels": [
+      "DBC 字段与单位",
+      "独立黄金字节",
+      "Python 与 C 对照"
+    ],
+    "status": [
+      "这是一条原创 AI 教学组合，不是 cantools 自带的 AI 功能。",
+      "先做离线编解码；不向车辆或在线总线发送测试帧。"
+    ]
+  },
+  "opus55-fast-access": {
+    "art": "latency",
+    "title": "更快的输出，仍需单独计算费用",
+    "labels": [
+      "同一任务与模型",
+      "推理速度档",
+      "等待与费用分开记"
+    ],
+    "status": [
+      "Opus 5.5 Fast 正式开放，是服务档位变化，不是新模型首发。",
+      "输出速度不等于整项任务速度，工具等待和重试仍需计入。"
+    ]
+  },
+  "gptlive11-voice-corrections": {
+    "art": "voice",
+    "title": "语音更顺畅，也要听清最后一次更正",
+    "labels": [
+      "说话与打断",
+      "主模型与轻量分层",
+      "关键事实回读核对"
+    ],
+    "status": [
+      "新声音与口音是体验更新，不代表可以自动替人承诺。",
+      "数字和否定句回读确认；全双工不是此次首次出现。"
+    ]
+  }
+};
+  for (const [id, spec] of Object.entries(coverageSceneSpecs)) {
+    scenes[id] = n => ({
+      ...(spec.source ? scenes[spec.source](n) : {kind:'evidence', body:coverageArt[spec.art]()}),
+      title:spec.title, labels:spec.labels, status:spec.status[n % spec.status.length]
+    });
+  }
+  /* End October coverage scenes. */
+
   /* Small, authored optical accents follow the information in each illustration.
    * No random particle field, timers, canvas, filters, SMIL or external assets.
    * Everything animated shares the existing viewport observer's fv-animated hook. */
