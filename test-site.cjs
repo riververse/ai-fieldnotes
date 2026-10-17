@@ -244,7 +244,7 @@ function assertReleaseCoherence(markup) {
   const publicationURL = new URL('https://example.test/publication/');
   const release = document.querySelector('html').getAttribute('data-release');
   assert(release && release.trim() === release, 'HTML must declare a nonempty release version');
-  assert.match(release, /^20261016r2-[0-9a-f]{12}$/, 'Release must include the deterministic asset digest');
+  assert.match(release, /^20261017r1-[0-9a-f]{12}$/, 'Release must include the deterministic asset digest');
   const metadata = document.querySelectorAll('meta[name="app-release"]');
   assert.equal(metadata.length, 1, 'Exactly one app-release meta tag is required');
   assert.equal(metadata[0].getAttribute('content'), release, 'Release metadata must match HTML');
@@ -785,7 +785,7 @@ check('Article rendering escapes untrusted content and omits dangerous source UR
 
 /* Added after the established 44 baseline suites. Existing suites remain intact. */
 check('Expanded editorial bodies keep previews short and use readable existing section types', () => {
-  assert.equal(data.posts.length, 43);
+  assert.equal(data.posts.length, 48);
   for (const p of data.posts) {
     assert(p.dek.length < 100, p.id + ': feed preview should remain short');
     assert(p.summary.length >= 1 && p.summary.length <= 3, p.id);
@@ -810,7 +810,7 @@ check('Editorial aliases stay synchronized and original proposals are not dated 
     assert(p.sources.every(s => s.url.startsWith('https://')), p.id);
   }
 });
-check('All 43 direct details render every explanatory section and retain their source evidence', () => {
+check('All 48 direct details render every explanatory section and retain their source evidence', () => {
   for (const p of data.posts) {
     const env = boot({ url: 'https://example.test/publication/' + C.postHash(p.id) });
     assertView(env, 'article');
@@ -1115,16 +1115,16 @@ check('Earlier edition retains its post objects with only the approved DeepSeek 
   for (const [id, hash] of Object.entries(expected)) {
     const p = data.posts.find(post => post.id === id); assert(p, id); assert.equal(digest(p), hash, id);
   }
-  assert.equal(data.posts.length, 43);
-  assert.deepEqual(['industry', 'practice', 'embedded'].map(category => data.posts.filter(p => C.categoryFor(p) === category).length), [15, 13, 15]);
+  assert.equal(data.posts.length, 48);
+  assert.deepEqual(['industry', 'practice', 'embedded'].map(category => data.posts.filter(p => C.categoryFor(p) === category).length), [17, 15, 16]);
 });
 check('Selective updates retain honest per-article source verification dates', () => {
-  assert.equal(data.site.verifiedAt, '2026-10-16');
+  assert.equal(data.site.verifiedAt, '2026-10-17');
   assert(data.site.editorialNote.includes('各篇保留实际资料核验日'));
-  const env = boot(); assert.equal(env.get('#edition-date').textContent, '最近核验 2026.10.16');
+  const env = boot(); assert.equal(env.get('#edition-date').textContent, '最近核验 2026.10.17');
   const current = new Set(["minicpm-local-image-check", "sensor-unknown-state-gmm", "deepseek-v41-migration", "opus55-fast-access", "gptlive11-voice-corrections", "gemini4-argon-long-work", "runway-kling-api-workflow", "glm-legal-evidence-chain", "qwen-image21-api-alpha", "gpt6-intelligent-ui", "haiku55-subagent-budget", "nano-banana21-continuity", "embeddinggemma2-local-retrieval", "mistral-large4-preview", "mplab-agent-telemetry-pacing", "memfault-crash-evidence-chain", "assertllm2-rtl-property-review", "firment-waveform-evidence", "cantools-ai-wire-contract"]);
   for (const p of data.posts) {
-    assert.equal(p.verifiedAt, current.has(p.id) ? '2026-10-16' : '2026-10-15', p.id);
+    assert.equal(p.verifiedAt, october17Ids.includes(p.id) ? '2026-10-17' : current.has(p.id) ? '2026-10-16' : '2026-10-15', p.id);
     assert.equal(p.verified_date, p.verifiedAt, p.id);
     if (['minicpm-local-image-check', 'sensor-unknown-state-gmm'].includes(p.id)) assert.equal(p.date, null);
   }
@@ -1182,8 +1182,8 @@ const octoberEmbeddedIds = ["mplab-agent-telemetry-pacing","memfault-crash-evide
 const octoberIds = [...octoberIndustryIds, ...octoberEmbeddedIds];
 const sha256 = value => require('node:crypto').createHash('sha256').update(value).digest('hex');
 check('October coverage adds exactly eleven industry and five distinct embedded workflows', () => {
-  assert.equal(data.posts.length, 43);
-  assert.deepEqual(['industry', 'practice', 'embedded'].map(c => data.posts.filter(p => C.categoryFor(p) === c).length), [15,13,15]);
+  assert.equal(data.posts.length, 48);
+  assert.deepEqual(['industry', 'practice', 'embedded'].map(c => data.posts.filter(p => C.categoryFor(p) === c).length), [17,15,16]);
   assert.equal(new Set(octoberIds).size, 16);
   for (const id of octoberIndustryIds) {
     const p=data.posts.find(p=>p.id===id); assert(p,id); assert.equal(p.category,'industry');
@@ -1272,6 +1272,102 @@ check('All sixteen additions keep category/region search, prompt copy, bookmarks
     env.click('#article-view [data-save]'); assert(env.storage.get(storageKey).includes(id),id);
     env.back(); assertView(env,'feed'); assert.deepEqual(visiblePosts(env),[id],id);
     env.forward(); assertView(env,'article'); assert.equal(env.get('#article-title').textContent,p.title,id);
+  }
+});
+
+
+/* October 17: append-only editorial and semantic-scene contracts. */
+const october17Ids = ["prompt-to-voice-reusable-brief", "kling4-long-take-control", "decision-switching-threshold", "learning-short-answer-hint-retest", "firmware-memory-delta-audit"];
+const october17Baseline = {"posts":{"opus55-fast-access":"5d343d3fb4f55de41b1ad13e273f1eef4f6b4f5a2d8579101d124bce430d8000","gptlive11-voice-corrections":"bc3b9993d381c6ca67bd1e601d7bf4d4a1c95d4cace11f03b4097f67fbbb21db","gemini4-argon-long-work":"121484ce1ee9148c2f7be640371a62f9cfba446c9cdb89ca8cab5446e873ecb0","runway-kling-api-workflow":"52b0018ad273e00a3f6af7862bdaa9f18207c16087737e1a83beb0199645990f","glm-legal-evidence-chain":"9da204d02ab84f8eb48a10f2af265f48759150c5844ef9e34be111d0234d8f4c","qwen-image21-api-alpha":"1e81ecb9ec1498e575ba292c96ade9342fcbc1fd892a0e23d88c62c5e854847d","gpt6-intelligent-ui":"5c9657cf1aaa75195a7c6ca9a419ed9f5c946dae43fd2e929f7cb219def47d11","haiku55-subagent-budget":"40589281778639c45c81447e065e3830efcbe09fe52cd9a3e2604707e5257c35","nano-banana21-continuity":"ab6cb4de6fb4fab6eb5b81028cdd2857bd5971e610074302afc9ee2b27cd618e","embeddinggemma2-local-retrieval":"5cd94802e402edfab230b73e19ee6b0dffeb3eb26d778cd37f907ede67e3c301","mistral-large4-preview":"74d300fc34b328dc749a34aec19c0ac87e0ec4220688eca5a0b702298f05a44f","mplab-agent-telemetry-pacing":"f23ee6f7a452db4833c4f3f58ff69b49aa8811cf8e2f134e288acbe7514631a4","memfault-crash-evidence-chain":"19b9006fd5e592f9efd3fd0332950afcf45a8195884f062d42fdd52c0ff9e69f","assertllm2-rtl-property-review":"b6d87a487535fb842ad4908bcd1bc08b35004d4c2c8a8f199d5da40a1cd59a39","firment-waveform-evidence":"affb6bfa3bdb4778904f9133b4a3a4fab2fb4190b29b0c15bde31b05095800f1","cantools-ai-wire-contract":"e2d91e4db45b36d183823818262761687888da7b3e9b52dd6b34e2aebcf88135","minicpm-local-image-check":"fd0add86b8ae410daf0349b44d383d17df575eb0d1d69ab111d26fe04a5714b7","sensor-unknown-state-gmm":"3b4eac0dd79fb5970aed643285a55a7bfe0cf27c58567093353906e8bd4e8d3f","sol-quality-cost":"f53d3c7c9d9c8b8b75da105a631a8a74df7ceaf105b77adf03ffad445b882b6a","deepseek-v41-migration":"05ea75bf12ecfaf87c4ba8bfb4a84fcdf41deeec532bbdab6ba13efc7698b376","qwen-omni-evidence":"220ef0f3c13e3f04c6b332933a303feb528d06e1458ec410510e4b0924f9c359","images25-edit-brief":"3baf2ae3963446ddc58573af93650d0815cfdb24ba9287d5022927e03dd73dff","renode-replay-lab":"bbc451336852b1abd4d491dfab43c79cc5fac6719bcefeece8304947508aa261","firmware-fuzz-harness":"52204b6f516e75ca58f3ecb7b9154fe9d30bd698d9ff29ab865f12c5ced39058","debug-probe-mcp":"063fa655a3e4838d61f72683df248a15fe8e0c7185fc909684d4c986a7fece58","datasheet-register-audit":"7ad32920da96b7456f3c19971fa940a7528e0338609da7bd07886c53fd7ea708","stm32-edge-ai-budget":"819ad707afc2051fe064ce466d246159ef51d35dec3c2cd3ded40d6666908811","firmware-agent-contract":"146a2eadf17defae9c0266ea2d82e35dd33eb6b480fc3a8a2ca32f262d4a62a9","context-task-eval":"8c96cdbc3b373c90733bc5b218854baa24f99c9e6043ad19d2f3b76d34c86095","espressif-mcp-workflow":"90b01873f620cb39f7e0040e56ea68e6881489c0ccc4d1b214f97ef95573e628","playwright-mcp-boundary":"cb62e3ed8797602aa5df5717d7abb4cde1d87a57981ce342a881c6643a2dcea5","skills-license-eval":"de1ddf6ab2990d2887a2a3324d7a2a6b90012a4f13121d7ff4759408523356d8","embedded-regression-copilot":"3d1ff145b4ddef0c06132990ee8f6c7ac18b2243e34e89cda1b3be8b01f00211","document-style-pipeline":"6d85313adc53f5a592474f69acdb78ce4164c63492147baa7a117f6ffc7d110a","dot-meeting-brief":"1e1e08ae0719a820459a68a4a0ef0356e3dd37570b4b2cf224041cf7a5f533b2","dot-bounded-follow-up":"76111ec1587cae86e39d500343d2945d973f5b958dd0586347950ed163a42478","dot-change-request":"73bdc58095365cb1c20fb099a3a0a8f2dc84bd45988efbc55cd4fc8735d6fbd1","research-conflicting-sources":"7f426c4e27e151214b91384b022eaa1e8063019ca554fc1c53e1a2a0fd8c8923","writing-two-examples":"08492c0f960d7d9c49a7fdabb6eec727741e85032cc143497b317ec43cd0d522","orders-cleaning-audit":"f043208c83891bb78919dd894df9af97f87ec06b1d528a020134cdaa80631828","image-edit-invariants":"db530d20a56191678834b869b084f8d5237047b21363e8408f81bedf6d1df94b","video-learning-evidence":"d0cd75374d542553b4bd74f3bbc76dd7d44bd30435a0b0cff3fe20f2838d0963","codex-small-fix-loop":"d1182d94cd77032b8a7c49962a91661e5928f09dac1410ba622d20449681c7e8"},"scenes":{"opus55-fast-access":"4adf26b679bcc54f022f95b4fe8ce05a12ad5659b40150003386a205242dc3a2","gptlive11-voice-corrections":"90a546fb4fc93f4e703e55a6319ba8742ff3920fa5bbbc36b8dcfd6684577dc6","gemini4-argon-long-work":"3f5357476daa50f9dae14e6dffa4e358b25f492b88db72b88bb4fcbd2ab18bf1","runway-kling-api-workflow":"ec96e7d3ed9c9eb159b9b2756791c6906707497d216110310da7a543b7cc2054","glm-legal-evidence-chain":"0847157a51d87c38680a1883fcded1cb186acd2f5cfdf4b99964dceeab23ef16","qwen-image21-api-alpha":"8ecb0f5e3e13e7ee8d5ae178f53b558f52004cf253f5bbc77e0a6cd994453791","gpt6-intelligent-ui":"b25e050a79bcc2a4a89b2a2980645ae06d74d03b586fdc4e4b0b0f36b89af766","haiku55-subagent-budget":"13cf6a2089f016c3ce1f0114f0ddb57d76077047f1df51fb3a323bec3704efc4","nano-banana21-continuity":"7360b9df5dbc06c7de72f27cdb2bb978ebe64c9f6d5d1cf7c640c081cadb5d93","embeddinggemma2-local-retrieval":"1c15811ae86029d28cf952201672d302e49313d5685b4d1bf3264442b075cb7e","mistral-large4-preview":"eef9211bdf2841306f03d4255f5536529d2712a0b87fdc349f7345a33b249e96","mplab-agent-telemetry-pacing":"98f7942e28b93b416bd5fb1a01189da287770e79f19b19b9ffe7811f7f4aeea9","memfault-crash-evidence-chain":"589792d5a3a877b4dd874d149996ce639c571c340ddcc31e71645e2d42b222c9","assertllm2-rtl-property-review":"e91f5ee4397da1789fa5343cb2adbc92c0daadd38df6cf6edf7a2ac1a7ed0a9d","firment-waveform-evidence":"47e4d63c6cc4715350747ebc0d96ddaeeccd22c10ddef67298d50328b8a3cd41","cantools-ai-wire-contract":"be2a8be95077dfc14460ce8d63348efb55fbe8b1689cc51e6e3252596cfa31fc","minicpm-local-image-check":"fa17a45f81ee28c814e29c26d199cc8755d082856373289c73671e071875cb12","sensor-unknown-state-gmm":"2a249413d4e9ab7d75f558b93234c16ebe2e78505a5eeadd992094aa3eed7c3a","sol-quality-cost":"21ac08e4a30889f92d381fa976e7f9eb05a33efa05c444f3afaed743c986649e","deepseek-v41-migration":"c552e257157ccebf462c5d2de48023234cebcf5f38861ca937e78dcdfdf2e790","qwen-omni-evidence":"253ecdbfa2c0dea216716d0be36a7381b1f70652f31638785a4178ed713f3ee0","images25-edit-brief":"ba77c9ee45199dfcaf0bca9cd9f31438ee82d06766a092731add3035bec0b9c2","renode-replay-lab":"02529004caba1c922ab3d690b3aad588fab1ca33eae0daef85b89c3f56511a99","firmware-fuzz-harness":"089f5a9ebdf188ab3e4575eab1f5c756732aadb3177952f01431567c8fd7f4d3","debug-probe-mcp":"ca23b159b62c8fdf7ab35ebec262ffe31fe11b3dd941e631cb2dd1de06ab432f","datasheet-register-audit":"ac50c025ad093bba38ff389df2334f5f29e01fc87ad0ee97aebf1d427ecf5701","stm32-edge-ai-budget":"3463da3b40663b7296560028a5b8af5e3efcd084d6ebe3cc47f397b89327896f","firmware-agent-contract":"cf9dbbe92d84749fb634e26345b8b5e72c7a5ca1dcefb74e320a94dd18b3029f","context-task-eval":"4cf4541762a4b088e7f4011943066ecf25c12ab4115ffb51c12e582f06cf30f9","espressif-mcp-workflow":"63fa25ccd1534820f5899d41ca7a0116fc39e57b7d519f5dde0ba1d07dc68a96","playwright-mcp-boundary":"d13701f012853926a1c127ccd36325b94083ade013acf0ac06971e8b95d6a6ed","skills-license-eval":"de41448284606b587eb01f3f52467148abfe329eb4afb64f7095d6de51652553","embedded-regression-copilot":"0d8d2283b73273ccc9a7d3796502bcc1829e51c11901f43981694c80d21ac2ea","document-style-pipeline":"6e4abe39ece7436424ab728a07da99038cb267dd0f0c08c91806354f13c07b75","dot-meeting-brief":"4a18fe99ee18228ac2ea8dd08c7d06816bbc7dd475642a09df71b664289f3e34","dot-bounded-follow-up":"84e7fc7f83600649ed9d672287d8dfd0cc33ffdecae66cd7a7e5a0340e789eb3","dot-change-request":"2d78da6f25d6ea5d47d3067a5d597d8e304b41602a0321d27c90e9d2daf8cc73","research-conflicting-sources":"f2ddf755914405abf96632ad8b54e6353f492322f3d36384bade89dbabb505e2","writing-two-examples":"fda4d9625c4a38559a612483510673de3a65cb0f28478f943f5f3e8bb8addd10","orders-cleaning-audit":"eac249de66543c18ca22b17f9a961174a336d9db5bed9a69d4498fbf2c61cef6","image-edit-invariants":"8fbc5aaee484a75ba7f90badfee66feefcb16c4eea375ed91be3cb8c9ec69b02","video-learning-evidence":"fe6f5a20880ffcc649a26c4ec6cf8a01bef309ce178247c6757ddb7c44a986d0","codex-small-fix-loop":"97e754ab244ea90773db163c6b8959f96f555cd1ba2234d015455d6cdb27f670"}};
+const october17Scenes = {"prompt-to-voice-reusable-brief":{"art":"voice","title":"声音描述、会话规则与试听记录，各有自己的位置","labels":["听感与规则分开","保存真实声音身份","统一台词逐项试听"],"status":["声音创建返回配置，不会直接返回一段试听音频。","创建免费与会话免费不同；未试听的检查项保持待验证。"]},"kling4-long-take-control":{"art":"video","title":"玩具车穿过门洞，每一段都要保住同一主体","labels":["自制主体参考","遮挡前后连续检查","时间线与镜头验收"],"status":["图中玩具车为原创概念示意，不是模型生成视频。","API、4K与两分钟延长仍属公告中的后续计划。"]},"decision-switching-threshold":{"art":"comparison","title":"先满足硬条件，再看推荐会在哪里翻转","labels":["容量门槛先筛选","24人处费用相同","按人数给出选择"],"status":["合成报价在24人同为660元，跨过交点就要重新比较。","人数范围不是概率分布；AI不能替你默认风险偏好。"]},"learning-short-answer-hint-retest":{"art":"tutor","title":"独立作答、按需提示，再用新题检查","labels":["先暴露真实答案","一次只给一级提示","反转方向与零基数"],"status":["提示后答对是进展，但应与独立完成分开记录。","题型上新不保证教学效果；有争议就回到可靠材料。"]},"firmware-memory-delta-audit":{"art":"memory","title":"新增字节先分账，再追到具体符号","labels":["同目标的两份构建","ROM与RAM独立核算","运行与升级另验证"],"status":["XIP初始化数据占两个区域，不能把ROM和RAM混成一个容量。","静态余量与观测栈余量都不能证明最坏路径已经安全。"]}};
+
+check('October 17 additions preserve all forty-three prior article objects and scene renderings', () => {
+  assert.equal(data.posts.length, 48);
+  assert.deepEqual(data.posts.slice(5).map(p=>p.id),Object.keys(october17Baseline.posts));
+  assert.deepEqual(data.posts.slice(0,5).map(p=>p.id),october17Ids);
+  for(const [id,hash] of Object.entries(october17Baseline.posts)) {
+    const p=data.posts.find(x=>x.id===id); assert.equal(sha256(JSON.stringify(p)),hash,id);
+    const scope={window:{}};vm.runInNewContext(visuals,scope);
+    assert.equal(sha256(scope.window.FieldnoteVisuals.render(p)),october17Baseline.scenes[id],id);
+  }
+});
+check('October 17 articles have full teaching bodies, original tasks and honest verification dates', () => {
+  assert.deepEqual(['industry','practice','embedded'].map(c=>data.posts.filter(p=>p.category===c).length),[17,15,16]);
+  for(const id of october17Ids) {
+    const p=data.posts.find(x=>x.id===id);
+    assert.equal(p.verifiedAt,'2026-10-17');assert.equal(p.verified_date,p.verifiedAt);
+    assert(p.analysis.length>=7,id);assert(p.analysis.map(x=>x.text).join('').length>=1100,id);
+    assert(p.tryThis.prompt.length>=150 && p.tryThis.expected.length>=80,id);
+    assert(p.sources.length>=2 && new Set(p.sources.map(x=>x.url)).size===p.sources.length,id);
+    assert(p.sources.every(s=>s.url.startsWith('https://')),id);assert(p.caveat.includes('未')||p.caveat.includes('没有'),id);
+    assert(!JSON.stringify(p).includes('/workspace/')&&!JSON.stringify(p).includes('sandbox:'),id);
+    if(p.category!=='industry'){assert.equal(p.date,null);assert.equal(p.region,'global');}
+  }
+});
+check('Voice and Kling chronology distinguishes releases, paid sessions and future functionality', () => {
+  const voice=data.posts.find(p=>p.id==='prompt-to-voice-reusable-brief'), video=data.posts.find(p=>p.id==='kling4-long-take-control');
+  assert.equal(voice.date,'2026-10-16');assert.equal(video.date,'2026-10-15');assert.equal(video.region,'china');
+  for(const term of ['Live','不含试听音频','Zero Data Retention','0.30','100'])assert(JSON.stringify(voice).includes(term),term);
+  for(const term of ['10月16','10月17','即将','4K','两分钟','未生成','30秒'])assert(JSON.stringify(video).includes(term),term);
+  assert.equal(2*3*60*5/60,30); // integer cents, not binary floating-point dollars
+  assert(voice.sources.some(s=>s.url.includes('/custom-voices')));
+  assert(video.sources.some(s=>s.url.startsWith('https://ir.kuaishou.com/')));
+});
+check('Decision method preserves hard constraints, exact switching values and conditional choice', () => {
+  const p=data.posts.find(p=>p.id==='decision-switching-threshold'), text=JSON.stringify(p);
+  const A=n=>180+20*n,B=n=>420+10*n;
+  assert.equal(A(24),660);assert.equal(A(24),B(24));assert(A(23)<B(23));assert(A(25)>B(25));
+  assert.deepEqual([20,30,40].map(n=>[A(n),B(n)]),[[580,620],[780,720],[980,820]]);
+  assert.equal(A(34),B(34)+100);assert.equal(B(30)+100-A(30),40);
+  for(const term of ['容量30','24人','34人','概率','硬条件','条件式'])assert(text.includes(term),term);
+  assert(p.sources.some(s=>s.url.includes('the-green-book-2026')));
+  assert(visuals.includes('M265 112.4L385 56.4')&&visuals.includes('M265 95.6L385 67.6'),'Both cost lines must rise with participant count');
+});
+check('Learning guide keeps feedback levels, unseen retests and zero-baseline limitations distinct', () => {
+  const p=data.posts.find(p=>p.id==='learning-short-answer-hint-retest'), text=JSON.stringify(p);
+  assert.equal((25-20)/20,.25);assert.equal((20-25)/25,-.2);assert.equal(25-20,5);
+  for(const term of ['先等我作答','一次只出一道题','不提前展示','零','提示后','独立','没有给出每项功能的单独上线日'])assert(text.includes(term),term);
+  assert(p.sources.some(s=>s.url.includes('three-tips-study-gemini-notebook')));
+  assert(p.caveat.includes('不能直接证明'));
+});
+check('Firmware memory example reconciles separate regions without inventing runtime safety', () => {
+  const p=data.posts.find(p=>p.id==='firmware-memory-delta-audit'), text=JSON.stringify(p);
+  const rom=[202752+4096,217088+5120],ram=[4096+40960,5120+49152];
+  assert.deepEqual(rom,[206848,222208]);assert.deepEqual(ram,[45056,54272]);
+  assert.equal(rom[1]-rom[0],15360);assert.equal(ram[1]-ram[0],9216);
+  assert.equal(229376-rom[1],7168);assert.equal(65536-ram[1],11264);assert.equal(2048-1536,512);
+  for(const term of ['DWARF','XIP','fpdiff.py','total_size','Hidden','No paths','Sysbuild','512','尚未','Apache-2.0'])assert(text.includes(term),term);
+  assert(p.sources.filter(s=>s.url.includes('/dccb09599635bdff17633fa7e9dab014b91dce90/')).length>=5);
+  assert(p.caveat.includes('没有安装工具'));assert.equal(p.kind,'experiment');
+});
+check('Five new original scenes retain semantic labels, automatic notes and control-free reading', () => {
+  const env=boot({observer:true});
+  for(const id of october17Ids) {
+    const node=env.get('#visual-'+id),spec=october17Scenes[id];assert(node,id);
+    assert(node.textContent.includes(spec.title),id);
+    assert.deepEqual(node.querySelectorAll('.fv-labels span').map(x=>x.textContent),spec.labels,id);
+    assert.deepEqual(node.querySelectorAll('.fv-note-transcript li').map(x=>x.textContent),spec.status,id);
+    assert.equal(node.querySelectorAll('button,[aria-live],[data-demo]').length,0,id);
+    assert(node.querySelectorAll('.fv-flow-runner').length>=4,id);
+    env.observers[0].callback([{target:node,isIntersecting:true}]);assert(node.classList.contains('is-visible'));
+    env.observers[0].callback([{target:node,isIntersecting:false}]);assert(!node.classList.contains('is-visible'));
+    env.click(node);assertView(env,'feed');
+  }
+  const reduced=boot({reducedMotion:true});assert(reduced.document.body.classList.contains('motion-paused'));
+});
+check('Five additions retain category scope, deep links, copies, bookmarks and repeat navigation', async () => {
+  for(const id of october17Ids) {
+    const p=data.posts.find(p=>p.id===id),env=boot();
+    env.click('.mobile-categories [data-category="'+p.category+'"]');
+    if(p.category==='industry')env.click('[data-region="'+p.region+'"]');
+    env.input(p.title);assert.deepEqual(visiblePosts(env),[id]);assert.equal(env.get('.region-filter').hidden,p.category!=='industry');
+    env.click('#post-'+id+' .post-title a');assertView(env,'article');
+    assert.equal(env.get('#prompt-'+id).value,p.tryThis.prompt);
+    env.click('#article-view [data-copy-prompt]');await env.settle();assert.equal(env.clipboard.at(-1),p.tryThis.prompt);
+    env.click('#article-view [data-save]');assert(env.storage.get(storageKey).includes(id));
+    env.back();assertView(env,'feed');assert.deepEqual(visiblePosts(env),[id]);
+    env.forward();assertView(env,'article');assert.equal(env.get('#article-title').textContent,p.title);
+    env.click('#article-view [data-save]');assert(!env.storage.get(storageKey).includes(id));
   }
 });
 

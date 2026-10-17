@@ -34,7 +34,7 @@ for filename in ASSET_FILES:
     asset = (ROOT / filename).read_bytes()
     digest.update(filename.encode('utf-8') + b'\0')
     digest.update(str(len(asset)).encode('ascii') + b'\0' + asset + b'\0')
-release = '20261016r2-' + digest.hexdigest()[:12]
+release = '20261017r1-' + digest.hexdigest()[:12]
 index_path = ROOT / 'index.html'
 markup = index_path.read_text(encoding='utf-8')
 for filename in ASSET_FILES:

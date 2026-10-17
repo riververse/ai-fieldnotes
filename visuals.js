@@ -618,6 +618,87 @@
   }
   /* End October coverage scenes. */
 
+  /* October 17: original, bounded teaching scenes, never tool output. */
+  const dailyArt = {
+    voice: () => art(`${coveragePanel(40,24,124,110)}${coverageText(102,44,'分别写清两件事',true)}<rect class="fv-highlight" x="51" y="53" width="102" height="26" rx="3"/>${coverageText(102,70,'成人音色 · 节奏',true)}<rect class="fv-soft-fill" x="51" y="91" width="102" height="26" rx="3"/>${coverageText(102,108,'事实 · 对话规则',true)}${coverageRoute()}${coveragePanel(245,19,166,119)}${coverageText(328,40,'创建后保存',true)}${sheet(282,50,92,73)}${coverageText(328,73,'voice ID',true)}${coverageText(328,113,'描述版本',true)}${coveragePanel(484,24,119,110)}${coverageText(543,45,'统一台词试听',true)}${coverageText(497,69,'数字听写')}${coverageText(497,91,'听感偏好')}${coverageText(497,113,'实际会话费用')}`),
+    video: () => art(`${coveragePanel(40,24,124,110)}${coverageText(102,45,'同一辆玩具车',true)}<rect x="65" y="82" width="73" height="24" rx="5" fill="#d5ad54"/><circle class="fv-ink-fill" cx="80" cy="110" r="7"/><circle class="fv-ink-fill" cx="124" cy="110" r="7"/>${line('M103 83V53')}<path class="fv-sage-fill" d="M103 54v21l25-10Z"/>${coverageRoute()}${coveragePanel(245,19,166,119)}${coverageText(328,40,'遮挡前后逐段检查',true)}${line('M261 112h133','fv-soft-line')}${[270,321,372].map((x,i)=>`<g opacity="${i===1?'.5':'1'}"><rect x="${x-9}" y="84" width="30" height="14" rx="3" fill="#d5ad54"/><circle class="fv-ink-fill" cx="${x-3}" cy="101" r="4"/><circle class="fv-ink-fill" cx="${x+15}" cy="101" r="4"/>${line(`M${x+4} 85V65`)}<path class="fv-sage-fill" d="M${x+4} 66v13l15-7Z"/></g>`).join('')}<path d="M310 111V64q23-29 46 0v47h-9V67q-14-18-28 0v44Z" fill="#70909f"/>${coverageText(328,129,'概念图 · 非视频帧',true)}${coveragePanel(484,24,119,110)}${coverageText(543,45,'完整时间线',true)}${coverageText(497,69,'外观与旗帜')}${coverageText(497,91,'动作与停车')}${coverageText(497,113,'镜头单独检查')}`),
+    comparison: () => art(`${coveragePanel(40,24,124,110)}${coverageText(102,45,'先筛硬条件',true)}${coverageText(54,68,'容量 · 预算')}${line('M54 83h94')}<circle class="fv-sage-fill" cx="62" cy="102" r="4"/>${coverageText(74,106,'可行候选')}${coverageRoute()}${coveragePanel(245,19,166,119)}${coverageText(328,40,'找到结论翻转点',true)}${line('M262 118V55M262 118h132','fv-soft-line')}${line('M265 112.4L385 56.4','fv-sage-line')}${line('M265 95.6L385 67.6','fv-ochre-line')}<circle class="fv-paper" cx="337" cy="78.8" r="5"/>${line('M337 86v28','fv-dashed')}${coverageText(337,130,'24人',true)}${coveragePanel(484,24,119,110)}${coverageText(543,45,'条件式建议',true)}${coverageText(497,69,'区间内选谁')}${coverageText(497,91,'越界如何改')}${coverageText(497,113,'先补哪项事实')}`),
+    tutor: () => art(`${coveragePanel(40,24,124,110)}${coverageText(102,45,'先独立作答',true)}${coverageText(102,70,'20% → 25%',true)}${line('M55 89h94M55 106h75')}${coverageRoute()}${coveragePanel(245,19,166,119)}${coverageText(328,40,'按需给一层提示',true)}${[0,1,2].map(i=>`<rect class="${i===0?'fv-highlight':'fv-soft-fill'}" x="${261+i*12}" y="${55+i*23}" width="${132-i*24}" height="18" rx="3"/>`).join('')}${coveragePanel(484,24,119,110)}${coverageText(543,45,'换一个例子',true)}${coverageText(543,72,'25% → 20%',true)}${coverageText(543,98,'0% → 5%',true)}${line('M498 116h89')}`),
+    memory: () => art(`${coveragePanel(40,24,124,110)}${coverageText(102,45,'可比的两次构建',true)}${sheet(53,57,43,61)}${sheet(109,57,43,61)}${coverageRoute()}${coveragePanel(245,19,166,119)}${coverageText(328,40,'ROM 与 RAM 分账',true)}${coverageText(260,65,'ROM')}<rect class="fv-sage-fill" x="304" y="55" width="60" height="13" rx="2"/><rect class="fv-ochre-fill" x="364" y="55" width="29" height="13" rx="2"/>${coverageText(260,98,'RAM')}<rect class="fv-sage-fill" x="304" y="88" width="43" height="13" rx="2"/><rect class="fv-ochre-fill" x="347" y="88" width="21" height="13" rx="2"/>${coverageText(328,124,'条长仅解释组成',true)}${coveragePanel(484,24,119,110)}${coverageText(543,45,'增量回到符号',true)}${coverageText(497,69,'来源与未归因')}${coverageText(497,91,'对照独立预算')}${coverageText(497,113,'运行峰值待测')}`)
+  };
+
+  const dailySceneSpecs = {
+  "prompt-to-voice-reusable-brief": {
+    "art": "voice",
+    "title": "声音描述、会话规则与试听记录，各有自己的位置",
+    "labels": [
+      "听感与规则分开",
+      "保存真实声音身份",
+      "统一台词逐项试听"
+    ],
+    "status": [
+      "声音创建返回配置，不会直接返回一段试听音频。",
+      "创建免费与会话免费不同；未试听的检查项保持待验证。"
+    ]
+  },
+  "kling4-long-take-control": {
+    "art": "video",
+    "title": "玩具车穿过门洞，每一段都要保住同一主体",
+    "labels": [
+      "自制主体参考",
+      "遮挡前后连续检查",
+      "时间线与镜头验收"
+    ],
+    "status": [
+      "图中玩具车为原创概念示意，不是模型生成视频。",
+      "API、4K与两分钟延长仍属公告中的后续计划。"
+    ]
+  },
+  "decision-switching-threshold": {
+    "art": "comparison",
+    "title": "先满足硬条件，再看推荐会在哪里翻转",
+    "labels": [
+      "容量门槛先筛选",
+      "24人处费用相同",
+      "按人数给出选择"
+    ],
+    "status": [
+      "合成报价在24人同为660元，跨过交点就要重新比较。",
+      "人数范围不是概率分布；AI不能替你默认风险偏好。"
+    ]
+  },
+  "learning-short-answer-hint-retest": {
+    "art": "tutor",
+    "title": "独立作答、按需提示，再用新题检查",
+    "labels": [
+      "先暴露真实答案",
+      "一次只给一级提示",
+      "反转方向与零基数"
+    ],
+    "status": [
+      "提示后答对是进展，但应与独立完成分开记录。",
+      "题型上新不保证教学效果；有争议就回到可靠材料。"
+    ]
+  },
+  "firmware-memory-delta-audit": {
+    "art": "memory",
+    "title": "新增字节先分账，再追到具体符号",
+    "labels": [
+      "同目标的两份构建",
+      "ROM与RAM独立核算",
+      "运行与升级另验证"
+    ],
+    "status": [
+      "XIP初始化数据占两个区域，不能把ROM和RAM混成一个容量。",
+      "静态余量与观测栈余量都不能证明最坏路径已经安全。"
+    ]
+  }
+};
+  for (const [id, spec] of Object.entries(dailySceneSpecs)) {
+    scenes[id] = n => ({kind: 'evidence', body: dailyArt[spec.art](), title: spec.title, labels: spec.labels, status: spec.status[n % spec.status.length]});
+  }
+  /* End October 17 teaching scenes. */
+
   /* Small, authored optical accents follow the information in each illustration.
    * No random particle field, timers, canvas, filters, SMIL or external assets.
    * Everything animated shares the existing viewport observer's fv-animated hook. */
