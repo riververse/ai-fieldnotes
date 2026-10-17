@@ -699,6 +699,32 @@
   }
   /* End October 17 teaching scenes. */
 
+  /* Company practice batch: original evidence maps, never execution recordings. */
+  const companyCaseSpecs = {
+    'spotify-honk-verification-rollout': {
+      title:'先筛适用条件，再分开检查与发布',
+      labels:['A继续 · B跳过 · C停止','独立验证与人工审查','发布观察与回滚'],
+      status:['图中组件是合成练习；检查通过只够进入下一道审查。','公司披露的自动升级事故，不能改写为已证实由AI代码造成。'],
+      body:art(`${coveragePanel(40,24,124,110)}${coverageText(102,44,'先筛适用条件',true)}${coverageText(55,68,'A  可准备补丁')}${coverageText(55,91,'B  版本不符')}${coverageText(55,114,'C  键值冲突')}${coverageRoute()}${coveragePanel(245,19,166,119)}${coverageText(328,40,'两种不同的检查',true)}<rect class="fv-soft-fill" x="259" y="55" width="138" height="27" rx="3"/>${coverageText(328,73,'可解析 · 行为保持',true)}<rect class="fv-highlight" x="259" y="94" width="138" height="26" rx="3"/>${coverageText(328,112,'任务边界 · 人工审查',true)}${coveragePanel(484,24,119,110)}${coverageText(543,45,'上线后仍要观察',true)}${coverageText(498,70,'负责人在场')}${coverageText(498,94,'小范围发布')}${coverageText(498,118,'异常可回滚')}`)
+    },
+    'uber-autocover-test-acceptance': {
+      title:'同一份教学台账，三个阶段各有分母',
+      labels:['10个候选测试','6个检查通过','4个人工接受'],
+      status:['10、6、4是本站合成数据，不是Uber的生产测量。','6/10、4/10、4/6分别回答不同问题，不能交换分母。'],
+      body:art(`${coveragePanel(40,24,124,110)}${coverageText(102,44,'候选 10',true)}${Array.from({length:10},(_,i)=>`<circle class="fv-soft-fill" cx="${62+(i%5)*20}" cy="${68+Math.floor(i/5)*23}" r="6"/>`).join('')}${coverageText(102,119,'合成教学台账',true)}${coverageRoute()}${coveragePanel(245,19,166,119)}${coverageText(328,40,'检查通过 6',true)}${Array.from({length:6},(_,i)=>`<rect class="fv-sage-fill" x="${277+(i%3)*38}" y="${57+Math.floor(i/3)*25}" width="23" height="14" rx="3"/>`).join('')}${coverageText(328,123,'6 / 10 = 60%',true)}${coveragePanel(484,24,119,110)}${coverageText(543,45,'人工接受 4',true)}${coverageText(543,72,'4 / 10 = 40%',true)}${coverageText(543,96,'4 / 6 ≈ 66.7%',true)}${coverageText(543,119,'两种接受率',true)}`)
+    },
+    'scania-spec2code-contract-gap': {
+      title:'规格内的证明，与完整替换是两件事',
+      labels:['人工固定规格','编译与证明义务','等价与系统仍待查'],
+      status:['证明目标通过，只覆盖已经写下的规格与模型假设。','等价未证成需要调查；图示不是实物复现或安全认证。'],
+      body:art(`${coveragePanel(40,24,124,110)}${coverageText(102,44,'固定规格',true)}${coverageText(54,69,'前提与初态')}${coverageText(54,92,'输出与副作用')}${coverageText(54,115,'禁止弱化规则')}${coverageRoute()}${coveragePanel(245,19,166,119)}${coverageText(328,40,'分开保存证据',true)}${sheet(261,51,61,70)}${sheet(340,51,55,70)}${coverageText(291,77,'编译',true)}${coverageText(367,77,'义务',true)}${coverageText(328,130,'未执行 · 不画绿灯',true)}${coveragePanel(484,24,119,110)}${coverageText(543,45,'不能跳过的问题',true)}${coverageText(498,70,'规格完整吗')}${coverageText(498,94,'行为等价吗')}${coverageText(498,118,'环境一致吗')}`)
+    }
+  };
+  for (const [id,spec] of Object.entries(companyCaseSpecs)) {
+    scenes[id] = n => ({kind:'evidence', body:spec.body, title:spec.title, labels:spec.labels, status:spec.status[n % spec.status.length]});
+  }
+  /* End company practice batch. */
+
   /* Small, authored optical accents follow the information in each illustration.
    * No random particle field, timers, canvas, filters, SMIL or external assets.
    * Everything animated shares the existing viewport observer's fv-animated hook. */
