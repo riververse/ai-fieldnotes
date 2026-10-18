@@ -725,6 +725,64 @@
   }
   /* End company practice batch. */
 
+  /* October 18: two original evidence workflows, not vendor UI or live results.
+   * Separate scene kinds keep their bounded routes aligned with their own inputs. */
+  const october18SceneSpecs = {
+    'deepseek-search-fetch-evidence': {
+      kind:'searchfetch',
+      title:'候选链接先打开，证据和费用再分开记',
+      labels:['Search 找候选','Fetch 读正文','出处与日期逐项核对'],
+      status:[
+        'Search 返回候选链接与摘要；结论还要回到 Fetch 取回的正文。',
+        '核对原始发布日期、适用范围与原文；证据不足就保留待核。',
+        '成功且有结果的请求才进入计费口径；免费期按入口核对，模型 tokens 另记。',
+        '图中是合成练习的查证路径，本刊未调用接口或验证模型效果。'
+      ],
+      body:art(`${coveragePanel(35,16,145,103)}${coverageText(107,35,'Search · 候选',true)}
+        ${[52,73,94].map((y,i)=>`<circle class="fv-soft-fill" cx="51" cy="${y}" r="5"/>${line(`M64 ${y-3}h${[98,83,92][i]}M64 ${y+4}h${[72,94,60][i]}`,'fv-sage-line')}`).join('')}
+        ${arrow(189,70,56)}
+        ${coveragePanel(255,16,145,103)}${coverageText(327,35,'Fetch · 正文',true)}
+        ${line('M268 44h119','fv-soft-line')}${coverageText(270,61,'发布日期 · 适用范围')}
+        ${line('M270 76h114M270 86h101M270 96h114M270 106h82')}
+        ${arrow(409,70,56)}
+        ${coveragePanel(475,16,132,103)}${coverageText(541,35,'逐项回查',true)}
+        ${coverageText(488,59,'出处 + 日期')}${coverageText(488,80,'结论对应原文')}
+        <rect x="486" y="91" width="110" height="19" rx="3" fill="#eee1c9"/>
+        ${coverageText(541,104,'证据不足 · 待核',true)}
+        ${[[35,176,'合格 Search 请求'],[224,176,'合格 Fetch 请求'],[413,194,'模型 tokens 另记']].map(([x,w,t])=>`<rect class="fv-paper" x="${x}" y="130" width="${w}" height="22" rx="3"/>${coverageText(x+w/2,145,t,true)}`).join('')}`)
+    },
+    'airbnb-incremental-support-notes': {
+      kind:'supportnotes',
+      title:'保留人工修订，只把新事实追加到笔记',
+      labels:['旧笔记 + 历史和新消息','候选增量先过滤','检查修改后再离线复用'],
+      status:[
+        '新消息触发候选增量；提示含全量历史与人工修订笔记，再过滤无关或重复条目。',
+        '新增事实追加到原记录，重复消息不追加，未解决事项继续保留。',
+        '人工修改先经过检查，再决定能否离线复用；修改不自动成为标准答案。',
+        '这是对公司 2025 年实践的原创示意，不是其客服界面或本站复现。'
+      ],
+      body:art(`${coveragePanel(35,15,145,58)}${coverageText(107,34,'人工修订的旧笔记',true)}
+        ${line('M49 47h116M49 59h91','fv-sage-line')}
+        ${coveragePanel(35,87,145,58)}${coverageText(107,106,'历史 + 新消息',true)}
+        ${coverageText(49,124,'全量历史在提示中')}${line('M49 134h89','fv-soft-line')}
+        ${line('M183 45h34q16 0 16 16v3h34M183 116h34q16 0 16-8h34','fv-route')}
+        ${coveragePanel(270,16,160,129)}${coverageText(350,35,'候选增量先过滤',true)}
+        <rect class="fv-soft-fill" x="282" y="46" width="136" height="35" rx="3"/>
+        ${coverageText(350,60,'无关 / 重复 → 滤除',true)}${coverageText(350,75,'已有修正不覆盖',true)}
+        <rect x="282" y="88" width="136" height="31" rx="3" fill="#eee1c9"/>
+        ${coverageText(350,108,'+ 有效增量',true)}${coverageText(350,135,'未解决事项仍保留',true)}
+        ${line('M433 80h47','fv-dotted')}
+        ${coveragePanel(486,25,121,109)}${coverageText(546,45,'离线复用前',true)}
+        ${coverageText(500,68,'检查人工修改')}${coverageText(500,89,'判断可否复用')}
+        <rect x="498" y="101" width="97" height="22" rx="3" fill="#eee1c9"/>
+        ${coverageText(546,116,'未审不回流',true)}`)
+    }
+  };
+  for (const [id,spec] of Object.entries(october18SceneSpecs)) {
+    scenes[id] = n => ({kind:spec.kind, body:spec.body, title:spec.title, labels:spec.labels, status:spec.status[n % spec.status.length]});
+  }
+  /* End October 18 evidence workflows. */
+
   /* Small, authored optical accents follow the information in each illustration.
    * No random particle field, timers, canvas, filters, SMIL or external assets.
    * Everything animated shares the existing viewport observer's fv-animated hook. */
@@ -825,6 +883,16 @@
       front:flow('M163 80H240',{period:10,count:2})+flow('M385 80H458',{period:10,delay:-5,tone:'amber',count:2})+scan(475,42,96,82,{period:10,delay:-4,detail:true})+flow('M523 144V152H309V138',{period:13,delay:-7,count:1,detail:true,quiet:true})
     })
   };
+  /* Each new scene has exactly four runners. They trace information transfer,
+   * never a successful answer or an automatically approved reuse decision. */
+  accents.searchfetch = () => ({
+    back:glow(327,72,99,59)+contour('M35 124h572'),
+    front:flow('M183 70H250',{period:10,count:2})+flow('M403 70H470',{period:10,delay:-5,tone:'amber',count:2})+scan(270,70,114,38,{period:10,delay:-4,detail:true})
+  });
+  accents.supportnotes = () => ({
+    back:glow(350,82,102,65)+contour('M279 84h142'),
+    front:flow('M183 45H217Q233 45 233 61V64H267',{period:11,count:2})+flow('M183 116H217Q233 116 233 108H267',{period:11,delay:-5.5,tone:'amber',count:2})
+  });
   function illuminate(body,kind) {
     const layers=accents[kind] ? accents[kind]() : {back:'',front:''};
     const marked=body.replace(/(<svg\b[^>]*>)/,`$1${effectDefs}<g class="fv-optical-depth" aria-hidden="true">${layers.back}</g>`).replace('</svg>',`<g class="fv-optical-signals" aria-hidden="true">${layers.front}</g></svg>`);
