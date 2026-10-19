@@ -783,6 +783,37 @@
   }
   /* End October 18 evidence workflows. */
 
+  /* October 19: original teaching records using the established evidence scene.
+   * Particles indicate evidence transfer, never test success or authorization. */
+  const october19SceneSpecs = {
+    'meta-forum-state-verification': {
+      title:'页面、版本和行为，三项证据要对上',
+      labels:['先确认目标页面','记录同一构建的验证','原型隔离再审查'],
+      status:[
+        '先读当前页面、对象和状态；同名搜索按钮不等于同一个任务目标。',
+        '编译、单测与返回路径分开记录；旧构建和错页面的记录不能补证。',
+        '隐藏入口不等于正式包排除原型；构建清单与专用依赖还需核对。',
+        '图中是本站合成台账，未运行公司工具；交付仍需负责人审查。'
+      ],
+      body:art(`${coveragePanel(40,24,124,110)}${coverageText(102,44,'页面身份',true)}${coverageText(54,68,'GroupHome')}${coverageText(54,91,'g-17 · 搜索本群')}${coverageText(54,115,'不改 HomeFeed')}${coverageRoute()}${coveragePanel(245,19,166,119)}${coverageText(328,40,'C17 · 分项记录',true)}${coverageText(260,64,'构建 / 单测')}${coverageText(260,86,'搜索 → 返回')}${coverageText(260,108,'版本与页面相符')}${coveragePanel(484,24,119,110)}${coverageText(543,45,'交付前审查',true)}${coverageText(498,70,'原型排除？')}${coverageText(498,94,'缺失项保留')}${coverageText(498,118,'人工判断')}`)
+    },
+    'mathworks-ears-mapping-review': {
+      title:'术语映射先审，编译与仿真分开验',
+      labels:['需求对照实际信号','人工确认映射与假设','逐项保存验证证据'],
+      status:[
+        '把需求中的术语、单位和时间条件映射到模型信号；未知项先保留。',
+        '人工确认 YAML 映射后才准备测试草稿；在可写副本中检查修改范围。',
+        '生成文件、编译通过、仿真运行和断言通过是不同证据，不能合成一个成功。',
+        '这是原创合成练习，本站未执行模型工具或硬件实验；上游结果按范围引用。'
+      ],
+      body:art(`${coveragePanel(40,24,124,110)}${coverageText(102,44,'术语 → 信号',true)}${coverageText(54,68,'70°C → 700')}${coverageText(54,91,'实际状态 ≠ 命令')}${coverageText(54,115,'时序仍待确认')}${coverageRoute()}${coveragePanel(245,19,166,119)}${coverageText(328,40,'人工映射审查',true)}${coverageText(260,64,'单位 / 初态')}${coverageText(260,86,'触发 / 时间起点')}${coverageText(260,108,'未决问题不补写')}${coveragePanel(484,24,119,110)}${coverageText(543,45,'证据逐项记',true)}${coverageText(498,70,'编译记录')}${coverageText(498,94,'仿真记录')}${coverageText(498,118,'断言结果')}`)
+    }
+  };
+  for (const [id,spec] of Object.entries(october19SceneSpecs)) {
+    scenes[id] = n => ({kind:'evidence', body:spec.body, title:spec.title, labels:spec.labels, status:spec.status[n % spec.status.length]});
+  }
+  /* End October 19 teaching records. */
+
   /* Small, authored optical accents follow the information in each illustration.
    * No random particle field, timers, canvas, filters, SMIL or external assets.
    * Everything animated shares the existing viewport observer's fv-animated hook. */
