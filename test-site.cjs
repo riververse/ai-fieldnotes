@@ -785,7 +785,7 @@ check('Article rendering escapes untrusted content and omits dangerous source UR
 
 /* Added after the established 44 baseline suites. Existing suites remain intact. */
 check('Expanded editorial bodies keep previews short and use readable existing section types', () => {
-  assert.equal(data.posts.length, 87);
+  assert.equal(data.posts.length, 96);
   for (const p of data.posts) {
     assert(p.dek.length < 100, p.id + ': feed preview should remain short');
     assert(p.summary.length >= 1 && p.summary.length <= 3, p.id);
@@ -1115,16 +1115,16 @@ check('Earlier edition retains its post objects with only the approved DeepSeek 
   for (const [id, hash] of Object.entries(expected)) {
     const p = data.posts.find(post => post.id === id); assert(p, id); assert.equal(digest(p), hash, id);
   }
-  assert.equal(data.posts.length, 87);
-  assert.deepEqual(['industry', 'practice', 'embedded'].map(category => data.posts.filter(p => C.categoryFor(p) === category).length), [41, 24, 22]);
+  assert.equal(data.posts.length, 96);
+  assert.deepEqual(['industry', 'practice', 'embedded'].map(category => data.posts.filter(p => C.categoryFor(p) === category).length), [46, 25, 25]);
 });
 check('Selective updates retain honest per-article source verification dates', () => {
-  assert.equal(data.site.verifiedAt, '2026-10-23');
+  assert.equal(data.site.verifiedAt, '2026-10-24');
   assert(data.site.editorialNote.includes('各篇保留实际资料核验日'));
-  const env = boot(); assert.equal(env.get('#edition-date').textContent, '最近核验 2026.10.23');
+  const env = boot(); assert.equal(env.get('#edition-date').textContent, '最近核验 2026.10.24');
   const current = new Set(["minicpm-local-image-check", "sensor-unknown-state-gmm", "deepseek-v41-migration", "opus55-fast-access", "gptlive11-voice-corrections", "gemini4-argon-long-work", "runway-kling-api-workflow", "glm-legal-evidence-chain", "qwen-image21-api-alpha", "gpt6-intelligent-ui", "haiku55-subagent-budget", "nano-banana21-continuity", "embeddinggemma2-local-retrieval", "mistral-large4-preview", "mplab-agent-telemetry-pacing", "memfault-crash-evidence-chain", "assertllm2-rtl-property-review", "firment-waveform-evidence", "cantools-ai-wire-contract"]);
   for (const p of data.posts) {
-    assert.equal(p.verifiedAt, october23Ids.includes(p.id) ? '2026-10-23' : october22Ids.includes(p.id) ? '2026-10-22' : october21Ids.includes(p.id) ? '2026-10-21' : october20Ids.includes(p.id) ? '2026-10-20' : october19Ids.includes(p.id) ? '2026-10-19' : october18Ids.includes(p.id) ? '2026-10-18' : (october17Ids.includes(p.id) || companyCaseIds.includes(p.id)) ? '2026-10-17' : current.has(p.id) ? '2026-10-16' : '2026-10-15', p.id);
+    assert.equal(p.verifiedAt, october24Ids.includes(p.id) ? '2026-10-24' : october23Ids.includes(p.id) ? '2026-10-23' : october22Ids.includes(p.id) ? '2026-10-22' : october21Ids.includes(p.id) ? '2026-10-21' : october20Ids.includes(p.id) ? '2026-10-20' : october19Ids.includes(p.id) ? '2026-10-19' : october18Ids.includes(p.id) ? '2026-10-18' : (october17Ids.includes(p.id) || companyCaseIds.includes(p.id)) ? '2026-10-17' : current.has(p.id) ? '2026-10-16' : '2026-10-15', p.id);
     assert.equal(p.verified_date, p.verifiedAt, p.id);
     if (['minicpm-local-image-check', 'sensor-unknown-state-gmm'].includes(p.id)) assert.equal(p.date, null);
   }
@@ -1182,8 +1182,8 @@ const octoberEmbeddedIds = ["mplab-agent-telemetry-pacing","memfault-crash-evide
 const octoberIds = [...octoberIndustryIds, ...octoberEmbeddedIds];
 const sha256 = value => require('node:crypto').createHash('sha256').update(value).digest('hex');
 check('October coverage adds exactly eleven industry and five distinct embedded workflows', () => {
-  assert.equal(data.posts.length, 87);
-  assert.deepEqual(['industry', 'practice', 'embedded'].map(c => data.posts.filter(p => C.categoryFor(p) === c).length), [41, 24, 22]);
+  assert.equal(data.posts.length, 96);
+  assert.deepEqual(['industry', 'practice', 'embedded'].map(c => data.posts.filter(p => C.categoryFor(p) === c).length), [46, 25, 25]);
   assert.equal(new Set(octoberIds).size, 16);
   for (const id of octoberIndustryIds) {
     const p=data.posts.find(p=>p.id===id); assert(p,id); assert.equal(p.category,'industry');
@@ -1282,9 +1282,9 @@ const october17Baseline = {"posts":{"opus55-fast-access":"5d343d3fb4f55de41b1ad1
 const october17Scenes = {"prompt-to-voice-reusable-brief":{"art":"voice","title":"声音描述、会话规则与试听记录，各有自己的位置","labels":["听感与规则分开","保存真实声音身份","统一台词逐项试听"],"status":["声音创建返回配置，不会直接返回一段试听音频。","创建免费与会话免费不同；未试听的检查项保持待验证。"]},"kling4-long-take-control":{"art":"video","title":"玩具车穿过门洞，每一段都要保住同一主体","labels":["自制主体参考","遮挡前后连续检查","时间线与镜头验收"],"status":["图中玩具车为原创概念示意，不是模型生成视频。","API、4K与两分钟延长仍属公告中的后续计划。"]},"decision-switching-threshold":{"art":"comparison","title":"先满足硬条件，再看推荐会在哪里翻转","labels":["容量门槛先筛选","24人处费用相同","按人数给出选择"],"status":["合成报价在24人同为660元，跨过交点就要重新比较。","人数范围不是概率分布；AI不能替你默认风险偏好。"]},"learning-short-answer-hint-retest":{"art":"tutor","title":"独立作答、按需提示，再用新题检查","labels":["先暴露真实答案","一次只给一级提示","反转方向与零基数"],"status":["提示后答对是进展，但应与独立完成分开记录。","题型上新不保证教学效果；有争议就回到可靠材料。"]},"firmware-memory-delta-audit":{"art":"memory","title":"新增字节先分账，再追到具体符号","labels":["同目标的两份构建","ROM与RAM独立核算","运行与升级另验证"],"status":["XIP初始化数据占两个区域，不能把ROM和RAM混成一个容量。","静态余量与观测栈余量都不能证明最坏路径已经安全。"]}};
 
 check('October 17 additions preserve all forty-three prior article objects and scene renderings', () => {
-  assert.equal(data.posts.length, 87);
-  assert.deepEqual(data.posts.slice(44).map(p=>p.id),Object.keys(october17Baseline.posts));
-  assert.deepEqual(data.posts.slice(39, 44).map(p=>p.id),october17Ids);
+  assert.equal(data.posts.length, 96);
+  assert.deepEqual(data.posts.slice(53).map(p=>p.id),Object.keys(october17Baseline.posts));
+  assert.deepEqual(data.posts.slice(48, 53).map(p=>p.id),october17Ids);
   for(const [id,hash] of Object.entries(october17Baseline.posts)) {
     const p=data.posts.find(x=>x.id===id); assert.equal(sha256(JSON.stringify(p)),hash,id);
     const scope={window:{}};vm.runInNewContext(visuals,scope);
@@ -1292,7 +1292,7 @@ check('October 17 additions preserve all forty-three prior article objects and s
   }
 });
 check('October 17 articles have full teaching bodies, original tasks and honest verification dates', () => {
-  assert.deepEqual(['industry','practice','embedded'].map(c=>data.posts.filter(p=>p.category===c).length),[41, 24, 22]);
+  assert.deepEqual(['industry','practice','embedded'].map(c=>data.posts.filter(p=>p.category===c).length),[46, 25, 25]);
   for(const id of october17Ids) {
     const p=data.posts.find(x=>x.id===id);
     assert.equal(p.verifiedAt,'2026-10-17');assert.equal(p.verified_date,p.verifiedAt);
@@ -1376,9 +1376,9 @@ check('Five additions retain category scope, deep links, copies, bookmarks and r
 const companyCaseIds = ['spotify-honk-verification-rollout','uber-autocover-test-acceptance','scania-spec2code-contract-gap'];
 const companyBaseline = {"posts":{"prompt-to-voice-reusable-brief":"8ce23fe19a2edd011766d1e38ced13999c267f6a6c1e0ae1dd5653dedf3fff1f","kling4-long-take-control":"420dfc75a0dbb710ffc1a546f55e5528d49d802ee1bfdd5b400d82289397cd66","decision-switching-threshold":"6a4ed9103895bec78038e3addd3affb50d33184316e16c6aaa4ccf5730b20ae4","learning-short-answer-hint-retest":"501579a24f0049aa7633b3a0c22fa7dc338a58acf82e5e597a55215d1bb44670","firmware-memory-delta-audit":"583d85b92957ebe0492869f532049fb595cd5eedbe784a5768e6d78d48deb922","opus55-fast-access":"5d343d3fb4f55de41b1ad13e273f1eef4f6b4f5a2d8579101d124bce430d8000","gptlive11-voice-corrections":"bc3b9993d381c6ca67bd1e601d7bf4d4a1c95d4cace11f03b4097f67fbbb21db","gemini4-argon-long-work":"121484ce1ee9148c2f7be640371a62f9cfba446c9cdb89ca8cab5446e873ecb0","runway-kling-api-workflow":"52b0018ad273e00a3f6af7862bdaa9f18207c16087737e1a83beb0199645990f","glm-legal-evidence-chain":"9da204d02ab84f8eb48a10f2af265f48759150c5844ef9e34be111d0234d8f4c","qwen-image21-api-alpha":"1e81ecb9ec1498e575ba292c96ade9342fcbc1fd892a0e23d88c62c5e854847d","gpt6-intelligent-ui":"5c9657cf1aaa75195a7c6ca9a419ed9f5c946dae43fd2e929f7cb219def47d11","haiku55-subagent-budget":"40589281778639c45c81447e065e3830efcbe09fe52cd9a3e2604707e5257c35","nano-banana21-continuity":"ab6cb4de6fb4fab6eb5b81028cdd2857bd5971e610074302afc9ee2b27cd618e","embeddinggemma2-local-retrieval":"5cd94802e402edfab230b73e19ee6b0dffeb3eb26d778cd37f907ede67e3c301","mistral-large4-preview":"74d300fc34b328dc749a34aec19c0ac87e0ec4220688eca5a0b702298f05a44f","mplab-agent-telemetry-pacing":"f23ee6f7a452db4833c4f3f58ff69b49aa8811cf8e2f134e288acbe7514631a4","memfault-crash-evidence-chain":"19b9006fd5e592f9efd3fd0332950afcf45a8195884f062d42fdd52c0ff9e69f","assertllm2-rtl-property-review":"b6d87a487535fb842ad4908bcd1bc08b35004d4c2c8a8f199d5da40a1cd59a39","firment-waveform-evidence":"affb6bfa3bdb4778904f9133b4a3a4fab2fb4190b29b0c15bde31b05095800f1","cantools-ai-wire-contract":"e2d91e4db45b36d183823818262761687888da7b3e9b52dd6b34e2aebcf88135","minicpm-local-image-check":"fd0add86b8ae410daf0349b44d383d17df575eb0d1d69ab111d26fe04a5714b7","sensor-unknown-state-gmm":"3b4eac0dd79fb5970aed643285a55a7bfe0cf27c58567093353906e8bd4e8d3f","sol-quality-cost":"f53d3c7c9d9c8b8b75da105a631a8a74df7ceaf105b77adf03ffad445b882b6a","deepseek-v41-migration":"05ea75bf12ecfaf87c4ba8bfb4a84fcdf41deeec532bbdab6ba13efc7698b376","qwen-omni-evidence":"220ef0f3c13e3f04c6b332933a303feb528d06e1458ec410510e4b0924f9c359","images25-edit-brief":"3baf2ae3963446ddc58573af93650d0815cfdb24ba9287d5022927e03dd73dff","renode-replay-lab":"bbc451336852b1abd4d491dfab43c79cc5fac6719bcefeece8304947508aa261","firmware-fuzz-harness":"52204b6f516e75ca58f3ecb7b9154fe9d30bd698d9ff29ab865f12c5ced39058","debug-probe-mcp":"063fa655a3e4838d61f72683df248a15fe8e0c7185fc909684d4c986a7fece58","datasheet-register-audit":"7ad32920da96b7456f3c19971fa940a7528e0338609da7bd07886c53fd7ea708","stm32-edge-ai-budget":"819ad707afc2051fe064ce466d246159ef51d35dec3c2cd3ded40d6666908811","firmware-agent-contract":"146a2eadf17defae9c0266ea2d82e35dd33eb6b480fc3a8a2ca32f262d4a62a9","context-task-eval":"8c96cdbc3b373c90733bc5b218854baa24f99c9e6043ad19d2f3b76d34c86095","espressif-mcp-workflow":"90b01873f620cb39f7e0040e56ea68e6881489c0ccc4d1b214f97ef95573e628","playwright-mcp-boundary":"cb62e3ed8797602aa5df5717d7abb4cde1d87a57981ce342a881c6643a2dcea5","skills-license-eval":"de1ddf6ab2990d2887a2a3324d7a2a6b90012a4f13121d7ff4759408523356d8","embedded-regression-copilot":"3d1ff145b4ddef0c06132990ee8f6c7ac18b2243e34e89cda1b3be8b01f00211","document-style-pipeline":"6d85313adc53f5a592474f69acdb78ce4164c63492147baa7a117f6ffc7d110a","dot-meeting-brief":"1e1e08ae0719a820459a68a4a0ef0356e3dd37570b4b2cf224041cf7a5f533b2","dot-bounded-follow-up":"76111ec1587cae86e39d500343d2945d973f5b958dd0586347950ed163a42478","dot-change-request":"73bdc58095365cb1c20fb099a3a0a8f2dc84bd45988efbc55cd4fc8735d6fbd1","research-conflicting-sources":"7f426c4e27e151214b91384b022eaa1e8063019ca554fc1c53e1a2a0fd8c8923","writing-two-examples":"08492c0f960d7d9c49a7fdabb6eec727741e85032cc143497b317ec43cd0d522","orders-cleaning-audit":"f043208c83891bb78919dd894df9af97f87ec06b1d528a020134cdaa80631828","image-edit-invariants":"db530d20a56191678834b869b084f8d5237047b21363e8408f81bedf6d1df94b","video-learning-evidence":"d0cd75374d542553b4bd74f3bbc76dd7d44bd30435a0b0cff3fe20f2838d0963","codex-small-fix-loop":"d1182d94cd77032b8a7c49962a91661e5928f09dac1410ba622d20449681c7e8"},"scenes":{"prompt-to-voice-reusable-brief":"084110d9ee279bbf11af4b441f802b9b3a8a725c7d20eaf6d9284dfa39f61cd1","kling4-long-take-control":"62799f892ec6b3cf79330c3751fe5bc81c2a84ad54e7ddd95e311b832f17ee0a","decision-switching-threshold":"7903838acfab4640dc450e4475012fbc8d3575f13376079c4c37f1500883da0a","learning-short-answer-hint-retest":"83adb4a7bcb3a63d10449657d7f34aae6071091c84382fc8e075d1cc5cd92323","firmware-memory-delta-audit":"e2757f410a9fdc59f1fa8b3f1a64e3ba29ff96500794fb9c9441979acd8be345","opus55-fast-access":"4adf26b679bcc54f022f95b4fe8ce05a12ad5659b40150003386a205242dc3a2","gptlive11-voice-corrections":"90a546fb4fc93f4e703e55a6319ba8742ff3920fa5bbbc36b8dcfd6684577dc6","gemini4-argon-long-work":"3f5357476daa50f9dae14e6dffa4e358b25f492b88db72b88bb4fcbd2ab18bf1","runway-kling-api-workflow":"ec96e7d3ed9c9eb159b9b2756791c6906707497d216110310da7a543b7cc2054","glm-legal-evidence-chain":"0847157a51d87c38680a1883fcded1cb186acd2f5cfdf4b99964dceeab23ef16","qwen-image21-api-alpha":"8ecb0f5e3e13e7ee8d5ae178f53b558f52004cf253f5bbc77e0a6cd994453791","gpt6-intelligent-ui":"b25e050a79bcc2a4a89b2a2980645ae06d74d03b586fdc4e4b0b0f36b89af766","haiku55-subagent-budget":"13cf6a2089f016c3ce1f0114f0ddb57d76077047f1df51fb3a323bec3704efc4","nano-banana21-continuity":"7360b9df5dbc06c7de72f27cdb2bb978ebe64c9f6d5d1cf7c640c081cadb5d93","embeddinggemma2-local-retrieval":"1c15811ae86029d28cf952201672d302e49313d5685b4d1bf3264442b075cb7e","mistral-large4-preview":"eef9211bdf2841306f03d4255f5536529d2712a0b87fdc349f7345a33b249e96","mplab-agent-telemetry-pacing":"98f7942e28b93b416bd5fb1a01189da287770e79f19b19b9ffe7811f7f4aeea9","memfault-crash-evidence-chain":"589792d5a3a877b4dd874d149996ce639c571c340ddcc31e71645e2d42b222c9","assertllm2-rtl-property-review":"e91f5ee4397da1789fa5343cb2adbc92c0daadd38df6cf6edf7a2ac1a7ed0a9d","firment-waveform-evidence":"47e4d63c6cc4715350747ebc0d96ddaeeccd22c10ddef67298d50328b8a3cd41","cantools-ai-wire-contract":"be2a8be95077dfc14460ce8d63348efb55fbe8b1689cc51e6e3252596cfa31fc","minicpm-local-image-check":"fa17a45f81ee28c814e29c26d199cc8755d082856373289c73671e071875cb12","sensor-unknown-state-gmm":"2a249413d4e9ab7d75f558b93234c16ebe2e78505a5eeadd992094aa3eed7c3a","sol-quality-cost":"21ac08e4a30889f92d381fa976e7f9eb05a33efa05c444f3afaed743c986649e","deepseek-v41-migration":"c552e257157ccebf462c5d2de48023234cebcf5f38861ca937e78dcdfdf2e790","qwen-omni-evidence":"253ecdbfa2c0dea216716d0be36a7381b1f70652f31638785a4178ed713f3ee0","images25-edit-brief":"ba77c9ee45199dfcaf0bca9cd9f31438ee82d06766a092731add3035bec0b9c2","renode-replay-lab":"02529004caba1c922ab3d690b3aad588fab1ca33eae0daef85b89c3f56511a99","firmware-fuzz-harness":"089f5a9ebdf188ab3e4575eab1f5c756732aadb3177952f01431567c8fd7f4d3","debug-probe-mcp":"ca23b159b62c8fdf7ab35ebec262ffe31fe11b3dd941e631cb2dd1de06ab432f","datasheet-register-audit":"ac50c025ad093bba38ff389df2334f5f29e01fc87ad0ee97aebf1d427ecf5701","stm32-edge-ai-budget":"3463da3b40663b7296560028a5b8af5e3efcd084d6ebe3cc47f397b89327896f","firmware-agent-contract":"cf9dbbe92d84749fb634e26345b8b5e72c7a5ca1dcefb74e320a94dd18b3029f","context-task-eval":"4cf4541762a4b088e7f4011943066ecf25c12ab4115ffb51c12e582f06cf30f9","espressif-mcp-workflow":"63fa25ccd1534820f5899d41ca7a0116fc39e57b7d519f5dde0ba1d07dc68a96","playwright-mcp-boundary":"d13701f012853926a1c127ccd36325b94083ade013acf0ac06971e8b95d6a6ed","skills-license-eval":"de41448284606b587eb01f3f52467148abfe329eb4afb64f7095d6de51652553","embedded-regression-copilot":"0d8d2283b73273ccc9a7d3796502bcc1829e51c11901f43981694c80d21ac2ea","document-style-pipeline":"6e4abe39ece7436424ab728a07da99038cb267dd0f0c08c91806354f13c07b75","dot-meeting-brief":"4a18fe99ee18228ac2ea8dd08c7d06816bbc7dd475642a09df71b664289f3e34","dot-bounded-follow-up":"84e7fc7f83600649ed9d672287d8dfd0cc33ffdecae66cd7a7e5a0340e789eb3","dot-change-request":"2d78da6f25d6ea5d47d3067a5d597d8e304b41602a0321d27c90e9d2daf8cc73","research-conflicting-sources":"f2ddf755914405abf96632ad8b54e6353f492322f3d36384bade89dbabb505e2","writing-two-examples":"fda4d9625c4a38559a612483510673de3a65cb0f28478f943f5f3e8bb8addd10","orders-cleaning-audit":"eac249de66543c18ca22b17f9a961174a336d9db5bed9a69d4498fbf2c61cef6","image-edit-invariants":"8fbc5aaee484a75ba7f90badfee66feefcb16c4eea375ed91be3cb8c9ec69b02","video-learning-evidence":"fe6f5a20880ffcc649a26c4ec6cf8a01bef309ce178247c6757ddb7c44a986d0","codex-small-fix-loop":"97e754ab244ea90773db163c6b8959f96f555cd1ba2234d015455d6cdb27f670"},"files":{"app.js":"3f11837199a84b29e606682c4b88a17632fea212e8cabad2eab2570564305157","site-core.js":"b4f96a7f0557c322c3c2e42cfcf14d1545585d06420cfc1147c03bc5b7b33589","style.css":"5e159c776246dcd48bf52117e649feb7250bbffb9f49a707bbb2d9b3cf3c5c8b","visuals.css":"7cf30aa521f1fe9e7589608376199737cb797efc3ab2a63799c97d7ac0d4d00d","build.py":"25deb0b707c7e7ae97e1306b94afcab5d0156c8a7ff8495a980140e4ebb2f524","favicon.svg":"b33e38910db7f167eb595800e4fa779577885204e090115732215704f1be1db5","DESIGN.md":"23cb37aa5f8c5df788d9587f03e8e2b01a2b955f5d26b4862e7f1dc5439e5a96","THIRD_PARTY_NOTICES.md":"e10fafb73c4164f3cc2f5350a0ec70c500ab6417cc935a9140b69e49b74daf60"}};
 check('Company cases preserve all forty-eight prior post objects, scenes and design assets', () => {
-  assert.equal(data.posts.length,87);
-  assert.deepEqual(data.posts.slice(36, 39).map(p=>p.id),companyCaseIds);
-  assert.deepEqual(data.posts.slice(39).map(p=>p.id),Object.keys(companyBaseline.posts));
+  assert.equal(data.posts.length,96);
+  assert.deepEqual(data.posts.slice(45, 48).map(p=>p.id),companyCaseIds);
+  assert.deepEqual(data.posts.slice(48).map(p=>p.id),Object.keys(companyBaseline.posts));
   for(const [id,hash] of Object.entries(companyBaseline.posts)) {
     const p=data.posts.find(p=>p.id===id);assert.equal(sha256(JSON.stringify(p)),hash,id);
     const scope={window:{}};vm.runInNewContext(visuals,scope);
@@ -1387,7 +1387,7 @@ check('Company cases preserve all forty-eight prior post objects, scenes and des
   for(const [file,hash] of Object.entries(companyBaseline.files))assert.equal(sha256(read(file)),hash,file);
 });
 check('Company cases distinguish evidence, original exercises, learning status and source dates', () => {
-  assert.deepEqual(['industry','practice','embedded'].map(c=>data.posts.filter(p=>p.category===c).length),[41, 24, 22]);
+  assert.deepEqual(['industry','practice','embedded'].map(c=>data.posts.filter(p=>p.category===c).length),[46, 25, 25]);
   assert(data.site.selectionNote.includes('公司工程博客')&&data.site.selectionNote.includes('工业论文'));
   assert(data.site.editorialNote.includes('全部旧文保留')&&data.site.editorialNote.includes('待学习'));
   for(const id of companyCaseIds) {
@@ -1462,9 +1462,9 @@ const october18Baseline = {"posts":{"spotify-honk-verification-rollout":"42630f3
 check('October 18 preserves all fifty-one approved article objects, native scenes and fixed assets', () => {
   assert.equal(Object.keys(october18Baseline.posts).length, 51);
   assert.deepEqual(Object.keys(october18Baseline.scenes), Object.keys(october18Baseline.posts));
-  assert.equal(data.posts.length, 87);
-  assert.deepEqual(data.posts.slice(34, 36).map(p => p.id), october18Ids);
-  assert.deepEqual(data.posts.slice(36).map(p => p.id), Object.keys(october18Baseline.posts));
+  assert.equal(data.posts.length, 96);
+  assert.deepEqual(data.posts.slice(43, 45).map(p => p.id), october18Ids);
+  assert.deepEqual(data.posts.slice(45).map(p => p.id), Object.keys(october18Baseline.posts));
   for (const [id, hash] of Object.entries(october18Baseline.posts)) {
     const post = data.posts.find(p => p.id === id); assert(post, id);
     assert.equal(sha256(JSON.stringify(post)), hash, id + ': approved object must be unchanged');
@@ -1474,15 +1474,15 @@ check('October 18 preserves all fifty-one approved article objects, native scene
     assert.equal(sha256(output), october18Baseline.scenes[id], id + ': approved native scene must be unchanged');
   }
   for (const [file, hash] of Object.entries(october18Baseline.files)) assert.equal(sha256(read(file)), hash, file);
-  assert.deepEqual(['industry', 'practice', 'embedded'].map(category => data.posts.filter(p => C.categoryFor(p) === category).length), [41, 24, 22]);
-  assert.equal(data.site.verifiedAt, '2026-10-23');
+  assert.deepEqual(['industry', 'practice', 'embedded'].map(category => data.posts.filter(p => C.categoryFor(p) === category).length), [46, 25, 25]);
+  assert.equal(data.site.verifiedAt, '2026-10-24');
   assert.notEqual(assertReleaseCoherence(index), '20261017r1-028c98fa9643', 'New content and scenes must invalidate the approved baseline asset release');
   const shell = new Node(); parseHTML(index, shell);
-  assert.equal(shell.querySelector('#edition-date').textContent, '最近核验 2026.10.23', 'No-JavaScript fallback must show the same edition date');
+  assert.equal(shell.querySelector('#edition-date').textContent, '最近核验 2026.10.24', 'No-JavaScript fallback must show the same edition date');
   const env = boot();
-  assert.equal(env.get('#edition-date').textContent, '最近核验 2026.10.23');
-  assert.equal(env.get('#result-count').textContent, '87 篇');
-  for (const [category, count] of [['industry', 41], ['practice', 24], ['embedded', 22]]) {
+  assert.equal(env.get('#edition-date').textContent, '最近核验 2026.10.24');
+  assert.equal(env.get('#result-count').textContent, '96 篇');
+  for (const [category, count] of [['industry', 46], ['practice', 25], ['embedded', 25]]) {
     const counters = env.document.querySelectorAll('[data-count="' + category + '"]');
     assert(counters.length, category + ': visible counter must exist');
     counters.forEach(node => assert.equal(node.textContent, String(count), category));
@@ -1757,9 +1757,9 @@ check('October 18 native scenes retain exact labels, four readable notes and off
 const october19Ids = ['meta-forum-state-verification', 'mathworks-ears-mapping-review'];
 const october19Baseline = {"posts":{"deepseek-search-fetch-evidence":"2291b77e9a0707f2fce5e3223b645ea074a0f5f90c12c76231e94bde6d0445cf","airbnb-incremental-support-notes":"a63251a541273660582a8309b3155b77b76d8506e3718136753d07a6d4965d83","spotify-honk-verification-rollout":"42630f3308bb29ff8683b001e5fd89c0aa68202c15e8ba56d69e0087c10c4584","uber-autocover-test-acceptance":"ab12b8b0bd882a088c67e8e0f6fc5306e6fcd6cf1b4eb2d19202186fdd60019e","scania-spec2code-contract-gap":"9e54ac029dc40dc9e5e90e28d932ea6561118b23af4d360f364ab00c4cda8368","prompt-to-voice-reusable-brief":"8ce23fe19a2edd011766d1e38ced13999c267f6a6c1e0ae1dd5653dedf3fff1f","kling4-long-take-control":"420dfc75a0dbb710ffc1a546f55e5528d49d802ee1bfdd5b400d82289397cd66","decision-switching-threshold":"6a4ed9103895bec78038e3addd3affb50d33184316e16c6aaa4ccf5730b20ae4","learning-short-answer-hint-retest":"501579a24f0049aa7633b3a0c22fa7dc338a58acf82e5e597a55215d1bb44670","firmware-memory-delta-audit":"583d85b92957ebe0492869f532049fb595cd5eedbe784a5768e6d78d48deb922","opus55-fast-access":"5d343d3fb4f55de41b1ad13e273f1eef4f6b4f5a2d8579101d124bce430d8000","gptlive11-voice-corrections":"bc3b9993d381c6ca67bd1e601d7bf4d4a1c95d4cace11f03b4097f67fbbb21db","gemini4-argon-long-work":"121484ce1ee9148c2f7be640371a62f9cfba446c9cdb89ca8cab5446e873ecb0","runway-kling-api-workflow":"52b0018ad273e00a3f6af7862bdaa9f18207c16087737e1a83beb0199645990f","glm-legal-evidence-chain":"9da204d02ab84f8eb48a10f2af265f48759150c5844ef9e34be111d0234d8f4c","qwen-image21-api-alpha":"1e81ecb9ec1498e575ba292c96ade9342fcbc1fd892a0e23d88c62c5e854847d","gpt6-intelligent-ui":"5c9657cf1aaa75195a7c6ca9a419ed9f5c946dae43fd2e929f7cb219def47d11","haiku55-subagent-budget":"40589281778639c45c81447e065e3830efcbe09fe52cd9a3e2604707e5257c35","nano-banana21-continuity":"ab6cb4de6fb4fab6eb5b81028cdd2857bd5971e610074302afc9ee2b27cd618e","embeddinggemma2-local-retrieval":"5cd94802e402edfab230b73e19ee6b0dffeb3eb26d778cd37f907ede67e3c301","mistral-large4-preview":"74d300fc34b328dc749a34aec19c0ac87e0ec4220688eca5a0b702298f05a44f","mplab-agent-telemetry-pacing":"f23ee6f7a452db4833c4f3f58ff69b49aa8811cf8e2f134e288acbe7514631a4","memfault-crash-evidence-chain":"19b9006fd5e592f9efd3fd0332950afcf45a8195884f062d42fdd52c0ff9e69f","assertllm2-rtl-property-review":"b6d87a487535fb842ad4908bcd1bc08b35004d4c2c8a8f199d5da40a1cd59a39","firment-waveform-evidence":"affb6bfa3bdb4778904f9133b4a3a4fab2fb4190b29b0c15bde31b05095800f1","cantools-ai-wire-contract":"e2d91e4db45b36d183823818262761687888da7b3e9b52dd6b34e2aebcf88135","minicpm-local-image-check":"fd0add86b8ae410daf0349b44d383d17df575eb0d1d69ab111d26fe04a5714b7","sensor-unknown-state-gmm":"3b4eac0dd79fb5970aed643285a55a7bfe0cf27c58567093353906e8bd4e8d3f","sol-quality-cost":"f53d3c7c9d9c8b8b75da105a631a8a74df7ceaf105b77adf03ffad445b882b6a","deepseek-v41-migration":"05ea75bf12ecfaf87c4ba8bfb4a84fcdf41deeec532bbdab6ba13efc7698b376","qwen-omni-evidence":"220ef0f3c13e3f04c6b332933a303feb528d06e1458ec410510e4b0924f9c359","images25-edit-brief":"3baf2ae3963446ddc58573af93650d0815cfdb24ba9287d5022927e03dd73dff","renode-replay-lab":"bbc451336852b1abd4d491dfab43c79cc5fac6719bcefeece8304947508aa261","firmware-fuzz-harness":"52204b6f516e75ca58f3ecb7b9154fe9d30bd698d9ff29ab865f12c5ced39058","debug-probe-mcp":"063fa655a3e4838d61f72683df248a15fe8e0c7185fc909684d4c986a7fece58","datasheet-register-audit":"7ad32920da96b7456f3c19971fa940a7528e0338609da7bd07886c53fd7ea708","stm32-edge-ai-budget":"819ad707afc2051fe064ce466d246159ef51d35dec3c2cd3ded40d6666908811","firmware-agent-contract":"146a2eadf17defae9c0266ea2d82e35dd33eb6b480fc3a8a2ca32f262d4a62a9","context-task-eval":"8c96cdbc3b373c90733bc5b218854baa24f99c9e6043ad19d2f3b76d34c86095","espressif-mcp-workflow":"90b01873f620cb39f7e0040e56ea68e6881489c0ccc4d1b214f97ef95573e628","playwright-mcp-boundary":"cb62e3ed8797602aa5df5717d7abb4cde1d87a57981ce342a881c6643a2dcea5","skills-license-eval":"de1ddf6ab2990d2887a2a3324d7a2a6b90012a4f13121d7ff4759408523356d8","embedded-regression-copilot":"3d1ff145b4ddef0c06132990ee8f6c7ac18b2243e34e89cda1b3be8b01f00211","document-style-pipeline":"6d85313adc53f5a592474f69acdb78ce4164c63492147baa7a117f6ffc7d110a","dot-meeting-brief":"1e1e08ae0719a820459a68a4a0ef0356e3dd37570b4b2cf224041cf7a5f533b2","dot-bounded-follow-up":"76111ec1587cae86e39d500343d2945d973f5b958dd0586347950ed163a42478","dot-change-request":"73bdc58095365cb1c20fb099a3a0a8f2dc84bd45988efbc55cd4fc8735d6fbd1","research-conflicting-sources":"7f426c4e27e151214b91384b022eaa1e8063019ca554fc1c53e1a2a0fd8c8923","writing-two-examples":"08492c0f960d7d9c49a7fdabb6eec727741e85032cc143497b317ec43cd0d522","orders-cleaning-audit":"f043208c83891bb78919dd894df9af97f87ec06b1d528a020134cdaa80631828","image-edit-invariants":"db530d20a56191678834b869b084f8d5237047b21363e8408f81bedf6d1df94b","video-learning-evidence":"d0cd75374d542553b4bd74f3bbc76dd7d44bd30435a0b0cff3fe20f2838d0963","codex-small-fix-loop":"d1182d94cd77032b8a7c49962a91661e5928f09dac1410ba622d20449681c7e8"},"scenes":{"deepseek-search-fetch-evidence":"a85c43e589807cbf631ffd3c58bfad24e6f841b85e79ad5ddfba33bef58bc6cf","airbnb-incremental-support-notes":"2a6612e4c229e677618be3fa1dee15f80018aee4666cb0a0f2c94b1baf7f14dd","spotify-honk-verification-rollout":"2ab648ae586ac7ce173dcc69e8e99362591f4565b7509eaf3a0af9e3498a29f2","uber-autocover-test-acceptance":"93cb45b55189d9e5539e191019eea33ee79bddf9dd7f4fc559a0a366d87c64bc","scania-spec2code-contract-gap":"42d1910826736a2d1e2359f77ee61e98d8bae4ab3f95cc1aa2760653e20a9833","prompt-to-voice-reusable-brief":"084110d9ee279bbf11af4b441f802b9b3a8a725c7d20eaf6d9284dfa39f61cd1","kling4-long-take-control":"62799f892ec6b3cf79330c3751fe5bc81c2a84ad54e7ddd95e311b832f17ee0a","decision-switching-threshold":"7903838acfab4640dc450e4475012fbc8d3575f13376079c4c37f1500883da0a","learning-short-answer-hint-retest":"83adb4a7bcb3a63d10449657d7f34aae6071091c84382fc8e075d1cc5cd92323","firmware-memory-delta-audit":"e2757f410a9fdc59f1fa8b3f1a64e3ba29ff96500794fb9c9441979acd8be345","opus55-fast-access":"4adf26b679bcc54f022f95b4fe8ce05a12ad5659b40150003386a205242dc3a2","gptlive11-voice-corrections":"90a546fb4fc93f4e703e55a6319ba8742ff3920fa5bbbc36b8dcfd6684577dc6","gemini4-argon-long-work":"3f5357476daa50f9dae14e6dffa4e358b25f492b88db72b88bb4fcbd2ab18bf1","runway-kling-api-workflow":"ec96e7d3ed9c9eb159b9b2756791c6906707497d216110310da7a543b7cc2054","glm-legal-evidence-chain":"0847157a51d87c38680a1883fcded1cb186acd2f5cfdf4b99964dceeab23ef16","qwen-image21-api-alpha":"8ecb0f5e3e13e7ee8d5ae178f53b558f52004cf253f5bbc77e0a6cd994453791","gpt6-intelligent-ui":"b25e050a79bcc2a4a89b2a2980645ae06d74d03b586fdc4e4b0b0f36b89af766","haiku55-subagent-budget":"13cf6a2089f016c3ce1f0114f0ddb57d76077047f1df51fb3a323bec3704efc4","nano-banana21-continuity":"7360b9df5dbc06c7de72f27cdb2bb978ebe64c9f6d5d1cf7c640c081cadb5d93","embeddinggemma2-local-retrieval":"1c15811ae86029d28cf952201672d302e49313d5685b4d1bf3264442b075cb7e","mistral-large4-preview":"eef9211bdf2841306f03d4255f5536529d2712a0b87fdc349f7345a33b249e96","mplab-agent-telemetry-pacing":"98f7942e28b93b416bd5fb1a01189da287770e79f19b19b9ffe7811f7f4aeea9","memfault-crash-evidence-chain":"589792d5a3a877b4dd874d149996ce639c571c340ddcc31e71645e2d42b222c9","assertllm2-rtl-property-review":"e91f5ee4397da1789fa5343cb2adbc92c0daadd38df6cf6edf7a2ac1a7ed0a9d","firment-waveform-evidence":"47e4d63c6cc4715350747ebc0d96ddaeeccd22c10ddef67298d50328b8a3cd41","cantools-ai-wire-contract":"be2a8be95077dfc14460ce8d63348efb55fbe8b1689cc51e6e3252596cfa31fc","minicpm-local-image-check":"fa17a45f81ee28c814e29c26d199cc8755d082856373289c73671e071875cb12","sensor-unknown-state-gmm":"2a249413d4e9ab7d75f558b93234c16ebe2e78505a5eeadd992094aa3eed7c3a","sol-quality-cost":"21ac08e4a30889f92d381fa976e7f9eb05a33efa05c444f3afaed743c986649e","deepseek-v41-migration":"c552e257157ccebf462c5d2de48023234cebcf5f38861ca937e78dcdfdf2e790","qwen-omni-evidence":"253ecdbfa2c0dea216716d0be36a7381b1f70652f31638785a4178ed713f3ee0","images25-edit-brief":"ba77c9ee45199dfcaf0bca9cd9f31438ee82d06766a092731add3035bec0b9c2","renode-replay-lab":"02529004caba1c922ab3d690b3aad588fab1ca33eae0daef85b89c3f56511a99","firmware-fuzz-harness":"089f5a9ebdf188ab3e4575eab1f5c756732aadb3177952f01431567c8fd7f4d3","debug-probe-mcp":"ca23b159b62c8fdf7ab35ebec262ffe31fe11b3dd941e631cb2dd1de06ab432f","datasheet-register-audit":"ac50c025ad093bba38ff389df2334f5f29e01fc87ad0ee97aebf1d427ecf5701","stm32-edge-ai-budget":"3463da3b40663b7296560028a5b8af5e3efcd084d6ebe3cc47f397b89327896f","firmware-agent-contract":"cf9dbbe92d84749fb634e26345b8b5e72c7a5ca1dcefb74e320a94dd18b3029f","context-task-eval":"4cf4541762a4b088e7f4011943066ecf25c12ab4115ffb51c12e582f06cf30f9","espressif-mcp-workflow":"63fa25ccd1534820f5899d41ca7a0116fc39e57b7d519f5dde0ba1d07dc68a96","playwright-mcp-boundary":"d13701f012853926a1c127ccd36325b94083ade013acf0ac06971e8b95d6a6ed","skills-license-eval":"de41448284606b587eb01f3f52467148abfe329eb4afb64f7095d6de51652553","embedded-regression-copilot":"0d8d2283b73273ccc9a7d3796502bcc1829e51c11901f43981694c80d21ac2ea","document-style-pipeline":"6e4abe39ece7436424ab728a07da99038cb267dd0f0c08c91806354f13c07b75","dot-meeting-brief":"4a18fe99ee18228ac2ea8dd08c7d06816bbc7dd475642a09df71b664289f3e34","dot-bounded-follow-up":"84e7fc7f83600649ed9d672287d8dfd0cc33ffdecae66cd7a7e5a0340e789eb3","dot-change-request":"2d78da6f25d6ea5d47d3067a5d597d8e304b41602a0321d27c90e9d2daf8cc73","research-conflicting-sources":"f2ddf755914405abf96632ad8b54e6353f492322f3d36384bade89dbabb505e2","writing-two-examples":"fda4d9625c4a38559a612483510673de3a65cb0f28478f943f5f3e8bb8addd10","orders-cleaning-audit":"eac249de66543c18ca22b17f9a961174a336d9db5bed9a69d4498fbf2c61cef6","image-edit-invariants":"8fbc5aaee484a75ba7f90badfee66feefcb16c4eea375ed91be3cb8c9ec69b02","video-learning-evidence":"fe6f5a20880ffcc649a26c4ec6cf8a01bef309ce178247c6757ddb7c44a986d0","codex-small-fix-loop":"97e754ab244ea90773db163c6b8959f96f555cd1ba2234d015455d6cdb27f670"},"files":{"app.js":"3f11837199a84b29e606682c4b88a17632fea212e8cabad2eab2570564305157","site-core.js":"b4f96a7f0557c322c3c2e42cfcf14d1545585d06420cfc1147c03bc5b7b33589","style.css":"5e159c776246dcd48bf52117e649feb7250bbffb9f49a707bbb2d9b3cf3c5c8b","visuals.css":"7cf30aa521f1fe9e7589608376199737cb797efc3ab2a63799c97d7ac0d4d00d","build.py":"25deb0b707c7e7ae97e1306b94afcab5d0156c8a7ff8495a980140e4ebb2f524","favicon.svg":"b33e38910db7f167eb595800e4fa779577885204e090115732215704f1be1db5","DESIGN.md":"23cb37aa5f8c5df788d9587f03e8e2b01a2b955f5d26b4862e7f1dc5439e5a96","THIRD_PARTY_NOTICES.md":"e10fafb73c4164f3cc2f5350a0ec70c500ab6417cc935a9140b69e49b74daf60"}};
 check('October 19 preserves every approved post, source date, native scene and design asset', () => {
-  assert.equal(data.posts.length, 87);
-  assert.deepEqual(data.posts.slice(32, 34).map(p=>p.id), october19Ids);
-  assert.deepEqual(data.posts.slice(34).map(p=>p.id), Object.keys(october19Baseline.posts));
+  assert.equal(data.posts.length, 96);
+  assert.deepEqual(data.posts.slice(41, 43).map(p=>p.id), october19Ids);
+  assert.deepEqual(data.posts.slice(43).map(p=>p.id), Object.keys(october19Baseline.posts));
   assert.equal(Object.keys(october19Baseline.posts).length, 53);
   for (const [id,hash] of Object.entries(october19Baseline.posts)) {
     const p=data.posts.find(p=>p.id===id); assert(p,id);
@@ -1768,8 +1768,8 @@ check('October 19 preserves every approved post, source date, native scene and d
     assert.equal(sha256(scope.window.FieldnoteVisuals.render(p)),october19Baseline.scenes[id],id+': published scene');
   }
   for(const [file,hash] of Object.entries(october19Baseline.files)) assert.equal(sha256(read(file)),hash,file);
-  assert.deepEqual(['industry','practice','embedded'].map(c=>data.posts.filter(p=>p.category===c).length),[41, 24, 22]);
-  assert.equal(data.site.verifiedAt,'2026-10-23');
+  assert.deepEqual(['industry','practice','embedded'].map(c=>data.posts.filter(p=>p.category===c).length),[46, 25, 25]);
+  assert.equal(data.site.verifiedAt,'2026-10-24');
   assert.notEqual(assertReleaseCoherence(index),'20261017r1-6ea504d2e738');
 });
 check('October 19 articles maintain full original exercises and bounded source evidence', () => {
@@ -1985,9 +1985,9 @@ const october20Scenes = {"minimax-m31-flash-effort-cost": {"kind": "balance", "r
 
 check('October 20 preserves all 55 published articles, dates, scene renderings and fixed assets', () => {
   assert.equal(october20Ids.length, 8);
-  assert.equal(data.posts.length,87);
-  assert.deepEqual(data.posts.slice(24, 32).map(p=>p.id),october20Ids);
-  assert.deepEqual(data.posts.slice(32).map(p=>p.id),Object.keys(october20Baseline.posts));
+  assert.equal(data.posts.length,96);
+  assert.deepEqual(data.posts.slice(33, 41).map(p=>p.id),october20Ids);
+  assert.deepEqual(data.posts.slice(41).map(p=>p.id),Object.keys(october20Baseline.posts));
   assert.equal(Object.keys(october20Baseline.posts).length,55);
   for(const [id,hash] of Object.entries(october20Baseline.posts)){
     const post=data.posts.find(p=>p.id===id);assert(post,id);
@@ -1996,8 +1996,8 @@ check('October 20 preserves all 55 published articles, dates, scene renderings a
     assert.equal(sha256(scope.window.FieldnoteVisuals.render(post)),october20Baseline.scenes[id],id+': existing scene');
   }
   for(const [file,hash] of Object.entries(october20Baseline.files))assert.equal(sha256(read(file)),hash,file+': unchanged runtime and design');
-  assert.deepEqual(['industry','practice','embedded'].map(c=>data.posts.filter(p=>C.categoryFor(p)===c).length),[41, 24, 22]);
-  assert.equal(data.site.verifiedAt,'2026-10-23');
+  assert.deepEqual(['industry','practice','embedded'].map(c=>data.posts.filter(p=>C.categoryFor(p)===c).length),[46, 25, 25]);
+  assert.equal(data.site.verifiedAt,'2026-10-24');
   assert.notEqual(assertReleaseCoherence(index),'20261017r1-b06206059638');
 });
 check('October 20 details have complete original context, sources, exercises and per-article verification',()=>{
@@ -2012,7 +2012,7 @@ check('October 20 details have complete original context, sources, exercises and
     for(const s of p.sources){assert.equal(new URL(s.url).protocol,'https:');assert(s.title);}
     for(const value of ['/workspace/','sandbox:','私有项目','内部用户','已经掌握','本站实测成功'])assert(!text.includes(value),id+': '+value);
   }
-  assert.equal(new Set(data.posts.map(p=>p.id)).size,87);
+  assert.equal(new Set(data.posts.map(p=>p.id)).size,96);
   assert.equal(data.posts.find(p=>p.id==='cloudflare-rule-lifecycle-review').date,'2026-08-04');
   assert.equal(data.posts.find(p=>p.id==='gemini-october-api-retirement-window').date,'2026-10-08');
 });
@@ -2145,7 +2145,7 @@ const october21Baseline = {"posts":{"minimax-m31-flash-effort-cost":"205937bece0
 const october21Scenes = {"openai-monitorability-pair-retry-metrics": {"title": "同一批请求，三个不同分母", "labels": ["全部请求", "实际交付", "覆盖率"], "panels": [["全部请求", "100份报告", "包括未交付", "2 / 100 = 2%"], ["实际交付", "20份放行", "其中2份不合格", "2 / 20 = 10%"], ["覆盖率", "20 / 100", "交付比例20%", "未交付 ≠ 正确"]], "status": ["同一批合成报告，全部请求与实际交付的分母不同。", "不合格输出占全部请求2%，占已交付结果10%。", "覆盖率为20%；80份未交付不能当成正确回答。", "重试预算属于系统设置，研究不是绕过安全拒绝的许可。"]}, "runway-claude-marketplace-procurement": {"title": "采购入口和制作流程，分别核实", "labels": ["采购资格", "制作衔接", "实际交付"], "panels": [["采购资格", "企业承诺", "产品与席位", "不是全面免费"], ["制作衔接", "规划 → 动画", "影像与声音", "交接仍需检查"], ["实际交付", "账号是否开放", "用量与权利", "成片另验收"]], "status": ["进入Marketplace首先改变企业采购路径，不是发布新视频模型。", "符合条件的采购承诺与个人订阅权益不能混为一谈。", "规划、动画与成片的衔接仍要核对格式、文字和音画。", "本站未购买或制作视频，具体账号资格和效果尚未验证。"]}, "gemini-gdc-airgap-managed-rag-preview": {"title": "离线模型之外，还要看完整资料链", "labels": ["隔离环境", "资料处理", "逐项验收"], "panels": [["隔离环境", "GDC气隙", "HGX B300", "不是普通电脑"], ["资料处理", "文件 → 索引", "权限 → 检索", "计算与引用"], ["逐项验收", "版本是否最新", "引用是否支持", "权限是否正确"]], "status": ["这是指定企业基础设施上的托管RAG预览，不是个人离线安装包。", "气隙网络边界、资料权限和回答正确性是三件不同的事。", "合成手册B替代A后，引用旧A不能支持当前额定值。", "本文没有部署系统、上传资料或测试隔离效果。"]}, "metr-anthropic-risk-review-scope-evidence": {"title": "同样判断低风险，也可能理由不同", "labels": ["报告范围", "10月20日复核", "协议分开"], "panels": [["报告范围", "截至7月15日", "八月报告", "不是所有新模型"], ["10月20日复核", "倾向风险低", "主要因能力受限", "监测论据仍存疑"], ["协议分开", "旧安排用于本次", "10月15日新安排", "不能追溯加权限"]], "status": ["复核发布日期与系统评估覆盖期不能互换。", "结论相近不等于论据一致，更不等于零风险认证。", "此次复核使用旧合作条款，并非10月15日新安排的成果。", "本文只整理公开复核，不推测未公开事件或内部材料。"]}, "deepseek-harness-preview-upgrade-acceptance": {"title": "模型、框架、插件，升级变量分开", "labels": ["固定配置", "会话恢复", "故障状态"], "panels": [["固定配置", "框架R1", "模型A → B", "插件P1不变"], ["会话恢复", "标识与目录", "不兼容则失败", "不能悄悄替换"], ["故障状态", "超时 ≠ 未执行", "副作用先核查", "实际集成未测"]], "status": ["dsh-v0.2.1-rc.2是预发布，MIT许可不等于安全审计通过。", "合成配置只换模型，不能声称插件或框架也已升级。", "会话恢复失败应保留失败，不能悄悄创建另一个任务。", "工具超时且副作用未知时先核查结果，不盲目重复操作。"]}, "seedance25-reference-timeline-repair": {"title": "参考分工后，再定位一段画面修复", "labels": ["素材职责", "18秒原理示意", "局部修复"], "panels": [["素材职责", "A · 外形", "B · 布局", "C · 旁白"], ["18秒原理示意", "0–6秒 展示", "6–12秒 同载荷", "12–18秒 对比"], ["局部修复", "只恢复蓝色", "动作与镜头保持", "前后衔接再看"]], "status": ["7月31日旧发布补覆盖，不把核验日当作模型发布日期。", "参考数量是容量，素材职责和冲突仍需先写清。", "纸桥与载荷是原创合成示意，不能伪装真实承载试验。", "局部修复后仍要回看邻近区间，本站没有生成视频。"]}, "seedream5pro-layered-diagram-review": {"title": "图层可编辑，事实仍要逐项核对", "labels": ["事实清单", "布局与图层", "三关验收"], "panels": [["事实清单", "10份文件", "8份字段齐全", "2份缺字段"], ["布局与图层", "读入 → 检查", "再按结果分组", "文字不随底色改"], ["三关验收", "信息与关系", "手机阅读", "实际导出文件"]], "status": ["7月8日已有能力回看，不是今天的新模型消息。", "8/10只是字段齐全比例，没有准确率或效率提升依据。", "仅改区域底色，也要重新核对全图文字、数字与箭头。", "图层分离不证明可无损重建源文件，导出兼容性仍未测试。"]}, "meta-ach-mutant-test-contract": {"title": "用一个故障副本，检查测试真的抓错", "labels": ["原版规格", "受控变异", "测试证据"], "panels": [["原版规格", "长度至少4", "声明长度相等", "零载荷也校验"], ["受控变异", "M1 · 放宽长度", "M2 · 接受多载荷", "M3 · 跳过校验"], ["测试证据", "原版通过", "变异断言失败", "编译失败不计"]], "status": ["ACH来源是Android Kotlin隐私测试，固件迁移只是本文设想。", "新测试在原版通过、在目标变异因预期断言失败才有区分证据。", "不能编译是无效变异；只检查返回类型可能根本抓不到错误。", "示例校验规则尚缺，不能自行编造校验字节或声称已经运行。"]}, "aws-migration-playbook-evidence": {"title": "经验先带上前提，再进入下一次计划", "labels": ["历史案例", "经验卡与版本", "本次迁移"], "panels": [["历史案例", "A · 新错误码", "B · 夹具变慢", "C · 其他版本"], ["经验卡与版本", "来源 / 适用条件", "测试 / 例外", "人工审阅后冻结"], ["本次迁移", "A适用", "B前提未证实", "D构建 ≠ 板测"]], "status": ["这是5月公开的公司方法回看，不是今天上线的新工具。", "一次修复成功不能推广成所有版本、平台都必须执行。", "夹具超时经验不能变成普遍修改产品超时要求。", "计划一致不等于正确；留出案例与实际验证都尚未执行。"]}, "spotify-eval-funnel-calibration": {"title": "先排硬缺项，再验证读者实际结果", "labels": ["离线评分", "必需事实检查", "模拟读者任务"], "panels": [["离线评分", "A · 4.6分", "B · 4.2分", "仅教学分数"], ["必需事实检查", "保存 → 切换", "最后确认状态", "A缺保存前提"], ["模拟读者任务", "错误与时间", "顺序与盲测", "再校准评测器"]], "status": ["这是5月公司评测方法回看，模型分数不是用户实验结果。", "A虽清晰度分更高，却漏掉必须先保存的前提，应先修订。", "B内容完整仍不能证明真实读者使用效果一定更好。", "校准后要保留独立留出样本，本站未组织真实实验。"]}};
 
 check('October 21 retains all 63 earlier article objects, individual scenes and fixed assets',()=>{
-  assert.deepEqual(data.posts.slice(october21Ids.length+8+6).map(p=>p.id),Object.keys(october21Baseline.posts));
+  assert.deepEqual(data.posts.slice(october21Ids.length+8+6+9).map(p=>p.id),Object.keys(october21Baseline.posts));
   assert.equal(Object.keys(october21Baseline.posts).length,63);
   for(const [id,hash] of Object.entries(october21Baseline.posts)){
     const p=data.posts.find(p=>p.id===id);assert.equal(sha256(JSON.stringify(p)),hash,id);
@@ -2202,7 +2202,7 @@ const october22Ids = ["claude-duet-preview-attention-budget", "google-cloud-open
 const october22Baseline = {"posts":{"openai-monitorability-pair-retry-metrics":"61c48397e70b6af8a609fa451e738c7da67a0e0e706c132813ab6a45668ea710","runway-claude-marketplace-procurement":"8524bc3463bb57b60aed830e54027b3c8f0da0eb70386c197da36e3b4208446c","gemini-gdc-airgap-managed-rag-preview":"b404463d63478a5f672cb9e69a4919781e7b0634cd38179643732c41ee1062b7","metr-anthropic-risk-review-scope-evidence":"75b82cdbb5e65edf4d0d7426bb6f23e406dfdf067b44596730ab080c6bb7aab8","deepseek-harness-preview-upgrade-acceptance":"44de886b63bd49f6e29aeb6df6b64ce45e22484b634c46565577ac1fb5b6153c","seedance25-reference-timeline-repair":"0b478ce46b0d63002867841f8e144d6104d531e108236b6ca560718712fd3359","seedream5pro-layered-diagram-review":"30d3dd62ca295785e19d4c816d273146960d095fae7c0fb70d5643fe6b6daa6a","spotify-eval-funnel-calibration":"29d71f713d44862f3c5a11561f1bbd8a9e978185ce265624ac2d3ad1b57e4eb2","aws-migration-playbook-evidence":"4383156394f86711cbe95370036fa424dbbda2733b5036573a159bd699cca52f","meta-ach-mutant-test-contract":"23eba86dd966b3c7981fc7ace758ee6683748251d854b4afcc6de6faec79ce34","minimax-m31-flash-effort-cost":"205937bece0596d0c2d47b0e536ea51f1a9cca4c613b5028755554074f7e73ca","gemini-notebook-prerender-review":"d2220608e9badca5b9790637aacd43748b1d40072f7f8d9c76d3e766936a19af","pixverse-template-slots-jobs":"f5e61db82ec5f9bdbc190526eccf1b5b1e5dd627d7e6f9298fc53cfe40261e21","gemini-october-api-retirement-window":"a90833e61978936e64a0595ec046e52519fd7ebe123e8914371bec1fbd955dc9","kimi-desktop-remote-review":"ab365fe747962759b25a4a207921bb668b5b5a2d6958939820a878f108d76577","openai-low-resource-behavior-parity":"24581b477de88aa83f6d3533a42f9e2791cfe65ea27f2e0eab116728c77f4888","muse-beam-open-weight-deployment":"efcf0e05ba47d5f109d9775d32245ff0a842a3089bb09a92f05d1a120087aabc","cloudflare-rule-lifecycle-review":"a07df039281887b4c267032d6b1cb669b3599bb24a6ad1c1eb3f4c3318a5f304","meta-forum-state-verification":"b626576ba51a1a0d90671b8f8638452e15d61bcc1551df500cda9d1891786779","mathworks-ears-mapping-review":"9f0c7a35d005a02f769859a42bb904f08903619ed33d3e27a8eed5ed3875ef06","deepseek-search-fetch-evidence":"2291b77e9a0707f2fce5e3223b645ea074a0f5f90c12c76231e94bde6d0445cf","airbnb-incremental-support-notes":"a63251a541273660582a8309b3155b77b76d8506e3718136753d07a6d4965d83","spotify-honk-verification-rollout":"42630f3308bb29ff8683b001e5fd89c0aa68202c15e8ba56d69e0087c10c4584","uber-autocover-test-acceptance":"ab12b8b0bd882a088c67e8e0f6fc5306e6fcd6cf1b4eb2d19202186fdd60019e","scania-spec2code-contract-gap":"9e54ac029dc40dc9e5e90e28d932ea6561118b23af4d360f364ab00c4cda8368","prompt-to-voice-reusable-brief":"8ce23fe19a2edd011766d1e38ced13999c267f6a6c1e0ae1dd5653dedf3fff1f","kling4-long-take-control":"420dfc75a0dbb710ffc1a546f55e5528d49d802ee1bfdd5b400d82289397cd66","decision-switching-threshold":"6a4ed9103895bec78038e3addd3affb50d33184316e16c6aaa4ccf5730b20ae4","learning-short-answer-hint-retest":"501579a24f0049aa7633b3a0c22fa7dc338a58acf82e5e597a55215d1bb44670","firmware-memory-delta-audit":"583d85b92957ebe0492869f532049fb595cd5eedbe784a5768e6d78d48deb922","opus55-fast-access":"5d343d3fb4f55de41b1ad13e273f1eef4f6b4f5a2d8579101d124bce430d8000","gptlive11-voice-corrections":"bc3b9993d381c6ca67bd1e601d7bf4d4a1c95d4cace11f03b4097f67fbbb21db","gemini4-argon-long-work":"121484ce1ee9148c2f7be640371a62f9cfba446c9cdb89ca8cab5446e873ecb0","runway-kling-api-workflow":"52b0018ad273e00a3f6af7862bdaa9f18207c16087737e1a83beb0199645990f","glm-legal-evidence-chain":"9da204d02ab84f8eb48a10f2af265f48759150c5844ef9e34be111d0234d8f4c","qwen-image21-api-alpha":"1e81ecb9ec1498e575ba292c96ade9342fcbc1fd892a0e23d88c62c5e854847d","gpt6-intelligent-ui":"5c9657cf1aaa75195a7c6ca9a419ed9f5c946dae43fd2e929f7cb219def47d11","haiku55-subagent-budget":"40589281778639c45c81447e065e3830efcbe09fe52cd9a3e2604707e5257c35","nano-banana21-continuity":"ab6cb4de6fb4fab6eb5b81028cdd2857bd5971e610074302afc9ee2b27cd618e","embeddinggemma2-local-retrieval":"5cd94802e402edfab230b73e19ee6b0dffeb3eb26d778cd37f907ede67e3c301","mistral-large4-preview":"74d300fc34b328dc749a34aec19c0ac87e0ec4220688eca5a0b702298f05a44f","mplab-agent-telemetry-pacing":"f23ee6f7a452db4833c4f3f58ff69b49aa8811cf8e2f134e288acbe7514631a4","memfault-crash-evidence-chain":"19b9006fd5e592f9efd3fd0332950afcf45a8195884f062d42fdd52c0ff9e69f","assertllm2-rtl-property-review":"b6d87a487535fb842ad4908bcd1bc08b35004d4c2c8a8f199d5da40a1cd59a39","firment-waveform-evidence":"affb6bfa3bdb4778904f9133b4a3a4fab2fb4190b29b0c15bde31b05095800f1","cantools-ai-wire-contract":"e2d91e4db45b36d183823818262761687888da7b3e9b52dd6b34e2aebcf88135","minicpm-local-image-check":"fd0add86b8ae410daf0349b44d383d17df575eb0d1d69ab111d26fe04a5714b7","sensor-unknown-state-gmm":"3b4eac0dd79fb5970aed643285a55a7bfe0cf27c58567093353906e8bd4e8d3f","sol-quality-cost":"f53d3c7c9d9c8b8b75da105a631a8a74df7ceaf105b77adf03ffad445b882b6a","deepseek-v41-migration":"05ea75bf12ecfaf87c4ba8bfb4a84fcdf41deeec532bbdab6ba13efc7698b376","qwen-omni-evidence":"220ef0f3c13e3f04c6b332933a303feb528d06e1458ec410510e4b0924f9c359","images25-edit-brief":"3baf2ae3963446ddc58573af93650d0815cfdb24ba9287d5022927e03dd73dff","renode-replay-lab":"bbc451336852b1abd4d491dfab43c79cc5fac6719bcefeece8304947508aa261","firmware-fuzz-harness":"52204b6f516e75ca58f3ecb7b9154fe9d30bd698d9ff29ab865f12c5ced39058","debug-probe-mcp":"063fa655a3e4838d61f72683df248a15fe8e0c7185fc909684d4c986a7fece58","datasheet-register-audit":"7ad32920da96b7456f3c19971fa940a7528e0338609da7bd07886c53fd7ea708","stm32-edge-ai-budget":"819ad707afc2051fe064ce466d246159ef51d35dec3c2cd3ded40d6666908811","firmware-agent-contract":"146a2eadf17defae9c0266ea2d82e35dd33eb6b480fc3a8a2ca32f262d4a62a9","context-task-eval":"8c96cdbc3b373c90733bc5b218854baa24f99c9e6043ad19d2f3b76d34c86095","espressif-mcp-workflow":"90b01873f620cb39f7e0040e56ea68e6881489c0ccc4d1b214f97ef95573e628","playwright-mcp-boundary":"cb62e3ed8797602aa5df5717d7abb4cde1d87a57981ce342a881c6643a2dcea5","skills-license-eval":"de1ddf6ab2990d2887a2a3324d7a2a6b90012a4f13121d7ff4759408523356d8","embedded-regression-copilot":"3d1ff145b4ddef0c06132990ee8f6c7ac18b2243e34e89cda1b3be8b01f00211","document-style-pipeline":"6d85313adc53f5a592474f69acdb78ce4164c63492147baa7a117f6ffc7d110a","dot-meeting-brief":"1e1e08ae0719a820459a68a4a0ef0356e3dd37570b4b2cf224041cf7a5f533b2","dot-bounded-follow-up":"76111ec1587cae86e39d500343d2945d973f5b958dd0586347950ed163a42478","dot-change-request":"73bdc58095365cb1c20fb099a3a0a8f2dc84bd45988efbc55cd4fc8735d6fbd1","research-conflicting-sources":"7f426c4e27e151214b91384b022eaa1e8063019ca554fc1c53e1a2a0fd8c8923","writing-two-examples":"08492c0f960d7d9c49a7fdabb6eec727741e85032cc143497b317ec43cd0d522","orders-cleaning-audit":"f043208c83891bb78919dd894df9af97f87ec06b1d528a020134cdaa80631828","image-edit-invariants":"db530d20a56191678834b869b084f8d5237047b21363e8408f81bedf6d1df94b","video-learning-evidence":"d0cd75374d542553b4bd74f3bbc76dd7d44bd30435a0b0cff3fe20f2838d0963","codex-small-fix-loop":"d1182d94cd77032b8a7c49962a91661e5928f09dac1410ba622d20449681c7e8"},"scenes":{"openai-monitorability-pair-retry-metrics":"b0eb54443de07342e850b219deb93aceec57e4250c5eb043efb36902fa05ff1a","runway-claude-marketplace-procurement":"3479bd8d6d59b288e1f85167a3302c5bbbaecd1a4b42fbd8ff5b1ac957ce4b97","gemini-gdc-airgap-managed-rag-preview":"73d98ba22c98d7f9f778bebd8fc2580935fa3957723b11c3d34d825b13722e1a","metr-anthropic-risk-review-scope-evidence":"d2720ede1d792e8b4d71aa041cc7e0fccc8166c89686e6aac74bd69c9997b43c","deepseek-harness-preview-upgrade-acceptance":"e51baccaaa7613fa4cb0405725990ff5854aa1fa0037bfaf279f06f60f8b5042","seedance25-reference-timeline-repair":"18224853a9d889de88fc2fc07e84bd2d05f97a44d1398d8e7d9c1bbdc7f80b18","seedream5pro-layered-diagram-review":"8ead950d70db4e56e03eb839e1aa35d4e43f74368478791c27b87a9a819bfb50","spotify-eval-funnel-calibration":"43e8414456eb2f787b66d816cbf8c21ee9fdb74ab3c532c3e406dc3dc852cded","aws-migration-playbook-evidence":"5a6c5500910ba54711133df32fc7041c899f956e0e1647b279e453d896fc586e","meta-ach-mutant-test-contract":"fdcfa9b359c36f494e7ffecef5d8b06b1375e9ed48fcc9fdcec49b8f8bc1b726","minimax-m31-flash-effort-cost":"587ab389ce8c07f70c952e708ce54497ea6d5ce11ec40d9c5baf5a192987b06a","gemini-notebook-prerender-review":"84803926844efe41463668a971bdcabc6deb33b79d39aa7d8b5e401e3314b285","pixverse-template-slots-jobs":"1f803b8449fe8724da02c102485f2ed491c4f527968b7ad5699f8a3270239837","gemini-october-api-retirement-window":"bfdef308a3e96deb022cd6063fc163663cbf44f4eae5f91888bc9af8a0018df5","kimi-desktop-remote-review":"36673ae692f94e9b555a796b36a76b4202bf53a7a4b1a424ebd0c1a1137afb46","openai-low-resource-behavior-parity":"a49a22725f5090c9946cbc583bdb532e2fb4c02499515271522edcb0db4d7611","muse-beam-open-weight-deployment":"fc15cd8f50c93d48d22318780a0118d2247408426827b60056a0d373713c39cb","cloudflare-rule-lifecycle-review":"26c132c50fbd9d7dcfe61798ee8ed5ce1b72704504fa54ba5303b3d162aa5852","meta-forum-state-verification":"4baf27b21b49c2c0fc74fbb46435ef8544851d9d4adb62858a1b14d713422c96","mathworks-ears-mapping-review":"adb75184b30156125e23d3a19723bc884cb9e230934760cb6cbce704af041820","deepseek-search-fetch-evidence":"a85c43e589807cbf631ffd3c58bfad24e6f841b85e79ad5ddfba33bef58bc6cf","airbnb-incremental-support-notes":"2a6612e4c229e677618be3fa1dee15f80018aee4666cb0a0f2c94b1baf7f14dd","spotify-honk-verification-rollout":"2ab648ae586ac7ce173dcc69e8e99362591f4565b7509eaf3a0af9e3498a29f2","uber-autocover-test-acceptance":"93cb45b55189d9e5539e191019eea33ee79bddf9dd7f4fc559a0a366d87c64bc","scania-spec2code-contract-gap":"42d1910826736a2d1e2359f77ee61e98d8bae4ab3f95cc1aa2760653e20a9833","prompt-to-voice-reusable-brief":"084110d9ee279bbf11af4b441f802b9b3a8a725c7d20eaf6d9284dfa39f61cd1","kling4-long-take-control":"62799f892ec6b3cf79330c3751fe5bc81c2a84ad54e7ddd95e311b832f17ee0a","decision-switching-threshold":"7903838acfab4640dc450e4475012fbc8d3575f13376079c4c37f1500883da0a","learning-short-answer-hint-retest":"83adb4a7bcb3a63d10449657d7f34aae6071091c84382fc8e075d1cc5cd92323","firmware-memory-delta-audit":"e2757f410a9fdc59f1fa8b3f1a64e3ba29ff96500794fb9c9441979acd8be345","opus55-fast-access":"4adf26b679bcc54f022f95b4fe8ce05a12ad5659b40150003386a205242dc3a2","gptlive11-voice-corrections":"90a546fb4fc93f4e703e55a6319ba8742ff3920fa5bbbc36b8dcfd6684577dc6","gemini4-argon-long-work":"3f5357476daa50f9dae14e6dffa4e358b25f492b88db72b88bb4fcbd2ab18bf1","runway-kling-api-workflow":"ec96e7d3ed9c9eb159b9b2756791c6906707497d216110310da7a543b7cc2054","glm-legal-evidence-chain":"0847157a51d87c38680a1883fcded1cb186acd2f5cfdf4b99964dceeab23ef16","qwen-image21-api-alpha":"8ecb0f5e3e13e7ee8d5ae178f53b558f52004cf253f5bbc77e0a6cd994453791","gpt6-intelligent-ui":"b25e050a79bcc2a4a89b2a2980645ae06d74d03b586fdc4e4b0b0f36b89af766","haiku55-subagent-budget":"13cf6a2089f016c3ce1f0114f0ddb57d76077047f1df51fb3a323bec3704efc4","nano-banana21-continuity":"7360b9df5dbc06c7de72f27cdb2bb978ebe64c9f6d5d1cf7c640c081cadb5d93","embeddinggemma2-local-retrieval":"1c15811ae86029d28cf952201672d302e49313d5685b4d1bf3264442b075cb7e","mistral-large4-preview":"eef9211bdf2841306f03d4255f5536529d2712a0b87fdc349f7345a33b249e96","mplab-agent-telemetry-pacing":"98f7942e28b93b416bd5fb1a01189da287770e79f19b19b9ffe7811f7f4aeea9","memfault-crash-evidence-chain":"589792d5a3a877b4dd874d149996ce639c571c340ddcc31e71645e2d42b222c9","assertllm2-rtl-property-review":"e91f5ee4397da1789fa5343cb2adbc92c0daadd38df6cf6edf7a2ac1a7ed0a9d","firment-waveform-evidence":"47e4d63c6cc4715350747ebc0d96ddaeeccd22c10ddef67298d50328b8a3cd41","cantools-ai-wire-contract":"be2a8be95077dfc14460ce8d63348efb55fbe8b1689cc51e6e3252596cfa31fc","minicpm-local-image-check":"fa17a45f81ee28c814e29c26d199cc8755d082856373289c73671e071875cb12","sensor-unknown-state-gmm":"2a249413d4e9ab7d75f558b93234c16ebe2e78505a5eeadd992094aa3eed7c3a","sol-quality-cost":"21ac08e4a30889f92d381fa976e7f9eb05a33efa05c444f3afaed743c986649e","deepseek-v41-migration":"c552e257157ccebf462c5d2de48023234cebcf5f38861ca937e78dcdfdf2e790","qwen-omni-evidence":"253ecdbfa2c0dea216716d0be36a7381b1f70652f31638785a4178ed713f3ee0","images25-edit-brief":"ba77c9ee45199dfcaf0bca9cd9f31438ee82d06766a092731add3035bec0b9c2","renode-replay-lab":"02529004caba1c922ab3d690b3aad588fab1ca33eae0daef85b89c3f56511a99","firmware-fuzz-harness":"089f5a9ebdf188ab3e4575eab1f5c756732aadb3177952f01431567c8fd7f4d3","debug-probe-mcp":"ca23b159b62c8fdf7ab35ebec262ffe31fe11b3dd941e631cb2dd1de06ab432f","datasheet-register-audit":"ac50c025ad093bba38ff389df2334f5f29e01fc87ad0ee97aebf1d427ecf5701","stm32-edge-ai-budget":"3463da3b40663b7296560028a5b8af5e3efcd084d6ebe3cc47f397b89327896f","firmware-agent-contract":"cf9dbbe92d84749fb634e26345b8b5e72c7a5ca1dcefb74e320a94dd18b3029f","context-task-eval":"4cf4541762a4b088e7f4011943066ecf25c12ab4115ffb51c12e582f06cf30f9","espressif-mcp-workflow":"63fa25ccd1534820f5899d41ca7a0116fc39e57b7d519f5dde0ba1d07dc68a96","playwright-mcp-boundary":"d13701f012853926a1c127ccd36325b94083ade013acf0ac06971e8b95d6a6ed","skills-license-eval":"de41448284606b587eb01f3f52467148abfe329eb4afb64f7095d6de51652553","embedded-regression-copilot":"0d8d2283b73273ccc9a7d3796502bcc1829e51c11901f43981694c80d21ac2ea","document-style-pipeline":"6e4abe39ece7436424ab728a07da99038cb267dd0f0c08c91806354f13c07b75","dot-meeting-brief":"4a18fe99ee18228ac2ea8dd08c7d06816bbc7dd475642a09df71b664289f3e34","dot-bounded-follow-up":"84e7fc7f83600649ed9d672287d8dfd0cc33ffdecae66cd7a7e5a0340e789eb3","dot-change-request":"2d78da6f25d6ea5d47d3067a5d597d8e304b41602a0321d27c90e9d2daf8cc73","research-conflicting-sources":"f2ddf755914405abf96632ad8b54e6353f492322f3d36384bade89dbabb505e2","writing-two-examples":"fda4d9625c4a38559a612483510673de3a65cb0f28478f943f5f3e8bb8addd10","orders-cleaning-audit":"eac249de66543c18ca22b17f9a961174a336d9db5bed9a69d4498fbf2c61cef6","image-edit-invariants":"8fbc5aaee484a75ba7f90badfee66feefcb16c4eea375ed91be3cb8c9ec69b02","video-learning-evidence":"fe6f5a20880ffcc649a26c4ec6cf8a01bef309ce178247c6757ddb7c44a986d0","codex-small-fix-loop":"97e754ab244ea90773db163c6b8959f96f555cd1ba2234d015455d6cdb27f670"},"files":{"app.js":"3f11837199a84b29e606682c4b88a17632fea212e8cabad2eab2570564305157","site-core.js":"b4f96a7f0557c322c3c2e42cfcf14d1545585d06420cfc1147c03bc5b7b33589","style.css":"5e159c776246dcd48bf52117e649feb7250bbffb9f49a707bbb2d9b3cf3c5c8b","visuals.css":"7cf30aa521f1fe9e7589608376199737cb797efc3ab2a63799c97d7ac0d4d00d","build.py":"25deb0b707c7e7ae97e1306b94afcab5d0156c8a7ff8495a980140e4ebb2f524","favicon.svg":"b33e38910db7f167eb595800e4fa779577885204e090115732215704f1be1db5","DESIGN.md":"23cb37aa5f8c5df788d9587f03e8e2b01a2b955f5d26b4862e7f1dc5439e5a96","THIRD_PARTY_NOTICES.md":"e10fafb73c4164f3cc2f5350a0ec70c500ab6417cc935a9140b69e49b74daf60"}};
 const october22Scenes = {"google-cloud-openai-private-preview": {"title": "目录、资格和安全条件分别核实", "labels": ["企业私测", "当前交付", "后续计划"], "panels": [["部分企业", "申请 ≠ 获准", "三个GPT型号", "不是新模型发布"], ["统一采购", "API推理", "本地Codex衔接", "接口仍需验收"], ["尚待开放", "ZDR / 机密计算", "业务产品集成", "不能预先承诺"]], "status": ["10月21日公告是部分企业私有预览，不是全面开放。", "同一模型目录仍可能有不同权限、费用和接口边界。", "不用于训练不能等同零留存，后续计划不能当当前能力。", "合成团队尚未获准且要求ZDR，不能立即判断迁移条件满足。"]}, "openai-monitor-alerts-boundary-incidents": {"title": "功能、监测、通知，各有独立证据", "labels": ["业务功能", "监测覆盖", "人工接收"], "panels": [["迁移完成", "功能测试通过", "仅支持业务结论", "不扩展安全权限"], ["结果存在", "日志仍产生", "覆盖范围另核", "不能只读总结"], ["告警链路", "接收是否送达", "响应是否有效", "原因仍待研究"]], "status": ["两起事件发生于10月3日和6日，10月20日公开，日期分开记录。", "功能通过不证明监测完整，记录存在不证明通知已送达。", "官方仍研究原因，不从两例推算失效率或认定主观动机。", "图示只读评审，不运行代理，也不执行任何安全配置修改。"]}, "fasth3-omni-weights-runtime-license": {"title": "输入总量、运行条件和许可一起看", "labels": ["参考素材", "服务器数据", "本地路径"], "panels": [["8图 + 3视频", "再加2音频", "共13份 > 12", "至少减一份"], ["8 × GB200", "27组工作负载", "完整服务配方", "不是单组件加速"], ["量化另有配方", "480p默认", "硬件 / 精度", "地域许可先核"]], "status": ["每类素材上限不能直接相加，总参考数量仍不得超过12。", "发布团队速度比较附带服务器硬件与配方，不等于桌面实时。", "BF16、FP8和NVFP4 QAD可能有不同输出，需分别验收。", "模型权重采用自定义社区许可，本站没有下载或运行模型。"]}, "openai-12h-cache-reuse-economics": {"title": "先付写入费，再看够不够复用", "labels": ["合成单价", "两次调用", "三次调用"], "panels": [["普通输入 = 1", "长写入 = 2.5", "后续读取 = 0.1", "只算同一前缀"], ["2.5 + 0.1", "合计2.6", "不缓存是2", "长缓存更贵"], ["2.5 + 2×0.1", "合计2.7", "不缓存是3", "不是短缓存比较"]], "status": ["此算例只比较完全不缓存基线，不包含其他输入和输出费用。", "两次复用场景总计2.6，不能因读取便宜就宣称省钱。", "三次总计2.7低于3，仍需时间分布才能与短缓存比较。", "覆盖时长保障符合条件的读取计价，不是必然低延迟保证。"]}, "claude-duet-preview-attention-budget": {"title": "主动准备不等于已获准行动", "labels": ["信息变化", "提醒策略", "待批动作"], "panels": [["明日会议冲突", "无期限资料更新", "对外报价请求", "虚构材料"], ["冲突及时提醒", "资料合并简报", "后台也占额度", "不是无限监控"], ["报价先起草", "确认对象与内容", "批准后才执行", "本站未实际使用"]], "status": ["10月21日研究预览从美国Pro/Max候补用户开始，不是全球开放。", "云端虚拟机可持续工作，不要求原电脑一直开机。", "后台检查和其他Claude任务共享额度，提醒越多不等于越好。", "报价可准备草稿，不能推定已获准发送或作价格承诺。"]}, "dropbox-judge-prompt-change-budget": {"title": "任务契约不变，失败仍留在分母", "labels": ["评分契约", "两种候选", "三项一起看"], "panels": [["先固定", "1–5分", "字段与错误处理", "不许改题目"], ["四项合成输出", "A · 一项无效", "B · 两项差1分", "其余符合"], ["总误差", "A · 25", "B · 3.125", "有效率另列"]], "status": ["迁移时重写提示与生产时选择指令，是不同修改范围。", "A有效率75%，只看可解析样本会掩盖失败。", "B总NMSE为3.125，但四个合成样本不证明泛化。", "禁止记忆文件名或缩小分值范围，候选仍需独立留出检验。"]}, "dropbox-design-code-link-recovery": {"title": "先配对正确材料，再核实现与测试", "labels": ["设计范围", "关联候选", "仍需补证"], "panels": [["D1 · 杉木A", "完整配置导出", "诊断导出", "都不得含令牌"], ["PR-A 属于B", "PR-B 摘要相符", "PR-C 仅能打开", "不能互相替代"], ["分开核实", "具体实现", "两条路径", "字段缺失测试"]], "status": ["标题相似不证明同一设备实现，PR-A属于另一代际。", "PR-B无回链仍可为关联候选，摘要不是实现和运行证据。", "PR-C只记录功能成功，没有证明输出不含令牌。", "公司关系恢复比例不是漏洞检出率，嵌入式练习未实物验证。"]}, "kimi-desktop-trust-session-boundaries": {"title": "项目可信、上下文连续、配置生效，分别确认", "labels": ["工作区信任", "模型切换", "配置与视图"], "panels": [["本地项目来源", "项目级MCP", "拒绝则不发消息", "不是沙箱认证"], ["新建会话", "压缩后继续", "直接继续", "保留未完成检查"], ["重载有条件", "生成中不可重载", "多端非实时", "核对最新状态"]], "status": ["1.1.1工作区信任会影响项目级工具配置，不只是显示标签。", "模型切换的三种选项改变上下文处理，不能省略原有约束。", "磁盘文件已保存不等于运行会话已加载，也不等于其他窗口已刷新。", "本图仅解释官方状态，不调用接口或自动批准陌生工作区。"]}};
 check('October 22 preserves all73 prior objects, scene renders and fixed runtime assets',()=>{
- assert.equal(data.posts.length,73+october22Ids.length+6);assert.deepEqual(data.posts.slice(october22Ids.length+6).map(p=>p.id),Object.keys(october22Baseline.posts));
+ assert.equal(data.posts.length,73+october22Ids.length+6+9);assert.deepEqual(data.posts.slice(october22Ids.length+6+9).map(p=>p.id),Object.keys(october22Baseline.posts));
  for(const [id,hash] of Object.entries(october22Baseline.posts)){const p=data.posts.find(p=>p.id===id);assert.equal(sha256(JSON.stringify(p)),hash,id);const scope={window:{}};vm.runInNewContext(visuals,scope);assert.equal(sha256(scope.window.FieldnoteVisuals.render(p)),october22Baseline.scenes[id],id);}
  for(const [file,hash] of Object.entries(october22Baseline.files))assert.equal(sha256(read(file)),hash,file);
 });
@@ -2437,7 +2437,7 @@ const october23Panels = {
 ;
 
 check('October 23 strictly preserves all81 earlier article objects, independent scenes and runtime assets',()=>{
- assert.equal(data.posts.length,87);assert.deepEqual(data.posts.slice(6).map(p=>p.id),Object.keys(october23Baseline.posts));assert.deepEqual(data.posts.slice(0,6).map(p=>p.id),october23Ids);
+ assert.equal(data.posts.length,96);assert.deepEqual(data.posts.slice(15).map(p=>p.id),Object.keys(october23Baseline.posts));assert.deepEqual(data.posts.slice(9, 15).map(p=>p.id),october23Ids);
  for(const [id,hash]of Object.entries(october23Baseline.posts)){const p=data.posts.find(p=>p.id===id);assert.equal(sha256(JSON.stringify(p)),hash,id);const box={window:{}};vm.runInNewContext(visuals,box);assert.equal(sha256(box.window.FieldnoteVisuals.render(p)),october23Baseline.scenes[id],id);}
  for(const [file,hash]of Object.entries(october23Baseline.files))assert.equal(sha256(read(file)),hash,file);
 });
@@ -2464,6 +2464,353 @@ check('Company exercises preserve missing receipts, language constraints and dis
  const text=id=>JSON.stringify(data.posts.find(p=>p.id===id));for(const t of ['91%','分母','幂等','HTTP','云端','不是'])assert(text('brex-oncall-runbook-evidence').includes(t),t);
  for(const t of ['女士真皮靴','三个意图','三级标签','0–4','2024-09-18','资料版本','译文','排序'])assert(text('zalando-search-intent-language-parity').includes(t),t);
  assert.equal(1500*25,37500);assert.equal(2*500*20,20000);
+});
+
+const october24Ids = ["kimi-k31-pro-service-weights-speed", "memt-memory-state-not-runtime", "forty-forest-types-probability-boundary", "openai-training-containment-offline-world", "flux3-klein-full-memory-license", "fev-legacy-spec-baseline-gates", "grab-hubble-doc-review-metrics", "redhat-code-docs-review-selection", "anthropic-proof-scope-binary-contract"];
+const october24Baseline = {"posts":{"minimax-miniapp-persistent-review":"f1d8678ad76ed307b5b85533965c05226ad5ae25d860fdf2eb310781ee01e418","xing-intent-schema-multiple-results":"ae0605cbb4765a09e9cae5f3fdde6eb25151e361bb58e4a50dbfd9eab8907e84","deepinfer-engine-service-gap":"e7a17a53a341a9b37c8ff6686b7c45e7af2d32dbca7f9393679ce9f91dc250c6","claude-api-dated-version-migration":"538ff61a9e1d7c2bfe787ce083304474641896921a30b36d1306d6d9affab88e","brex-oncall-runbook-evidence":"37e0b0c52d1d3d5a39f3dc35bbd4da236cf38008bce0e95796f2aa27b2efedb9","zalando-search-intent-language-parity":"a7dbbe92c923940651e3df7eb68fec17a77eeacd4f627870ee6e15d551c70597","claude-duet-preview-attention-budget":"19f2ae7f522b8a728ae2ed37bdb31bd26f29951112f1b58d2c47aae3d1fea39e","google-cloud-openai-private-preview":"9b223b459f2f055367b1ab524291efb9f0bf3c962474a42c0963e6869a4540aa","openai-monitor-alerts-boundary-incidents":"bb51a946be3517dde52d8bb4d462f0631e22d54aa9d38d43ec130f171812ffd5","fasth3-omni-weights-runtime-license":"f370da020850bfaa02ae4824fa9f5c4eecf9e760cf382bb839ce0dfaf7408951","openai-12h-cache-reuse-economics":"651f234240d00ec00478fb222f19b40e604ca3770336b0c30ea60d3f926c5ceb","kimi-desktop-trust-session-boundaries":"7c52b32be3782b5e310ffcfb038988908a8758b6826911ebb92cd5981719c344","dropbox-judge-prompt-change-budget":"af809683e7a1d6ec0690b0ac1cb2cb9a6029077a487e1228aad0f7c845c5658a","dropbox-design-code-link-recovery":"915f9676a1b04f2a9b84a84b9d8e79ee35ea18133a04ff846dced2069f696103","openai-monitorability-pair-retry-metrics":"61c48397e70b6af8a609fa451e738c7da67a0e0e706c132813ab6a45668ea710","runway-claude-marketplace-procurement":"8524bc3463bb57b60aed830e54027b3c8f0da0eb70386c197da36e3b4208446c","gemini-gdc-airgap-managed-rag-preview":"b404463d63478a5f672cb9e69a4919781e7b0634cd38179643732c41ee1062b7","metr-anthropic-risk-review-scope-evidence":"75b82cdbb5e65edf4d0d7426bb6f23e406dfdf067b44596730ab080c6bb7aab8","deepseek-harness-preview-upgrade-acceptance":"44de886b63bd49f6e29aeb6df6b64ce45e22484b634c46565577ac1fb5b6153c","seedance25-reference-timeline-repair":"0b478ce46b0d63002867841f8e144d6104d531e108236b6ca560718712fd3359","seedream5pro-layered-diagram-review":"30d3dd62ca295785e19d4c816d273146960d095fae7c0fb70d5643fe6b6daa6a","spotify-eval-funnel-calibration":"29d71f713d44862f3c5a11561f1bbd8a9e978185ce265624ac2d3ad1b57e4eb2","aws-migration-playbook-evidence":"4383156394f86711cbe95370036fa424dbbda2733b5036573a159bd699cca52f","meta-ach-mutant-test-contract":"23eba86dd966b3c7981fc7ace758ee6683748251d854b4afcc6de6faec79ce34","minimax-m31-flash-effort-cost":"205937bece0596d0c2d47b0e536ea51f1a9cca4c613b5028755554074f7e73ca","gemini-notebook-prerender-review":"d2220608e9badca5b9790637aacd43748b1d40072f7f8d9c76d3e766936a19af","pixverse-template-slots-jobs":"f5e61db82ec5f9bdbc190526eccf1b5b1e5dd627d7e6f9298fc53cfe40261e21","gemini-october-api-retirement-window":"a90833e61978936e64a0595ec046e52519fd7ebe123e8914371bec1fbd955dc9","kimi-desktop-remote-review":"ab365fe747962759b25a4a207921bb668b5b5a2d6958939820a878f108d76577","openai-low-resource-behavior-parity":"24581b477de88aa83f6d3533a42f9e2791cfe65ea27f2e0eab116728c77f4888","muse-beam-open-weight-deployment":"efcf0e05ba47d5f109d9775d32245ff0a842a3089bb09a92f05d1a120087aabc","cloudflare-rule-lifecycle-review":"a07df039281887b4c267032d6b1cb669b3599bb24a6ad1c1eb3f4c3318a5f304","meta-forum-state-verification":"b626576ba51a1a0d90671b8f8638452e15d61bcc1551df500cda9d1891786779","mathworks-ears-mapping-review":"9f0c7a35d005a02f769859a42bb904f08903619ed33d3e27a8eed5ed3875ef06","deepseek-search-fetch-evidence":"2291b77e9a0707f2fce5e3223b645ea074a0f5f90c12c76231e94bde6d0445cf","airbnb-incremental-support-notes":"a63251a541273660582a8309b3155b77b76d8506e3718136753d07a6d4965d83","spotify-honk-verification-rollout":"42630f3308bb29ff8683b001e5fd89c0aa68202c15e8ba56d69e0087c10c4584","uber-autocover-test-acceptance":"ab12b8b0bd882a088c67e8e0f6fc5306e6fcd6cf1b4eb2d19202186fdd60019e","scania-spec2code-contract-gap":"9e54ac029dc40dc9e5e90e28d932ea6561118b23af4d360f364ab00c4cda8368","prompt-to-voice-reusable-brief":"8ce23fe19a2edd011766d1e38ced13999c267f6a6c1e0ae1dd5653dedf3fff1f","kling4-long-take-control":"420dfc75a0dbb710ffc1a546f55e5528d49d802ee1bfdd5b400d82289397cd66","decision-switching-threshold":"6a4ed9103895bec78038e3addd3affb50d33184316e16c6aaa4ccf5730b20ae4","learning-short-answer-hint-retest":"501579a24f0049aa7633b3a0c22fa7dc338a58acf82e5e597a55215d1bb44670","firmware-memory-delta-audit":"583d85b92957ebe0492869f532049fb595cd5eedbe784a5768e6d78d48deb922","opus55-fast-access":"5d343d3fb4f55de41b1ad13e273f1eef4f6b4f5a2d8579101d124bce430d8000","gptlive11-voice-corrections":"bc3b9993d381c6ca67bd1e601d7bf4d4a1c95d4cace11f03b4097f67fbbb21db","gemini4-argon-long-work":"121484ce1ee9148c2f7be640371a62f9cfba446c9cdb89ca8cab5446e873ecb0","runway-kling-api-workflow":"52b0018ad273e00a3f6af7862bdaa9f18207c16087737e1a83beb0199645990f","glm-legal-evidence-chain":"9da204d02ab84f8eb48a10f2af265f48759150c5844ef9e34be111d0234d8f4c","qwen-image21-api-alpha":"1e81ecb9ec1498e575ba292c96ade9342fcbc1fd892a0e23d88c62c5e854847d","gpt6-intelligent-ui":"5c9657cf1aaa75195a7c6ca9a419ed9f5c946dae43fd2e929f7cb219def47d11","haiku55-subagent-budget":"40589281778639c45c81447e065e3830efcbe09fe52cd9a3e2604707e5257c35","nano-banana21-continuity":"ab6cb4de6fb4fab6eb5b81028cdd2857bd5971e610074302afc9ee2b27cd618e","embeddinggemma2-local-retrieval":"5cd94802e402edfab230b73e19ee6b0dffeb3eb26d778cd37f907ede67e3c301","mistral-large4-preview":"74d300fc34b328dc749a34aec19c0ac87e0ec4220688eca5a0b702298f05a44f","mplab-agent-telemetry-pacing":"f23ee6f7a452db4833c4f3f58ff69b49aa8811cf8e2f134e288acbe7514631a4","memfault-crash-evidence-chain":"19b9006fd5e592f9efd3fd0332950afcf45a8195884f062d42fdd52c0ff9e69f","assertllm2-rtl-property-review":"b6d87a487535fb842ad4908bcd1bc08b35004d4c2c8a8f199d5da40a1cd59a39","firment-waveform-evidence":"affb6bfa3bdb4778904f9133b4a3a4fab2fb4190b29b0c15bde31b05095800f1","cantools-ai-wire-contract":"e2d91e4db45b36d183823818262761687888da7b3e9b52dd6b34e2aebcf88135","minicpm-local-image-check":"fd0add86b8ae410daf0349b44d383d17df575eb0d1d69ab111d26fe04a5714b7","sensor-unknown-state-gmm":"3b4eac0dd79fb5970aed643285a55a7bfe0cf27c58567093353906e8bd4e8d3f","sol-quality-cost":"f53d3c7c9d9c8b8b75da105a631a8a74df7ceaf105b77adf03ffad445b882b6a","deepseek-v41-migration":"05ea75bf12ecfaf87c4ba8bfb4a84fcdf41deeec532bbdab6ba13efc7698b376","qwen-omni-evidence":"220ef0f3c13e3f04c6b332933a303feb528d06e1458ec410510e4b0924f9c359","images25-edit-brief":"3baf2ae3963446ddc58573af93650d0815cfdb24ba9287d5022927e03dd73dff","renode-replay-lab":"bbc451336852b1abd4d491dfab43c79cc5fac6719bcefeece8304947508aa261","firmware-fuzz-harness":"52204b6f516e75ca58f3ecb7b9154fe9d30bd698d9ff29ab865f12c5ced39058","debug-probe-mcp":"063fa655a3e4838d61f72683df248a15fe8e0c7185fc909684d4c986a7fece58","datasheet-register-audit":"7ad32920da96b7456f3c19971fa940a7528e0338609da7bd07886c53fd7ea708","stm32-edge-ai-budget":"819ad707afc2051fe064ce466d246159ef51d35dec3c2cd3ded40d6666908811","firmware-agent-contract":"146a2eadf17defae9c0266ea2d82e35dd33eb6b480fc3a8a2ca32f262d4a62a9","context-task-eval":"8c96cdbc3b373c90733bc5b218854baa24f99c9e6043ad19d2f3b76d34c86095","espressif-mcp-workflow":"90b01873f620cb39f7e0040e56ea68e6881489c0ccc4d1b214f97ef95573e628","playwright-mcp-boundary":"cb62e3ed8797602aa5df5717d7abb4cde1d87a57981ce342a881c6643a2dcea5","skills-license-eval":"de1ddf6ab2990d2887a2a3324d7a2a6b90012a4f13121d7ff4759408523356d8","embedded-regression-copilot":"3d1ff145b4ddef0c06132990ee8f6c7ac18b2243e34e89cda1b3be8b01f00211","document-style-pipeline":"6d85313adc53f5a592474f69acdb78ce4164c63492147baa7a117f6ffc7d110a","dot-meeting-brief":"1e1e08ae0719a820459a68a4a0ef0356e3dd37570b4b2cf224041cf7a5f533b2","dot-bounded-follow-up":"76111ec1587cae86e39d500343d2945d973f5b958dd0586347950ed163a42478","dot-change-request":"73bdc58095365cb1c20fb099a3a0a8f2dc84bd45988efbc55cd4fc8735d6fbd1","research-conflicting-sources":"7f426c4e27e151214b91384b022eaa1e8063019ca554fc1c53e1a2a0fd8c8923","writing-two-examples":"08492c0f960d7d9c49a7fdabb6eec727741e85032cc143497b317ec43cd0d522","orders-cleaning-audit":"f043208c83891bb78919dd894df9af97f87ec06b1d528a020134cdaa80631828","image-edit-invariants":"db530d20a56191678834b869b084f8d5237047b21363e8408f81bedf6d1df94b","video-learning-evidence":"d0cd75374d542553b4bd74f3bbc76dd7d44bd30435a0b0cff3fe20f2838d0963","codex-small-fix-loop":"d1182d94cd77032b8a7c49962a91661e5928f09dac1410ba622d20449681c7e8"},"scenes":{"minimax-miniapp-persistent-review":"a748aeb751f9c8e2ccbeb7492c3130f89d9bfb39e244c948bdaedbf5b4a2b8d2","xing-intent-schema-multiple-results":"edf72f25bda03c79bb5651a49e8b5667ee6f0fba061558e415be55bd067f38e0","deepinfer-engine-service-gap":"b6402492d49de09ee5f86d84f5d29bd8312ba8345f1d1eab760e22d22ddbe755","claude-api-dated-version-migration":"d8d4287fab3f8d1c02e1567bcb394a050c1cb0a0cd4217eeb16e4217cfcf974a","brex-oncall-runbook-evidence":"66e4149d945f9de701054ecca31aef1e2431c20c80ee5769f408f3ccdf952672","zalando-search-intent-language-parity":"3f18ec674e3e176e69981e2d88f058476d28d1256f4f53a7fa4fbdffdfdef0e7","claude-duet-preview-attention-budget":"0b82a4a9bf0bd996461a5d347398cc594ab61f78c12b15e8e0bd78600e98866c","google-cloud-openai-private-preview":"b9d8e4483687605a871c9bc8958944efcf521e1678b4f3e8f858540338133b5b","openai-monitor-alerts-boundary-incidents":"50fe45065016cefc82ace42e2032d8d2c1b874ed823e89aa698ae35d61506b21","fasth3-omni-weights-runtime-license":"91ab28b690af7b362d1fa639d68dfca41772d34263ff24a1ad0ff79d02986b37","openai-12h-cache-reuse-economics":"6e0698a14e4d66dd6d1513661d9974e3eacb98a662d67da07472ebbac11a866e","kimi-desktop-trust-session-boundaries":"d6617d36cfbc5aedf75e3d6797fa6d89c99537ea520fb07acdaf132b14dbdc89","dropbox-judge-prompt-change-budget":"6601521e1ab6a775264f30b1e61b8ff49ebd1c4f5dad866cb9fb842c757e147f","dropbox-design-code-link-recovery":"79cbd5272111cc1d057caa8083b15054762c1347e62af234c49cd0616f010b26","openai-monitorability-pair-retry-metrics":"b0eb54443de07342e850b219deb93aceec57e4250c5eb043efb36902fa05ff1a","runway-claude-marketplace-procurement":"3479bd8d6d59b288e1f85167a3302c5bbbaecd1a4b42fbd8ff5b1ac957ce4b97","gemini-gdc-airgap-managed-rag-preview":"73d98ba22c98d7f9f778bebd8fc2580935fa3957723b11c3d34d825b13722e1a","metr-anthropic-risk-review-scope-evidence":"d2720ede1d792e8b4d71aa041cc7e0fccc8166c89686e6aac74bd69c9997b43c","deepseek-harness-preview-upgrade-acceptance":"e51baccaaa7613fa4cb0405725990ff5854aa1fa0037bfaf279f06f60f8b5042","seedance25-reference-timeline-repair":"18224853a9d889de88fc2fc07e84bd2d05f97a44d1398d8e7d9c1bbdc7f80b18","seedream5pro-layered-diagram-review":"8ead950d70db4e56e03eb839e1aa35d4e43f74368478791c27b87a9a819bfb50","spotify-eval-funnel-calibration":"43e8414456eb2f787b66d816cbf8c21ee9fdb74ab3c532c3e406dc3dc852cded","aws-migration-playbook-evidence":"5a6c5500910ba54711133df32fc7041c899f956e0e1647b279e453d896fc586e","meta-ach-mutant-test-contract":"fdcfa9b359c36f494e7ffecef5d8b06b1375e9ed48fcc9fdcec49b8f8bc1b726","minimax-m31-flash-effort-cost":"587ab389ce8c07f70c952e708ce54497ea6d5ce11ec40d9c5baf5a192987b06a","gemini-notebook-prerender-review":"84803926844efe41463668a971bdcabc6deb33b79d39aa7d8b5e401e3314b285","pixverse-template-slots-jobs":"1f803b8449fe8724da02c102485f2ed491c4f527968b7ad5699f8a3270239837","gemini-october-api-retirement-window":"bfdef308a3e96deb022cd6063fc163663cbf44f4eae5f91888bc9af8a0018df5","kimi-desktop-remote-review":"36673ae692f94e9b555a796b36a76b4202bf53a7a4b1a424ebd0c1a1137afb46","openai-low-resource-behavior-parity":"a49a22725f5090c9946cbc583bdb532e2fb4c02499515271522edcb0db4d7611","muse-beam-open-weight-deployment":"fc15cd8f50c93d48d22318780a0118d2247408426827b60056a0d373713c39cb","cloudflare-rule-lifecycle-review":"26c132c50fbd9d7dcfe61798ee8ed5ce1b72704504fa54ba5303b3d162aa5852","meta-forum-state-verification":"4baf27b21b49c2c0fc74fbb46435ef8544851d9d4adb62858a1b14d713422c96","mathworks-ears-mapping-review":"adb75184b30156125e23d3a19723bc884cb9e230934760cb6cbce704af041820","deepseek-search-fetch-evidence":"a85c43e589807cbf631ffd3c58bfad24e6f841b85e79ad5ddfba33bef58bc6cf","airbnb-incremental-support-notes":"2a6612e4c229e677618be3fa1dee15f80018aee4666cb0a0f2c94b1baf7f14dd","spotify-honk-verification-rollout":"2ab648ae586ac7ce173dcc69e8e99362591f4565b7509eaf3a0af9e3498a29f2","uber-autocover-test-acceptance":"93cb45b55189d9e5539e191019eea33ee79bddf9dd7f4fc559a0a366d87c64bc","scania-spec2code-contract-gap":"42d1910826736a2d1e2359f77ee61e98d8bae4ab3f95cc1aa2760653e20a9833","prompt-to-voice-reusable-brief":"084110d9ee279bbf11af4b441f802b9b3a8a725c7d20eaf6d9284dfa39f61cd1","kling4-long-take-control":"62799f892ec6b3cf79330c3751fe5bc81c2a84ad54e7ddd95e311b832f17ee0a","decision-switching-threshold":"7903838acfab4640dc450e4475012fbc8d3575f13376079c4c37f1500883da0a","learning-short-answer-hint-retest":"83adb4a7bcb3a63d10449657d7f34aae6071091c84382fc8e075d1cc5cd92323","firmware-memory-delta-audit":"e2757f410a9fdc59f1fa8b3f1a64e3ba29ff96500794fb9c9441979acd8be345","opus55-fast-access":"4adf26b679bcc54f022f95b4fe8ce05a12ad5659b40150003386a205242dc3a2","gptlive11-voice-corrections":"90a546fb4fc93f4e703e55a6319ba8742ff3920fa5bbbc36b8dcfd6684577dc6","gemini4-argon-long-work":"3f5357476daa50f9dae14e6dffa4e358b25f492b88db72b88bb4fcbd2ab18bf1","runway-kling-api-workflow":"ec96e7d3ed9c9eb159b9b2756791c6906707497d216110310da7a543b7cc2054","glm-legal-evidence-chain":"0847157a51d87c38680a1883fcded1cb186acd2f5cfdf4b99964dceeab23ef16","qwen-image21-api-alpha":"8ecb0f5e3e13e7ee8d5ae178f53b558f52004cf253f5bbc77e0a6cd994453791","gpt6-intelligent-ui":"b25e050a79bcc2a4a89b2a2980645ae06d74d03b586fdc4e4b0b0f36b89af766","haiku55-subagent-budget":"13cf6a2089f016c3ce1f0114f0ddb57d76077047f1df51fb3a323bec3704efc4","nano-banana21-continuity":"7360b9df5dbc06c7de72f27cdb2bb978ebe64c9f6d5d1cf7c640c081cadb5d93","embeddinggemma2-local-retrieval":"1c15811ae86029d28cf952201672d302e49313d5685b4d1bf3264442b075cb7e","mistral-large4-preview":"eef9211bdf2841306f03d4255f5536529d2712a0b87fdc349f7345a33b249e96","mplab-agent-telemetry-pacing":"98f7942e28b93b416bd5fb1a01189da287770e79f19b19b9ffe7811f7f4aeea9","memfault-crash-evidence-chain":"589792d5a3a877b4dd874d149996ce639c571c340ddcc31e71645e2d42b222c9","assertllm2-rtl-property-review":"e91f5ee4397da1789fa5343cb2adbc92c0daadd38df6cf6edf7a2ac1a7ed0a9d","firment-waveform-evidence":"47e4d63c6cc4715350747ebc0d96ddaeeccd22c10ddef67298d50328b8a3cd41","cantools-ai-wire-contract":"be2a8be95077dfc14460ce8d63348efb55fbe8b1689cc51e6e3252596cfa31fc","minicpm-local-image-check":"fa17a45f81ee28c814e29c26d199cc8755d082856373289c73671e071875cb12","sensor-unknown-state-gmm":"2a249413d4e9ab7d75f558b93234c16ebe2e78505a5eeadd992094aa3eed7c3a","sol-quality-cost":"21ac08e4a30889f92d381fa976e7f9eb05a33efa05c444f3afaed743c986649e","deepseek-v41-migration":"c552e257157ccebf462c5d2de48023234cebcf5f38861ca937e78dcdfdf2e790","qwen-omni-evidence":"253ecdbfa2c0dea216716d0be36a7381b1f70652f31638785a4178ed713f3ee0","images25-edit-brief":"ba77c9ee45199dfcaf0bca9cd9f31438ee82d06766a092731add3035bec0b9c2","renode-replay-lab":"02529004caba1c922ab3d690b3aad588fab1ca33eae0daef85b89c3f56511a99","firmware-fuzz-harness":"089f5a9ebdf188ab3e4575eab1f5c756732aadb3177952f01431567c8fd7f4d3","debug-probe-mcp":"ca23b159b62c8fdf7ab35ebec262ffe31fe11b3dd941e631cb2dd1de06ab432f","datasheet-register-audit":"ac50c025ad093bba38ff389df2334f5f29e01fc87ad0ee97aebf1d427ecf5701","stm32-edge-ai-budget":"3463da3b40663b7296560028a5b8af5e3efcd084d6ebe3cc47f397b89327896f","firmware-agent-contract":"cf9dbbe92d84749fb634e26345b8b5e72c7a5ca1dcefb74e320a94dd18b3029f","context-task-eval":"4cf4541762a4b088e7f4011943066ecf25c12ab4115ffb51c12e582f06cf30f9","espressif-mcp-workflow":"63fa25ccd1534820f5899d41ca7a0116fc39e57b7d519f5dde0ba1d07dc68a96","playwright-mcp-boundary":"d13701f012853926a1c127ccd36325b94083ade013acf0ac06971e8b95d6a6ed","skills-license-eval":"de41448284606b587eb01f3f52467148abfe329eb4afb64f7095d6de51652553","embedded-regression-copilot":"0d8d2283b73273ccc9a7d3796502bcc1829e51c11901f43981694c80d21ac2ea","document-style-pipeline":"6e4abe39ece7436424ab728a07da99038cb267dd0f0c08c91806354f13c07b75","dot-meeting-brief":"4a18fe99ee18228ac2ea8dd08c7d06816bbc7dd475642a09df71b664289f3e34","dot-bounded-follow-up":"84e7fc7f83600649ed9d672287d8dfd0cc33ffdecae66cd7a7e5a0340e789eb3","dot-change-request":"2d78da6f25d6ea5d47d3067a5d597d8e304b41602a0321d27c90e9d2daf8cc73","research-conflicting-sources":"f2ddf755914405abf96632ad8b54e6353f492322f3d36384bade89dbabb505e2","writing-two-examples":"fda4d9625c4a38559a612483510673de3a65cb0f28478f943f5f3e8bb8addd10","orders-cleaning-audit":"eac249de66543c18ca22b17f9a961174a336d9db5bed9a69d4498fbf2c61cef6","image-edit-invariants":"8fbc5aaee484a75ba7f90badfee66feefcb16c4eea375ed91be3cb8c9ec69b02","video-learning-evidence":"fe6f5a20880ffcc649a26c4ec6cf8a01bef309ce178247c6757ddb7c44a986d0","codex-small-fix-loop":"97e754ab244ea90773db163c6b8959f96f555cd1ba2234d015455d6cdb27f670"},"files":{"app.js":"3f11837199a84b29e606682c4b88a17632fea212e8cabad2eab2570564305157","site-core.js":"b4f96a7f0557c322c3c2e42cfcf14d1545585d06420cfc1147c03bc5b7b33589","style.css":"5e159c776246dcd48bf52117e649feb7250bbffb9f49a707bbb2d9b3cf3c5c8b","visuals.css":"7cf30aa521f1fe9e7589608376199737cb797efc3ab2a63799c97d7ac0d4d00d","build.py":"25deb0b707c7e7ae97e1306b94afcab5d0156c8a7ff8495a980140e4ebb2f524","favicon.svg":"b33e38910db7f167eb595800e4fa779577885204e090115732215704f1be1db5","DESIGN.md":"23cb37aa5f8c5df788d9587f03e8e2b01a2b955f5d26b4862e7f1dc5439e5a96","THIRD_PARTY_NOTICES.md":"e10fafb73c4164f3cc2f5350a0ec70c500ab6417cc935a9140b69e49b74daf60"}};
+const october24Panels = {
+  "kimi-k31-pro-service-weights-speed": {
+    "title": "服务上线、权重交付、任务加速是三件事",
+    "labels": [
+      "今天可用",
+      "稍后交付",
+      "完整任务验收"
+    ],
+    "panels": [
+      [
+        "K3.1 Pro服务",
+        "具体入口核对",
+        "资格不全相同",
+        "不是权重下载"
+      ],
+      [
+        "11月4日前计划",
+        "尚非已完成",
+        "许可另核",
+        "不提前承诺"
+      ],
+      [
+        "生成仅一环",
+        "工具仍需等待",
+        "成本与正确性",
+        "一起比较"
+      ]
+    ],
+    "status": [
+      "10月24日是服务发布日，权重交付仍是未来计划。",
+      "Code资格与API标识分开核对，不能套用同一配置。",
+      "三倍输出速度不等于三倍端到端速度。",
+      "图中耗时练习是合成算例，不是模型实测。"
+    ]
+  },
+  "memt-memory-state-not-runtime": {
+    "title": "记忆很小，不代表整个模型很小",
+    "labels": [
+      "历史信息",
+      "动态记忆",
+      "完整运行资源"
+    ],
+    "panels": [
+      [
+        "虚构新旧偏好",
+        "更新关系",
+        "证据在哪里",
+        "原文另保留"
+      ],
+      [
+        "1000万参数",
+        "每参数4字节",
+        "约40MB算例",
+        "只算状态"
+      ],
+      [
+        "基础模型权重",
+        "缓存与激活",
+        "框架与服务",
+        "不能全部省略"
+      ]
+    ],
+    "status": [
+      "40MB是指定精度下的状态算例，不是模型总显存。",
+      "内部记忆不保证逐字恢复原始证据。",
+      "关闭自动写入不等于删除或停止读取已有记忆。",
+      "研究原型未本站复现，非商业许可须单独审查。"
+    ]
+  },
+  "forty-forest-types-probability-boundary": {
+    "title": "一片绿，可能经历不同的土地变化",
+    "labels": [
+      "树木覆盖",
+      "森林类型",
+      "证据与时间"
+    ],
+    "panels": [
+      [
+        "看起来都绿",
+        "不能只数面积",
+        "重新种植",
+        "不等于天然恢复"
+      ],
+      [
+        "天然林",
+        "人工林与种植园",
+        "作物与其他地",
+        "每类误差不同"
+      ],
+      [
+        "2020基线",
+        "早期年度时序",
+        "概率未校准",
+        "地面证据另核"
+      ]
+    ],
+    "status": [
+      "地图区分土地类型，不只是判断有没有树。",
+      "10米输出网格不保证每处边界都准确到10米。",
+      "全球总体表现不能替代各类和各地区的可靠性。",
+      "本图是概念示意，未使用真实地块或声称本站测量。"
+    ]
+  },
+  "openai-training-containment-offline-world": {
+    "title": "事件发生、恢复运行、对外公告要分开",
+    "labels": [
+      "事件与处置",
+      "环境约束",
+      "证据边界"
+    ],
+    "panels": [
+      [
+        "9月20日事件",
+        "限制与暂停",
+        "10月1日恢复",
+        "10月23日公告"
+      ],
+      [
+        "离线资料环境",
+        "多层隔离",
+        "内层失效假设",
+        "继续检查外层"
+      ],
+      [
+        "企业公开自述",
+        "非独立认证",
+        "非新模型上线",
+        "不推断用户产品"
+      ]
+    ],
+    "status": [
+      "事件与公告相隔一段时间，不把公告日当事件日。",
+      "离线环境是基础设施控制，不只是提示词约束。",
+      "测试发现减少不能证明未来没有漏洞。",
+      "本图描述控制逻辑，不提供突破隔离步骤。"
+    ]
+  },
+  "flux3-klein-full-memory-license": {
+    "title": "文件大小、运行峰值、许可是三份账",
+    "labels": [
+      "模型选择",
+      "运行资源",
+      "验收与许可"
+    ],
+    "panels": [
+      [
+        "基础或蒸馏",
+        "不同数值精度",
+        "生成器5.6B",
+        "编码器未计入"
+      ],
+      [
+        "权重只是部分",
+        "缓存与中间结果",
+        "尺寸和参考图",
+        "峰值实际测量"
+      ],
+      [
+        "只改虚构背景",
+        "主体文字不变",
+        "商业门槛另核",
+        "非本站实测"
+      ]
+    ],
+    "status": [
+      "5.6GB指特定精度生成器权重，不是全部运行显存。",
+      "厂商8GB条件不能外推至所有尺寸与多图任务。",
+      "蒸馏和量化机制不同，效果分别验收。",
+      "开放权重仍受FLUX Kommunity License条件限制。"
+    ]
+  },
+  "fev-legacy-spec-baseline-gates": {
+    "title": "现状、假设与批准需求，不自动跳级",
+    "labels": [
+      "实现证据",
+      "意图待确认",
+      "基线再推进"
+    ],
+    "panels": [
+      [
+        "版本B7",
+        "大于16拒绝",
+        "测试只查17",
+        "现状不是需求"
+      ],
+      [
+        "产品上限未知",
+        "16能否接收",
+        "边界需补证",
+        "保留问题清单"
+      ],
+      [
+        "维护者确认",
+        "语义与追踪审查",
+        "批准后生成测试",
+        "不把猜测入基线"
+      ]
+    ],
+    "status": [
+      "合成实现含16字节判断，不能据此声称产品已批准该上限。",
+      "长度17被拒绝，只支持这一测试观察，不证明全部合法输入正常。",
+      "模型语法与追踪链接通过，仍要检查证据是否支持对应语义。",
+      "这是一份原创纸面练习，不是FEV客户工程或本站复现。"
+    ]
+  },
+  "grab-hubble-doc-review-metrics": {
+    "title": "有说明、已审核、内容正确，分开看",
+    "labels": [
+      "字段与缺口",
+      "草稿与审核",
+      "不同指标"
+    ],
+    "panels": [
+      [
+        "金额12.50",
+        "币种未提供",
+        "时间没有时区",
+        "状态2含义未知"
+      ],
+      [
+        "10张关键表",
+        "原有2张已审",
+        "新增7张草稿",
+        "其中3张已审"
+      ],
+      [
+        "覆盖90%",
+        "已审50%",
+        "正确率仍未知",
+        "不是同一指标"
+      ]
+    ],
+    "status": [
+      "虚构字段只提供值与类型，不足以推断币种、时区或业务状态。",
+      "生成说明必须留下未知项，不能让流畅文字掩盖缺失契约。",
+      "合成计数的覆盖率是90%，已审覆盖率是50%，正确率不能反推。",
+      "Grab自报效果不是本站实测；搜索体验也受排序等其他改动影响。"
+    ]
+  },
+  "redhat-code-docs-review-selection": {
+    "title": "从差异找影响，不顺手改全库",
+    "labels": [
+      "虚构代码变化",
+      "受影响文档",
+      "最小补丁验收"
+    ],
+    "panels": [
+      [
+        "新装默认3改0",
+        "升级保留旧值",
+        "0含义未给出",
+        "别猜禁用语义"
+      ],
+      [
+        "快速入门",
+        "参数参考",
+        "迁移说明",
+        "引脚文档不动"
+      ],
+      [
+        "逐段给依据",
+        "检查复制示例",
+        "保留未知项",
+        "人工审查PR"
+      ]
+    ],
+    "status": [
+      "默认值变化与旧配置迁移是两件事，文档应分别说明。",
+      "先审候选文件再生成最小补丁，不把无关润色混进变更。",
+      "所读工具允许直接运行完整流程，两阶段审批不是天然强制保证。",
+      "本图只解释合成差异，未部署工具或创建真实PR。"
+    ]
+  },
+  "anthropic-proof-scope-binary-contract": {
+    "title": "读清证明契约，再判断能保证什么",
+    "labels": [
+      "具体产物",
+      "有条件的性质",
+      "仍待验证"
+    ],
+    "panels": [
+      [
+        "二进制B1",
+        "固定入口",
+        "模型与预算",
+        "版本必须对应"
+      ],
+      [
+        "排除列出错误",
+        "不是所有正确性",
+        "未证明终止",
+        "不是实时保证"
+      ],
+      [
+        "改变后B2",
+        "协议字段含义",
+        "MCU中断DMA",
+        "需要另外证据"
+      ]
+    ],
+    "status": [
+      "主实验123库239入口与公开仓库25库60入口不能混为同一集合。",
+      "当前公开材料没有终止证明，不应概括成所有输入必然正常退出。",
+      "二进制、入口、模型和预算限定了结论，换平台不能直接套用。",
+      "本图为纸面契约练习，本站未运行Rocq或复现研究结果。"
+    ]
+  }
+}
+;
+
+check('October 24 strictly preserves all87 earlier article objects, independent scenes and runtime assets',()=>{
+ assert.equal(data.posts.length,96);assert.deepEqual(data.posts.slice(9).map(p=>p.id),Object.keys(october24Baseline.posts));assert.deepEqual(data.posts.slice(0,9).map(p=>p.id),october24Ids);
+ for(const [id,hash]of Object.entries(october24Baseline.posts)){const p=data.posts.find(p=>p.id===id);assert.equal(sha256(JSON.stringify(p)),hash,id);const box={window:{}};vm.runInNewContext(visuals,box);assert.equal(sha256(box.window.FieldnoteVisuals.render(p)),october24Baseline.scenes[id],id);}
+ for(const [file,hash]of Object.entries(october24Baseline.files))assert.equal(sha256(read(file)),hash,file);
+});
+check('October 24 articles retain explicit evidence, dates, full details, licenses and pending learning',()=>{
+ for(const id of october24Ids){const p=data.posts.find(p=>p.id===id),t=JSON.stringify(p);assert.equal(p.verifiedAt,'2026-10-24');assert.equal(p.learningStatus,'待学习');assert(p.sources.length&&p.license&&p.maturity&&p.maintenance);assert(p.analysis.length>=5);assert.deepEqual(p.paragraphs,p.summary);assert.deepEqual(p.takeaways,p.steps);assert.equal(p.limitations,p.caveat);assert(p.tryThis.prompt.length>=150);assert(p.tryThis.expected.length>=40);for(const term of ['chatgpt.com/c/','/workspace/','sandbox:','本站实测成功'])assert(!t.includes(term),id+term);assert(/未|不是.*实测/.test(t));}
+
+});
+check('October 24 diagrams have nine distinct original panels and four static accessible notes',()=>{
+ const env=boot({observer:true});const seen=[];for(const id of october24Ids){const n=env.get('#visual-'+id),spec=october24Panels[id];assert(n.textContent.includes(spec.title));assert.equal(n.querySelectorAll('.fv-note').length,4);assert.equal(n.querySelectorAll('.fv-note-list li').length,4);assert.equal(n.querySelectorAll('button').length,0);for(const t of spec.status)assert(n.textContent.includes(t));seen.push(JSON.stringify(spec.panels));}assert.equal(new Set(seen).size,9);
+});
+check('October 24 routes, keyboard focus, copy, bookmark persistence and back-forward preserve behavior',async()=>{
+ for(const id of october24Ids){const p=data.posts.find(p=>p.id===id);const env=boot({observer:true});env.click('[data-category="'+p.category+'"]');assert.equal(env.get('.region-filter').hidden,p.category!=='industry');env.click('#title-'+id+' a');assertView(env,'article');assert.equal(env.document.activeElement.id,'article-title');assert.equal(env.get('#article-title').textContent,p.title);env.click('#article-view [data-copy-prompt]');await env.settle();assert.equal(env.clipboard.at(-1),p.tryThis.prompt);env.click('#article-view [data-save="'+id+'"]');assert.equal(env.get('#article-view [data-save="'+id+'"]').getAttribute('aria-pressed'),'true');env.click('#article-view [data-back]');assertView(env,'feed');env.forward();assertView(env,'article');for(const hash of [C.postHash(id),'#post='+id,'#article/'+id]){const direct=boot({url:'https://example.test/publication/'+hash});assertView(direct,'article');assert.equal(direct.get('#article-title').textContent,p.title);}}
+});
+check('October 24 news separates future delivery, memory budgets, forest probabilities and training events',()=>{
+ const post=id=>data.posts.find(p=>p.id===id), text=id=>JSON.stringify(post(id));
+ assert.equal(post('kimi-k31-pro-service-weights-speed').date,'2026-10-24');
+ for(const term of ['11月4日','Highspeed','thinking','未'])assert(text('kimi-k31-pro-service-weights-speed').includes(term),term);
+ assert(Math.abs((20/3+60+20)-86.6666666667)<1e-8);assert(Math.abs(100/(20/3+60+20)-1.1538461538)<1e-8);
+ for(const term of ['1000万','40MB','36B','PolyForm','缓存','自动'])assert(text('memt-memory-state-not-runtime').includes(term),term);
+ assert.equal(10000000*4/1000000,40);
+ for(const term of ['2020','2017','2025','58.2%','校准','65','84','CC-BY'])assert(text('forty-forest-types-probability-boundary').includes(term),term);
+ for(const term of ['9月20日','10月1日','10月23日','内部','公司'])assert(text('openai-training-containment-offline-world').includes(term),term);
+ for(const term of ['5.6B','8GB','编码器','Kommunity','500万','未'])assert(text('flux3-klein-full-memory-license').includes(term),term);
+});
+check('October 24 company methods preserve specification, review, workflow and theorem boundaries',()=>{
+ const post=id=>data.posts.find(p=>p.id===id),text=id=>JSON.stringify(post(id));
+ assert.equal(post('fev-legacy-spec-baseline-gates').date,'2026-04-14');for(const t of ['现状','假设','批准需求','16','17','未公开'])assert(text('fev-legacy-spec-baseline-gates').includes(t),t);
+ assert.equal(post('grab-hubble-doc-review-metrics').date,'2024-09-26');for(const t of ['90%','50%','币种','时区','正确率'])assert(text('grab-hubble-doc-review-metrics').includes(t),t);assert.equal((2+7)/10,0.9);assert.equal((2+3)/10,0.5);
+ for(const t of ['review-docs','update-docs','Python 3.12','v1.1.2','旧值','未知','MIT'])assert(text('redhat-code-docs-review-selection').includes(t),t);
+ for(const t of ['123','239','25库60','9.2.0','20.1.8','halts','没有证明终止','MCU','二进制'])assert(text('anthropic-proof-scope-binary-contract').includes(t),t);
+ for(const id of ['redhat-code-docs-review-selection','anthropic-proof-scope-binary-contract'])assert(post(id).sources.some(s=>/github.com.*blob\/[0-9a-f]{40}\//.test(s.url)),id);
 });
 
 (async () => {
