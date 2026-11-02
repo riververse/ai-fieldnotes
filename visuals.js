@@ -890,6 +890,14 @@
     scenes[id] = n => ({kind:'evidence',body,title:spec.title,labels:spec.labels,status:spec.status[n % spec.status.length]});
   }
 
+  // November 2: original explanatory scenes, not executed product demonstrations.
+  const november2Scenes = {"pika-h3-flex-local-hosted-deliverables":{"title":"交付包逐项验收","labels":["本地草稿","托管扩展","最终交付"],"panels":[["768p视频","混合立体声","记录版本"],["高分辨率","五条独立音轨","分别核服务"],["镜头版本一致","时长起点对齐","可独立换配乐"]],"status":["本地推理与托管扩展有不同能力，不能由一个产品名推断所有文件已交付。","五轨数量齐全仍需检查来源版本与时间基准；图中没有真实生成结果。","七秒是受控DiT计算记录，不是成片及音轨全部就绪的时间。","模型许可、素材授权与账号可用性各自核对；预告日期不充当开放证明。"]},"rosalind6-same-weights-trusted-access":{"title":"准入证据分开核对","labels":["模型底座","Research准入","工作流范围"],"panels":[["沿用Astra权重","本次无额外训练"],["组织与用户","批准与激活","预览配置另核"],["产品入口","API单独批准","数据用途再审"]],"status":["系统卡的同权重说明不授予任何产品访问或数据使用权限。","Discovery、工作区成员和插件安装均不能替代Research批准。","获批Codex不自动覆盖API与对外服务；各项范围需单独确认。","图中机构均为合成；完成访问核查也不等于科研结论已经验证。"]},"mistral-large4-weights-reasoning-contract":{"title":"迁移时固定比较条件","labels":["交付阶段","推理契约","结果验收"],"panels":[["改进权重已发","API仍标预览"],["三档推理","默认high","预算含推理"],["解析器配套","同配置再比较","许可按用途核"]],"status":["10月29日兑现权重交付，不能据此改写API的生命周期标签。","省略档位会使用默认值，旧None与新high不能直接视作同等投入。","文字返回之外还要核工具结构和结束状态；本图没有执行测试。","MaaS定义及例外以许可原文为准，开放权重不自动覆盖所有商业部署。"]},"grab-palana-proxy-only-identity":{"title":"能调用，不等于能读密钥","labels":["代理请求","网关判断","服务与审计"],"panels":[["携带占位值","身份不可自封","只请求获准工作"],["核可信身份","核目标与方法","真实凭据留此"],["限定资源范围","记录允许拒绝","停止另查撤权"]],"status":["占位值只是客户端配置的一部分，真实凭据由受控组件使用。","身份应来自可信运行上下文，不能靠客户端自报字段提升权限。","密钥未暴露也可能发生越权调用，因此仍需检查操作与资源范围。","合成图不代表安全实测；进程停止、状态保留与权限撤销分别验收。"]},"grab-r8-build-configuration-parity":{"title":"同一源码，先核优化条件","labels":["配置对照","产物对应","行为验证"],"panels":[["QA允许调试","发布禁止调试","源码同为C"],["核工具链","核优化与规则","核映射文件"],["测试路由不变","逼近发布优化","再查加载行为"]],"status":["相同源码不能保证不同优化条件下的产物行为相同。","应用连到测试服务器与编译器采用发布式优化，是不同配置维度。","候选解释需经匹配产物的最小验证，不能由QA绿色结果代替。","图中材料完全虚构；历史性能收益不作为AI或单项优化的因果证明。"]},"microsoft-synthetic-tenant-time-evidence":{"title":"先固定站在哪一天作答","labels":["合成时间线","题目截点","答案与证据"],"panels":[["6日定20日上线","13日改27日","两份材料已标时"],["A截至10日","B截至14日","仅用当时已知"],["A引用M1","B引用M2","未来信息不倒灌"]],"status":["同一项目的决定可以随时间变化，历史问题与当前问题需要不同证据。","截点限定材料可用范围，不能总挑最新文档回答所有问题。","事件、发布和生效时间分开标记，含糊题目先修订再评分。","全图为虚构练习；数据质量、模型准确率与隐私审查是不同事项。"]}};
+  for (const [id,spec] of Object.entries(november2Scenes)) {
+    const panel = (rows,x,w) => coveragePanel(x,24,w,110)+coverageText(x+w/2,44,rows[0],true)+rows.slice(1).map((text,i)=>coverageText(x+w/2,68+i*23,text,true)).join('');
+    const body = art(panel(spec.panels[0],40,124)+coverageRoute()+panel(spec.panels[1],245,166)+panel(spec.panels[2],484,119));
+    scenes[id] = n => ({kind:'evidence',body,title:spec.title,labels:spec.labels,status:spec.status[n % spec.status.length]});
+  }
+
   /* Small, authored optical accents follow the information in each illustration.
    * No random particle field, timers, canvas, filters, SMIL or external assets.
    * Everything animated shares the existing viewport observer's fv-animated hook. */
