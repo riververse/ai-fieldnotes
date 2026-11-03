@@ -898,6 +898,14 @@
     scenes[id] = n => ({kind:'evidence',body,title:spec.title,labels:spec.labels,status:spec.status[n % spec.status.length]});
   }
 
+  // November 3: original unexecuted teaching scenes; existing renderers remain unchanged.
+  const november3Scenes = {"qwen-audio31-interruption-tool-ledger":{"title":"改口之后，答案跟随哪次请求","labels":["用户意图","工具回包","当前答案"],"panels":[["意图 I1 → I2","北京 → 杭州","条件已改变"],["C2 先到：120","C1 后到：350","按调用归属核对"],["采用 C2 / I2","旧结果留档","重复不重播"]],"status":["01 / 用户改口形成新的意图版本；保留每次查询的起点和终点。","02 / 结果带着调用标识返回，网络先后顺序不能替代意图归属。","03 / 迟到和重复结果留作记录，当前回答只使用仍适用的证据。","04 / 取消推理、清空待播音频和停止外部动作分别核对；图中数据为合成练习。"]},"genie4-audio-world-state-audit":{"title":"让动作、画面与声音可以逐项复查","labels":["规定任务","保留观察","检查结论"],"panels":[["移动红盒","关闭收音机","转身再回来"],["R2：红盒复位","R3：仍有节目声","保存原始观察"],["状态冲突","音源仍待查","不推定物理安全"]],"status":["01 / 先固定初始状态、任务和检查点，避免看完演示再改验收标准。","02 / 视角变化后的物体状态与声音分别记录，流畅画面不能补齐缺失证据。","03 / 单次失败保留输入和观察位置；对照只改变一个条件，不编造成功率。","04 / 创意预演与定量工程验证需要不同证据；所有房间记录都是原创合成练习。"]},"infineon-modustoolbox-context-plan-audit":{"title":"生成计划需要带着正确的工程版本","labels":["获批目标","旧计划冲突","补齐证据"],"panels":[["r42 新目标","BOARD_B 修订2","BSP_B 2.1"],["旧板 A / 旧 BSP","LED 映射未知","计划需重新审查"],["补依赖与来源","核对数据流","构建 / 板测待验"]],"status":["01 / 固定本次获批目标，器件、板卡、BSP与输入提交一起记录。","02 / 旧README与生成计划相互一致，也可能同时来源过期；先核对新目标。","03 / 本地分析与整段AI会话的数据流分开检查，未知部分保持待确认。","04 / 规划、构建与板上测试分别保留证据；旧板成功日志不能证明新板通过。"]}};
+  for (const [id,spec] of Object.entries(november3Scenes)) {
+    const panel = (rows,x,w) => coveragePanel(x,24,w,110)+coverageText(x+w/2,44,rows[0],true)+rows.slice(1).map((text,i)=>coverageText(x+w/2,68+i*23,text,true)).join('');
+    const body = art(panel(spec.panels[0],40,124)+coverageRoute()+panel(spec.panels[1],245,166)+panel(spec.panels[2],484,119));
+    scenes[id] = n => ({kind:'evidence',body,title:spec.title,labels:spec.labels,status:spec.status[n % spec.status.length]});
+  }
+
   /* Small, authored optical accents follow the information in each illustration.
    * No random particle field, timers, canvas, filters, SMIL or external assets.
    * Everything animated shares the existing viewport observer's fv-animated hook. */
