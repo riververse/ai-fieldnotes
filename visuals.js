@@ -906,6 +906,14 @@
     scenes[id] = n => ({kind:'evidence',body,title:spec.title,labels:spec.labels,status:spec.status[n % spec.status.length]});
   }
 
+  // November 4: original unexecuted teaching scenes; existing renderers remain unchanged.
+  const november4Scenes = {"apple-intelligence-china-preview-scope":{"title":"把上线安排按阶段核对","labels":["公告日期","开发者测试","正式版计划"],"panels":[["10月31日","发布安排","保留原日期"],["11月4日起","开发者Beta计划","设备版本待核对"],["12月计划","iOS 27.3","不含Siri AI"]],"status":["01 / 公告、测试与正式版各有时间；核验日不替代新闻日期。","02 / 到达计划日期不是实际接入证据，支持设备和系统版本仍要逐项核对。","03 / 千问接入部分体验，本次更新不包含下一代Siri AI。","04 / 这张原创时间线不是升级或实测记录；功能来源与数据处理说明另行核对。"]},"flashprove-identity-request-binding":{"title":"来源材料与本方请求逐项对应","labels":["事前可信承诺","本方请求记录","范围与内容"],"panels":[["模型承诺 K1","配置 F1","先独立保存"],["本方 Q1 → R1","材料 Q2 → R2","记录不同需说明"],["覆盖？策略？","来源另核","算术仍要检查"]],"status":["01 / K1、F1、Q1与R1只是合成标签，不是真实哈希或密码学证明。","02 / 包内自洽不能替代本方请求和回复记录的对应检查。","03 / 精确匹配、容差通过与只覆盖部分回复，支持的结论不同。","04 / 来源能追溯不代表答案正确；两件各300元仍需独立核对合计600元。"]},"mintlify-docs-memory-release-timing":{"title":"代码合并之后，公开时机另行确认","labels":["变化记录","候选文档","反馈与发布"],"panels":[["A代码已合并","功能开关关","日期待确认"],["可准备草稿","不能写已可用","事实与时机分开"],["太早 → 时机","写错 → 事实","确认后再发布"]],"status":["01 / 已合并代码与已对用户开放是两个状态，缺失的发布时间保持待确认。","02 / 草稿可准备，但不能把起草许可解释为公开发布许可。","03 / 评审说太早，先修时机；单位错误则修事实，反馈只作用于对应范围。","04 / 接受率不是正确率；图中A为原创合成例子，未连接任何文档或团队服务。"]}};
+  for (const [id,spec] of Object.entries(november4Scenes)) {
+    const panel = (rows,x,w) => coveragePanel(x,24,w,110)+coverageText(x+w/2,44,rows[0],true)+rows.slice(1).map((text,i)=>coverageText(x+w/2,68+i*23,text,true)).join('');
+    const body = art(panel(spec.panels[0],40,124)+coverageRoute()+panel(spec.panels[1],245,166)+panel(spec.panels[2],484,119));
+    scenes[id] = n => ({kind:'evidence',body,title:spec.title,labels:spec.labels,status:spec.status[n % spec.status.length]});
+  }
+
   /* Small, authored optical accents follow the information in each illustration.
    * No random particle field, timers, canvas, filters, SMIL or external assets.
    * Everything animated shares the existing viewport observer's fv-animated hook. */
