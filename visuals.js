@@ -914,6 +914,22 @@
     scenes[id] = n => ({kind:'evidence',body,title:spec.title,labels:spec.labels,status:spec.status[n % spec.status.length]});
   }
 
+  // November 5: original unexecuted teaching scenes; existing renderers remain unchanged.
+  const november5Scenes = {"hy4-vision-action-result-evidence":{"title":"输入、动作与交付分别核对","labels":["输入理解","动作状态","最终产物"],"panels":[["甲12 / 乙8","单位年份缺失","保持未知"],["提示已保存","目录待核对","不盲目重试"],["只有昨天文件","交付尚未确认","不能宣布完成"]],"status":["01 / 甲12、乙8是合成截图信息；缺失单位和年份不由模型补齐。","02 / 看懂输入和允许执行是两件事，覆盖或外部共享需要对应授权。","03 / 保存提示不是产物验收；要核对目标文件、版本和内容。","04 / 正式版服务与随后交付的权重分开看，Preview文件不会自动升级。"]},"claude-vault-observation-hypothesis-ledger":{"title":"给观察与解释各留一张证据卡","labels":["观察材料","解释假设","摘要修订"],"panels":[["R2修订形状图","审核范围有限","仅支持观察"],["H1运输猜想","尚无功能证据","保留假设"],["S2引用旧R1","旧图已撤回","需要修订"]],"status":["01 / R1、R2与H1是虚构材料编号，不是研究团队的真实实验记录。","02 / 观察到形状，不等于已证明功能；合理解释仍可保留为假设。","03 / 摘要要指向适用版本，已撤回材料不能继续支撑新结论。","04 / 初版用时与项目总周期分别记录；本图不展示实验或独立复现。"]},"openai-hardware-manufacturing-tolerance-audit":{"title":"从名义尺寸走到最坏情况检查","labels":["原始尺寸","间隙计算","审查状态"],"panels":[["板宽40.0±0.2","开口40.5±0.2","单位mm"],["名义间隙0.5","最小间隙0.1","要求至少0.2"],["纸面不满足","CAD未检查","样机未装配"]],"status":["01 / 尺寸全部是原创合成例子，不是厂商图纸或模型输出。","02 / 最小开口40.3减最大板宽40.2，最坏情况总间隙为0.1 mm。","03 / 0.1小于要求0.2 mm，名义上看起来够宽不能替代这一步。","04 / 计算、CAD检查与实物装配分别记录；未执行的检查不写成通过。"]},"nvidia-heph-test-oracle-assumptions":{"title":"先给断言找依据，再讨论执行","labels":["给定要求","量纲检查","设计状态"],"panels":[["两次采样配对","温度可以相同","未给时间上限"],["增量24000","频率24000000","差值1毫秒"],["配对检查可设计","增长要求无依据","测试尚未执行"]],"status":["01 / 相同读数仍可能是两次采样，不能新增温度必须增长的要求。","02 / 合成频率下24000计数对应1毫秒，计数不是微秒。","03 / 换算正确不代表存在时间上限，没有依据的阈值仍待澄清。","04 / 公开片段不是完整项目；纸面审阅不等于产品缺陷或执行结果。"]},"georgia-pacific-tacit-knowledge-conditions":{"title":"经验卡带着设备条件进入查询","labels":["原始访谈","条件与限制","当前问题"],"panels":[["A板 / 1.4","连接恢复","SYNC → READY"],["B板 / 2.1","启动检查","原因未穷尽"],["只说没数据","版本阶段未知","先补条件"]],"status":["01 / A和B是原创合成访谈，不是真实工厂设备、员工或日志。","02 / 相同症状可能来自不同阶段，两位专家的适用范围分别保留。","03 / 版本与阶段缺失时先追问，检索命中只提供线索，不自动诊断。","04 / 整齐文档不是批准规程；参考架构也不是企业内部实现的完整清单。"]}};
+  for (const [id,spec] of Object.entries(november5Scenes)) {
+    const panel = (rows,x,w) => coveragePanel(x,24,w,110)+coverageText(x+w/2,44,rows[0],true)+rows.slice(1).map((text,i)=>coverageText(x+w/2,68+i*23,text,true)).join('');
+    const body = art(panel(spec.panels[0],40,124)+coverageRoute()+panel(spec.panels[1],245,166)+panel(spec.panels[2],484,119));
+    scenes[id] = n => ({kind:'evidence',body,title:spec.title,labels:spec.labels,status:spec.status[n % spec.status.length]});
+  }
+
+  // November 6: original unexecuted explanatory panels.
+  const november6Scenes = {"images26-quality-complexity-delivery":{"title":"从两种参数走到实际交付","labels":["修改目标","参数选择","验收证据"],"panels":[["仅改背景颜色","保留标题时间","保留标记位置"],["quality管细节","complexity管规划","比较只改一项"],["A与B须拒收","C仍缺文件证据","不把预览当交付"]],"status":["01 / 海报及A、B、C均为原创纸面材料，未生成图像。","02 / 固定输入与画质，再讨论复杂度，不编造性能结果。","03 / 背景未改或时间被改都不满足本题验收条件。","04 / 可见内容通过之后，还需检查实际导出文件。"]},"everllence-pid-cross-page-connectivity":{"title":"让跨页连接带着版本与复核记录","labels":["当前图纸","跨页复核","回答范围"],"panels":[["P1/R3出口X7","P2/R3入口X7","旧R2单独保留"],["混配R2须拒收","REV-01确认R3","来源逐段记录"],["图纸路径可述","当前阀位未知","不批准设备动作"]],"status":["01 / 系统S、P1/R3、P2/R3与REV-01都是原创合成材料。","02 / 两处X7同名并不足以连通；先排除不同修订的错配。","03 / REV-01确认后，图纸路径可连到V-2与T-1，仍要保留来源。","04 / 图纸连接不表示当前通流；实时阀位和现场条件没有提供。"]}};
+  for (const [id,spec] of Object.entries(november6Scenes)) {
+    const panel = (rows,x,w) => coveragePanel(x,24,w,110)+coverageText(x+w/2,44,rows[0],true)+rows.slice(1).map((text,i)=>coverageText(x+w/2,68+i*23,text,true)).join('');
+    const body = art(panel(spec.panels[0],40,124)+coverageRoute()+panel(spec.panels[1],245,166)+panel(spec.panels[2],484,119));
+    scenes[id] = n => ({kind:'evidence',body,title:spec.title,labels:spec.labels,status:spec.status[n % spec.status.length]});
+  }
+
   /* Small, authored optical accents follow the information in each illustration.
    * No random particle field, timers, canvas, filters, SMIL or external assets.
    * Everything animated shares the existing viewport observer's fv-animated hook. */
