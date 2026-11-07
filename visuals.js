@@ -930,6 +930,14 @@
     scenes[id] = n => ({kind:'evidence',body,title:spec.title,labels:spec.labels,status:spec.status[n % spec.status.length]});
   }
 
+  // November 7: original unexecuted explanatory panels.
+  const november7Scenes = {"gpt6-cyber-authorized-scope-ledger":{"title":"每个动作都能对回批准单","labels":["批准范围","动作判断","交付记录"],"panels":[["只读材料包A","限定许可时段","本地建议报告"],["甲可整理材料","乙丙丁均越界","缺项先停再问"],["列出已完成","保留拒绝原因","未查项待核"]],"status":["01 / A、B及候选动作均为虚构纸面材料，未访问真实系统。","02 / 产品准入和本次任务授权分别记录，不互相替代。","03 / 范围外动作须停止，不以换入口或换工具绕过。","04 / 结束报告保留未完成项，不把未检查写成安全。"]},"gemini-omni12-revision-budget":{"title":"每轮改片都保留验收记录","labels":["本轮修改","版本复查","交付与预算"],"panels":[["只换浅灰背景","保留数字24","蓝把手向右移"],["A中途数字变","B把手消失","C仍缺连续证据"],["单次估算1.05美元","编辑放大待报价","真实文件待验收"]],"status":["01 / 短片及A、B、C均为原创文字示例，未生成视频。","02 / 首尾正确仍可能中途出错，记录具体时间段。","03 / 后一轮继承保留项，不能让画幅变化掩盖回归。","04 / 单次生成估算不含未知费用，不代表完整交付已通过。"]},"ernie55-base-context-license-check":{"title":"模型、服务、许可各有一张清单","labels":["模型阶段","服务预算","使用条件"],"panels":[["文本预训练底座","助手仍需验证","未下载或运行"],["示例设131072","本题需求136000","超出4928待调整"],["地区用途待核","收入主体待核","不代替商用批准"]],"status":["01 / 预训练阶段有官方依据，助手交付仍需单独设计与验证。","02 / 本题输入输出合计136000，不能由1M能力描述放行。","03 / 资源与许可信息不足，保持待核，不宣称已经部署。","04 / 示例为原创纸面审阅，未下载权重、运行服务或联系厂商。"]},"kimi-hosted-tools-inference-dataflow":{"title":"先问在哪里执行，再问哪些内容返回","labels":["本地主机","返回与推理","报告交付"],"panels":[["日志为虚构材料","提取最少字段","保留事件先后"],["A符合本题规则","B与C夹带信息","云端推理非离线"],["仅规划本地报告","实际文件仍待查","未上传也未运行"]],"status":["01 / 原创纸面数据流，未部署、未联网或调用API。","02 / 本地工具的位置，不能代表所有返回内容的去向。","03 / 字段白名单是本题设计，不是平台默认防护承诺。","04 / 相关线索不等于原因证明，保存计划不等于文件交付。"]}};
+  for (const [id,spec] of Object.entries(november7Scenes)) {
+    const panel = (rows,x,w) => coveragePanel(x,24,w,110)+coverageText(x+w/2,44,rows[0],true)+rows.slice(1).map((text,i)=>coverageText(x+w/2,68+i*23,text,true)).join('');
+    const body = art(panel(spec.panels[0],40,124)+coverageRoute()+panel(spec.panels[1],245,166)+panel(spec.panels[2],484,119));
+    scenes[id] = n => ({kind:'evidence',body,title:spec.title,labels:spec.labels,status:spec.status[n % spec.status.length]});
+  }
+
   /* Small, authored optical accents follow the information in each illustration.
    * No random particle field, timers, canvas, filters, SMIL or external assets.
    * Everything animated shares the existing viewport observer's fv-animated hook. */
