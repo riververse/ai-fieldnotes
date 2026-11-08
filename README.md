@@ -287,3 +287,22 @@ All 215 prior suites retain their substantive assertions; only current edition c
 Four original source-checked articles extend main commit `6546c1ea96801e83125c6ef18b2f7e668d7c0778` from 144 to 148 articles (74 industry, 41 practice, 33 embedded). Coverage separates GPT-6 Cyber access and authorization, Gemini Omni revision acceptance and budget assumptions, ERNIE base-model context and license conditions, and Kimi self-hosted tool execution from cloud data flow. All 144 historical article objects, dates, categories and independently rendered scenes remain exact. No category migration is included. Eight design/runtime/generator files remain byte-identical. No candidate project, model, API, agent, paid generation or hardware was run; all tasks are original synthetic exercises.
 
 All 221 previous suites retain substantive assertions and historical hashes; only current-edition counts, site verification date and prepend offsets advance. Added contracts enforce preservation, source chronology and limitations, arithmetic, accessible scene transcripts, and article interaction paths. The generator ships source, bundle and a coherent resource key together. Dependency-free regression and deterministic rebuild precede publication. Exact remote blobs, exact-commit Pages success, and live desktop/narrow browser content and interaction checks are separate completion gates.
+
+
+## November 8 selective additions
+
+Five original source-checked articles bring the publication to 153 articles
+(77 industry, 42 practice, 34 embedded). All 148 article
+objects from remote commit `3a05c1ea3d31eec56334bbf16dd10e4f3dcd1012` and their
+independent scene renders remain exact. Only the five new articles carry the
+November 8 verification date. Eight design/runtime/generator files stay
+byte-identical. New conceptual scenes reuse existing local helpers and timelines.
+No candidate product, model, development tool, or article exercise was executed.
+
+All 229 prior suites retain their substantive assertions and historical hashes;
+only current edition totals, the site date, and historical prepend offsets move.
+Added contracts cover exact preservation, source chronology, evidence boundaries,
+complete synthetic exercises, automatic accessible scene notes, routing, focus,
+prompt copy, bookmarks, history, and reduced motion. These source/DOM contracts do
+not replace desktop/narrow-browser layout or paint checks, remote blob comparison,
+exact-commit Pages status, or post-publication live content checks.

@@ -938,6 +938,14 @@
     scenes[id] = n => ({kind:'evidence',body,title:spec.title,labels:spec.labels,status:spec.status[n % spec.status.length]});
   }
 
+  // November 8: original unexecuted explanatory panels.
+  const november8Scenes = {"ling32-multimodal-conflict-provenance":{"title":"多模态来源核对","labels":["材料目录","证据冲突","局部更正"],"panels":[["S1：A规格卡","版本1：蓝灯","P1：新版面板","日期与灯色未知"],["V1：00:18绿灯","铭牌无法辨认","不推断A已改版","保留来源编号"],["V2：录像属于B","撤回对A的支持","P1版本仍待核","纸面练习未执行"]],"status":["先登记对象与版本","蓝灯与绿灯不能直接合并","新证据只改相关结论","无真实图像或模型实测"]},"metr-anthropic-rd-acceleration-evidence":{"title":"读懂研发加速报告","labels":["测量","解释","待核"],"panels":[["内部能力指数AECI","比较增长速度","1.9倍估计","95%区间1.5–2.8"],["AI贡献判断","辅助研发为主","归因仍有不确定性","不等于全自动"],["关键证据删节","本站未复现","外推另需证据","保留比较口径"]],"status":["先问两倍指哪项指标","不把区间用于因果归因","公开资料不足以复现全部结果","不据倍率推算未来日期"]},"clion-hardfault-address-origin":{"title":"从故障读取追到地址来源","labels":["同版故障快照","读取地址计算","指针来源待查"],"panels":[["构建 X17","PC 0x08001234","R1 0x40001000"],["R1 + 8","0x40001008","题目保留区"],["基址定义","设备实例表","写入路径待查"]],"status":["A的符号和反汇编来自同一构建。","读取地址与有效BFAR一致，落入题目保留区。","直接故障已解释，指针为何错误仍需材料。","B没有有效BFAR，不能沿用A的定位。所有数据为合成题目。"]},"anthropic-migration-behavior-fixtures":{"title":"保留每个输入的原有行为","labels":["边界输入","迁移规则","对照计划"],"panels":[["0 / false","缺失 / null","编号 0007"],["仅缺失取默认","标签保留顺序","编号保持字符串"],["stdout/stderr","退出码","真实运行未执行"]],"status":["retries为0、enabled为false时应保留；字段缺失才用默认值。","retries为null时按错误约定退出，不能填成3。","反复出现的错误回到共同迁移规则修正。","期望值来自原创题目，尚未运行旧版或新版程序。"]},"astra-task-framing-behavior-parity":{"title":"只换背景，验收清单保持一致","labels":["配对任务","固定清单","分别记录"],"panels":[["甲：安全回归报告","乙：性能回归报告","同一组虚构数据","只做纸面统计"],["有效数值大于10","计数1／命中R2","缺失记录为R3","缺失不能填成0"],["完成情况逐项核对","明确拒绝单独记录","一次差异不猜动机","未运行真实模型"]],"status":["锁定数据，只改变背景表述","看答案之前先固定验收项","失败与拒绝不混成成功","不把纸面题当作模型实测"]}};
+  for (const [id,spec] of Object.entries(november8Scenes)) {
+    const panel = (rows,x,w) => coveragePanel(x,24,w,110)+coverageText(x+w/2,44,rows[0],true)+rows.slice(1).map((text,i)=>coverageText(x+w/2,68+i*23,text,true)).join('');
+    const body = art(panel(spec.panels[0],40,124)+coverageRoute()+panel(spec.panels[1],245,166)+panel(spec.panels[2],484,119));
+    scenes[id] = n => ({kind:'evidence',body,title:spec.title,labels:spec.labels,status:spec.status[n % spec.status.length]});
+  }
+
   /* Small, authored optical accents follow the information in each illustration.
    * No random particle field, timers, canvas, filters, SMIL or external assets.
    * Everything animated shares the existing viewport observer's fv-animated hook. */
