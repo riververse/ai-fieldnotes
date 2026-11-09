@@ -306,3 +306,25 @@ complete synthetic exercises, automatic accessible scene notes, routing, focus,
 prompt copy, bookmarks, history, and reduced motion. These source/DOM contracts do
 not replace desktop/narrow-browser layout or paint checks, remote blob comparison,
 exact-commit Pages status, or post-publication live content checks.
+
+
+## November 9 selective additions
+
+Six original source-checked articles bring the publication to 159 articles
+(81 industry, 43 practice, 35 embedded). All 153 baseline article objects,
+stable IDs, categories, source dates and independently rendered scenes remain
+exact. The additions cover LongCat effective parameters, Claude incremental
+message-thread recovery, Inkling delivery dependencies, Ampersand group turn
+and delivery records, JiTTesting false-positive triage, and STM32 tool evidence.
+Original source dates remain distinct from November 9 verification. Historical
+engineering methods are not presented as new breakthroughs. No category
+migration is included. No candidate product, model, API, toolchain, code exercise
+or hardware was executed. All exercises are original, synthetic paper tasks.
+
+Six original evidence panels reuse the existing local rendering helpers,
+accessible explanatory notes and automatic timelines. Design/runtime/styles,
+the build generator and attribution files remain unchanged. The source JSON,
+generated browser bundle and coherent asset key are built together. Regression
+contracts, browser layout checks, exact remote blob comparison, exact-commit
+Pages status and live verification remain separate checks; this editorial build
+does not itself establish publication or browser/hardware correctness.
