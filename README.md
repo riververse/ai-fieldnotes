@@ -328,3 +328,10 @@ generated browser bundle and coherent asset key are built together. Regression
 contracts, browser layout checks, exact remote blob comparison, exact-commit
 Pages status and live verification remain separate checks; this editorial build
 does not itself establish publication or browser/hardware correctness.
+
+
+## November 10 selective additions
+
+7 original source-checked articles extend the publication to 166 articles (85 industry, 45 practice, 36 embedded). They distinguish public source dates from the November 10 verification date, retain pending-learning status, and provide original synthetic exercises and article-specific explanatory scenes. Undated rolling documents retain a null source date. No candidate software, model, API, or hardware was run.
+
+All 159 earlier article objects and independently rendered scenes remain exact against commit 35ca4c7a10a3b5d1521ee010da7d1bc196572a02. Eight design/runtime/generator files stay byte-identical. All 251 prior suites retain their substantive assertions and historical preservation hashes; only current totals, the selective site verification date, and prepend offsets advance. Additional preservation, editorial, scene, route, motion, and evidence-boundary checks cover this edition. The dependency-free suite validates source and DOM contracts; actual browser layout, deployed content, and exact-commit publication remain separate gates.
