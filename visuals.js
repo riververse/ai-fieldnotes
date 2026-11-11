@@ -962,6 +962,14 @@
     scenes[id] = n => ({kind:'evidence',body,title:spec.title,labels:spec.labels,status:spec.status[n % spec.status.length]});
   }
 
+  // November 11: original unexecuted explanatory panels.
+  const november11Scenes = {"minimax-h3-image-retry-billing-receipt":{"title":"超时之后，请求仍可能完成","labels":["发出请求","结果未知","人工核对"],"panels":[["记录请求编号","保存模型与尺寸","关闭盲目重试"],["连接已经断开","生成未必停止","成功仍会计费"],["查看已有记录","核实结果与费用","再决定是否重发"]],"status":["客户端超时不能证明服务端失败","重复请求可能生成另一张图并再次计费","文件大小不能直接当成完整显存需求","示意只解释文档规则，未实际调用服务"]},"gemini4-carbon-ga-thinking-output-budget":{"title":"一次任务，有三份记录","labels":["输入与设置","思考与答案","验收与费用"],"panels":[["固定输入材料","记录思考档位","确定总量上限"],["思考占用预算","答案也需空间","长输出用后台"],["检查完成状态","核对总token","按质量算成本"]],"status":["Carbon已从受限试用扩大到付费API等入口","思考与可见答案共同占用输出上限","后台模式本身不会自动提高64K上限","促销单价和实际任务用量应分开记录"]},"claude-data-certified-query-sharing-access":{"title":"认证口径，共享结果","labels":["查看查询","确认认证","检查收件人"],"panels":[["统计哪些订单","排除哪些状态","标明刷新时间"],["谁批准此版本","修改后重新审","徽章只指批准"],["采用谁的连接","谁能看到结果","是否超出授权"]],"status":["查询可获认证，但指标含义仍需人工核对","修改已认证查询会移除认证状态","实时共享可能让无源权限的人看到结果","产品正式开放与附属beta功能应分别标注"]},"chatgpt-business-agent-representation-source-boundary":{"title":"一次比较，保留三种来源","labels":["商家资料","代理回答","购买前核实"],"panels":[["产品与价格","库存更新时间","资料提供方"],["代表哪家企业","回答引用何处","条件是否完整"],["查实际规格","确认总费用","保留退换条件"]],"status":["Business Agent代表商家而非独立评测机构","企业认领资格和代理资格需要分别确认","聚合参与指标不等于商家收到完整聊天","例子中的商品、价格和承诺均为虚构"]},"coop-translator-markdown-boundary-review":{"title":"语序可变，结构与含义分别检查","labels":["合理换序","代码移列","含义译反"],"panels":[["参数仍在操作列","毫秒单位保留","等待之后再试"],["参数跑到备注列","全文搜索仍命中","结构检查须拦截"],["参数与列均未变","之后变成之前","技术含义需复核"]],"status":["先记录代码所属边界","允许句内自然语序变化","自动检查不证明语义准确","源文件更新后复查人工修改"]}};
+  for (const [id,spec] of Object.entries(november11Scenes)) {
+    const panel = (rows,x,w) => coveragePanel(x,24,w,110)+coverageText(x+w/2,44,rows[0],true)+rows.slice(1).map((text,i)=>coverageText(x+w/2,68+i*23,text,true)).join('');
+    const body = art(panel(spec.panels[0],40,124)+coverageRoute()+panel(spec.panels[1],245,166)+panel(spec.panels[2],484,119));
+    scenes[id] = n => ({kind:'evidence',body,title:spec.title,labels:spec.labels,status:spec.status[n % spec.status.length]});
+  }
+
   /* Small, authored optical accents follow the information in each illustration.
    * No random particle field, timers, canvas, filters, SMIL or external assets.
    * Everything animated shares the existing viewport observer's fv-animated hook. */
