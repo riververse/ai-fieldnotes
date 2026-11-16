@@ -342,3 +342,13 @@ All 159 earlier article objects and independently rendered scenes remain exact a
 5 original source-checked articles extend the publication to 171 articles (89 industry, 45 practice, 37 embedded). They distinguish public source dates from the November 11 verification date, retain pending-learning status, and provide original synthetic exercises and article-specific explanatory scenes. Undated rolling documents retain a null source date. No candidate software, model, API, or hardware was run.
 
 All 166 earlier article objects and independently rendered scenes remain exact against commit 080744ff849f37eef0ad8e140063920e58debfe6. Eight design/runtime/generator files stay byte-identical. All 264 prior suites retain their substantive assertions and historical preservation hashes; only current totals, the selective site verification date, and prepend offsets advance. Additional preservation, editorial, scene, route, motion, and evidence-boundary checks cover this edition. The dependency-free suite validates source and DOM contracts; actual browser layout, deployed content, and exact-commit publication remain separate gates.
+
+
+### 2026-11-12 内容维护
+
+新增 Qwen4 限时预览、Control Room 停止机制、Claude 同屏工具、TI 迁移上下文及 AlphaGenome 2 五篇原创解读。保留原有 171 篇文章、稳定 ID 与独立图解；共 176 篇。来源日期与核验日期分开，新内容均待学习、未经本站运行复现。增加五篇的独立图解、路由、复制、收藏、返回及减少动态回归检查。
+
+
+### November selective continuation
+
+181 articles. Source verification dates stay per article; prior post objects and scenes are unchanged. No category migration. Source, generated bundle and asset keys are prepared together. Site regression checks do not establish visual QA, deployment, or candidate-product testing.
