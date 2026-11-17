@@ -352,3 +352,8 @@ All 166 earlier article objects and independently rendered scenes remain exact a
 ### November selective continuation
 
 181 articles. Source verification dates stay per article; prior post objects and scenes are unchanged. No category migration. Source, generated bundle and asset keys are prepared together. Site regression checks do not establish visual QA, deployment, or candidate-product testing.
+
+
+## November 17 selective additions
+
+8 additions; 189 articles (100 industry, 50 practice, 39 embedded). All 181 articles and freshly rendered original scenes from e0e85a2feac9dca77a0484a42524341f7fb66771 are preserved exactly. Actual source and verification dates remain separate. New articles retain pending-learning and unexecuted-evidence boundaries, with authored accessible explanatory scenes. Existing regression assertions remain; only edition counters, display date and prepend offsets advance. No category migration or runtime/design rewrite. Full regression, browser QA and exact-commit deployment are separate checks.
