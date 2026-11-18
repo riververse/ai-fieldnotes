@@ -357,3 +357,8 @@ All 166 earlier article objects and independently rendered scenes remain exact a
 ## November 17 selective additions
 
 8 additions; 189 articles (100 industry, 50 practice, 39 embedded). All 181 articles and freshly rendered original scenes from e0e85a2feac9dca77a0484a42524341f7fb66771 are preserved exactly. Actual source and verification dates remain separate. New articles retain pending-learning and unexecuted-evidence boundaries, with authored accessible explanatory scenes. Existing regression assertions remain; only edition counters, display date and prepend offsets advance. No category migration or runtime/design rewrite. Full regression, browser QA and exact-commit deployment are separate checks.
+
+
+## November 18 selective additions
+
+8 additions; 197 articles (105 industry, 51 practice, 41 embedded). All 189 earlier article objects, raw source entries, ordering and original rendered scenes from 176e370f4e06ad10dc068fd9dc1b19b323693024 are preserved exactly. Source dates and the November 18 verification date remain separate; the month-only Silicon Labs source retains a null exact date. New articles retain pending-learning status and unexecuted-evidence boundaries, with original synthetic exercises and accessible article-specific explanatory scenes. All prior regression suites and historical hashes remain; only edition totals, display date and prepend offsets advance, with five new edition suites. No category migration or runtime/design rewrite. Deterministic build, regression results, browser QA and exact-commit deployment are separate checks.
